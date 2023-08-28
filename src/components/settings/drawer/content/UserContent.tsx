@@ -240,7 +240,7 @@ const UserContent = forwardRef<
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Login failed. Please try again.");
+            Toast.error("Please try again.");
           } else {
             Toast.error(data);
           }
@@ -576,6 +576,8 @@ const UserContent = forwardRef<
             <Text
               label="First Name"
               placeholder="Enter First Name"
+              noNumeric
+              noSpecialChar
               validate
               value={firstName}
               minChar={3}
@@ -587,6 +589,8 @@ const UserContent = forwardRef<
             <Text
               label="Last Name"
               placeholder="Enter Last Name"
+              noNumeric
+              noSpecialChar
               validate
               value={lastName}
               maxChar={50}
@@ -693,6 +697,7 @@ const UserContent = forwardRef<
             <Text
               label="First Name"
               placeholder="Enter First Name"
+              noSpecialChar
               value={clientFirstName}
               validate
               maxChar={50}
@@ -703,6 +708,7 @@ const UserContent = forwardRef<
             <Text
               label="Last Name"
               placeholder="Enter Last Name"
+              noSpecialChar
               value={clientLastName}
               validate
               maxChar={50}

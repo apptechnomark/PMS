@@ -4,106 +4,69 @@ import React, { useEffect, useState } from "react";
 import { CheckBox, DataTable, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
-import { log } from "console";
 
 const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
   const [data, setData] = useState<any>([]);
   const [isAction, setIsAction] = useState<string>("")
-
-  const columns = [
-    { header: "NAME", accessor: "Name", sortable: false },
-    { header: "", accessor: "IsView", sortable: false },
-    {}, {}
-  ]
-
+  const [checkboxStates, setCheckboxStates] = useState<{ [id: string]: boolean }>({});
 
   const getLargestArray = (arr: any) => {
     let index = 0;
     let arrLength = arr && arr[index]?.ActionList.length;
     arr?.forEach((a: any, i: number) => {
-
       if (a.ActionList.length > arrLength) {
         arrLength = a?.ActionList.length;
         index = i;
       }
     })
     return arr && arr[index]?.ActionList;
-
-
   }
 
-  const getCheckbox = (list:any) => {
+  const handleCheckboxChange = (actionId: string) => {
+    setCheckboxStates((prevStates) => ({
+      ...prevStates,
+      [actionId]: !prevStates[actionId],    }));
+  };
+
+  const getCheckbox = (actionList: any) => {
+    return actionList?.sort((a: any, b: any) => b.ActionName.localeCompare(a.ActionName)).map((Name: any, index: number) => { return <CheckBox checked={Name.IsChecked} onChange={() => handleCheckboxChange(Name.Id)} id={Math.random().toString()} label={Name.ActionName} key={index} /> });
+  };
+
+  function generateColumns(data: any) {
+    const largestChildArray = getLargestArray(data);
+    const columns = [
+      { header: "", accessor: "Name", sortable: false },
+      ...(largestChildArray ? largestChildArray.map((child: any, index: number) => ({ header: "", accessor: index, sortable: false })) : [])
+    ];
+
+    return columns;
+    ;
   }
-console.log(data[0]?.Children)
-  // getCheckbox()
+
   let tableData: any[] = data.map((i: any) => {
-    const isViewChecked = i.IsView;
-
-
+    const isViewChecked = i.ActionList;
     return {
       ...i,
-      IsView: (
-        <>
-          <CheckBox
-            id={`view_${i.Id}`}
-            checked={isViewChecked}
-            onChange={(e) => {
-              handlePermissionChange(i.Id, isAction, e.target.checked);
-            }}
-
-          />
-          <label className="ml-2">{isAction}</label>
-        </>
-      ),
+      ...getCheckbox(isViewChecked),
 
       details: i.Children.length > 0 && (
         <div className="ml-12">
 
           <DataTable
-            columns={[{ header: "Name", accessor: "name", sortable: false }, ...getLargestArray(i?.Children).map((child:any) => new Object({ header: child.ActionName, accessor: child.ActionName, sortable: false }))]}
-            data={i.Children.map(({Name,ActionList,...more}: any, index: number) => new Object({name:Name}))}
+            columns={[{ header: "", accessor: "name", sortable: false }, ...getLargestArray(i?.Children).map((child: any, index: number) =>
+              new Object({ header: "", accessor: index, sortable: false }
+              ))]}
+            data={i.Children.map(({ Name, ActionList, ...more }: any, index: number) =>
+              new Object({
+                name: Name,
+                ...getCheckbox(ActionList),
+              })
+            )}
           />
         </div>
       ),
     };
   });
-
-  console.log("data", data[1]?.Children);
-
-
-  const handleDetailPermissionChange = (
-    parentId: number,
-    childId: number,
-    permissionType: string,
-    checked: boolean
-  ) => {
-    const newData = data.map((item: any) =>
-      item.Id === parentId
-        ? {
-          ...item,
-          Children: item.Children.map((i: any) => {
-            return i.Id === childId
-              ? { ...i, [permissionType]: checked }
-              : { ...i };
-          }),
-        }
-        : item
-    );
-    setData(newData);
-    sendDataToParent(newData);
-  };
-
-  const handlePermissionChange = (
-    id: number,
-    field: string,
-    value: boolean
-  ) => {
-    const newData = data.map((item: any) =>
-      item.Id === id ? { ...item, [field]: value } : item
-    );
-    setData(newData);
-    sendDataToParent(newData);
-  };
 
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -168,8 +131,9 @@ console.log(data[0]?.Children)
     <div
       className={`${tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"}`}
     >
+
       {data.length > 0 && (
-        <DataTable expandable columns={columns} data={tableData} />
+        <DataTable expandable columns={generateColumns(data)} data={tableData} />
       )}
       {tableData.length === 0 && (
         <p className="flex justify-center items-center py-[17px] text-[14px]">

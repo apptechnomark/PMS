@@ -144,6 +144,7 @@ const StatusContent = forwardRef<
               }  successfully.`
             );
           } else {
+            setLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");

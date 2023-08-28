@@ -10,6 +10,7 @@ import Settings from "../../assets/icons/SettingsIcon";
 import Reports from "../../assets/icons/ReportsIcon";
 import MenuIcon from "../../assets/icons/MenuIcon";
 import Pabs from "../../assets/icons/Pabs";
+import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -121,7 +122,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
                 isCollapsed ? "pr-[5vw] pl-[1vw]" : "pr-[15vw] pl-[2.13vw]"
               } text-[#0592C6] font-medium text-[24px] lg:border-b border-[#E6E6E6]`}
             >
-              {isCollapsed ? <Pabs width="50" height="36" /> : <Pabs height="36" />}
+              {isCollapsed ? <PabsCollapse width="50" height="36" /> : <Pabs height="36" />}
             </span>
             <span className="lg:hidden">
               <button

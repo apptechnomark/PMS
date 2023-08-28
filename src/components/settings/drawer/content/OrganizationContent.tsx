@@ -47,7 +47,7 @@ const OrganizationContent = forwardRef<
     const [organizationNameError, setOrganizationNameError] = useState(false);
     const [organizationNameHasError, setOrganizationNameHasError] =
       useState(false);
-      const [loader, setLoader] = useState(false);
+    const [loader, setLoader] = useState(false);
 
     useEffect(() => {
       if (orgData && onEdit) {
@@ -263,6 +263,7 @@ const OrganizationContent = forwardRef<
             </Typography>
             <div className="max-w-[150px]">
               <Text
+                noSpecialChar
                 getValue={(e: any) => setClientName(e)}
                 placeholder="Clients"
                 getError={(e) => setClientNameError(e)}
@@ -278,6 +279,7 @@ const OrganizationContent = forwardRef<
             </Typography>
             <div className="max-w-[150px]">
               <Text
+                noSpecialChar
                 getValue={(e: any) => setProjectName(e)}
                 placeholder="Project"
                 getError={(e) => setProjectNameError(e)}
@@ -293,6 +295,7 @@ const OrganizationContent = forwardRef<
             </Typography>
             <div className="max-w-[150px]">
               <Text
+                noSpecialChar
                 getValue={(e: any) => setProcessName(e)}
                 placeholder="Process"
                 getError={(e) => setProcessNameError(e)}
@@ -308,6 +311,7 @@ const OrganizationContent = forwardRef<
             </Typography>
             <div className="max-w-[150px]">
               <Text
+                noSpecialChar
                 getValue={(e: any) => setSubProcessName(e)}
                 placeholder="Subprocess"
                 getError={(e) => setSubProcessNameError(e)}

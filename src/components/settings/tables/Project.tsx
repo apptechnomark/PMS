@@ -285,7 +285,7 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("Project deleted successfully.");
+            Toast.success("Project has been deleted successfully!");
             getData();
           } else {
             const data = response.data.Message;

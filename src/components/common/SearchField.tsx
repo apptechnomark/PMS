@@ -40,7 +40,7 @@ const SearchField: React.FC<MyComponentProps> = ({ data }) => {
         value={searchTerm}
         placeholder="Please enter value"
         onChange={handleSearch}
-        getValue={() => console.log("hello")}
+        getValue={() => {}}
         getError={() => {}}
       />
       <span className="absolute text-[14px] top-4 right-2">

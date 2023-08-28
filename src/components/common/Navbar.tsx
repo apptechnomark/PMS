@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import NotificationIcon from "@/assets/icons/NotificationIcon";
-import { Avatar, Button } from "next-ts-lib";
+import { Avatar, Button, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Dropdown from "./Dropdown";
@@ -12,6 +12,8 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
   const router = useRouter();
   const [orgData, setOrgData] = useState([]);
   const [openLogout, setOpenLogout] = useState(false);
+  const [userData, setUserData] = useState<any>([]);
+  const [roleDropdownData, setRoleDropdownData] = useState([]);
   const selectRef = useRef<HTMLDivElement>(null);
 
   let token: any;
@@ -20,6 +22,43 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
   }
 
   let options: any[] = [];
+
+  const getData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.get(
+        `${process.env.pms_api_url}/Role/GetDropdown`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setRoleDropdownData(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again later.");
+          } else {
+            Toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getUserDetails = async () => {
     try {
@@ -32,6 +71,7 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
         { headers: headers }
       );
       if (response.status === 200) {
+        setUserData(response.data.ResponseData);
         setOrgData(response.data.ResponseData.Organizations);
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
@@ -51,6 +91,7 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
             response.data.ResponseData.Organizations[0].OrganizationName
           );
         }
+        getData();
       } else if (response.status === 401) {
         router.push("/login");
         localStorage.clear();
@@ -60,7 +101,7 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
 
   const fetchData = async () => {
     const fetchedData = await getUserDetails();
-    onUserDetailsFetch(() => fetchData()); // Here you are treating onUserDetailsFetch as a function
+    onUserDetailsFetch(() => fetchData());
   };
 
   useEffect(() => {
@@ -118,9 +159,25 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
       ) : null}
       <span className="flex items-center gap-[30px]">
         <NotificationIcon />
-        <div ref={selectRef} className="flex items-center justify-center flex-col relative">
-          <span onClick={() => setOpenLogout(!openLogout)}>
-            <Avatar />
+        <div className="flex flex-col -m-2">
+          <span className="inline-block text-base font-semibold text-darkCharcoal">
+            {userData?.FirstName} {userData?.LastName}
+          </span>
+          <span className="inline-block text-base font-semibold text-darkCharcoal">
+            {roleDropdownData.map((i: any) => {
+              return i.value === userData.RoleId && i.label;
+            })}
+          </span>
+        </div>
+        <div
+          ref={selectRef}
+          className="flex items-center justify-center flex-col relative"
+        >
+          <span
+            onClick={() => setOpenLogout(!openLogout)}
+            className="cursor-pointer"
+          >
+            <Avatar name={`${userData.FirstName} ${userData.LastName}`} />
           </span>
           {openLogout && (
             <div

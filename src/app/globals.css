@@ -6,3 +6,8 @@
 ::-webkit-scrollbar{
     width: 0px;
 }
+
+/* For time logo hide */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: none;
+}

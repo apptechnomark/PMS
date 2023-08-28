@@ -7,6 +7,7 @@ import { Button, Loader, Password, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Footer from "@/components/common/Footer";
+import Pabs from "@/assets/icons/Pabs";
 
 const page = () => {
   const router = useRouter();
@@ -50,10 +51,18 @@ const page = () => {
           } else {
             setMessage(false);
             const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again later.");
+            if (data === null && response.data.ErrorData.ErrorCode === "1003") {
+              Toast.error("Invalid link.");
+              router.push("/login");
+            } else if (
+              data === null &&
+              response.data.ErrorData.ErrorCode === "1004"
+            ) {
+              Toast.error("Link has been Expired.");
+              router.push("/login");
             } else {
               Toast.error(data);
+              router.push("/login");
             }
             setShowPass(true);
           }
@@ -62,7 +71,7 @@ const page = () => {
           setMessage(true);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Login failed. Please try again.");
+            Toast.error("Please try again.");
           } else {
             Toast.error(data);
           }
@@ -119,7 +128,6 @@ const page = () => {
             setClicked(false);
             const data = response.data.Message;
             if (data === null) {
-              console.log(response.data.ResponseData);
               Toast.success("Password set successfully.");
             } else {
               Toast.success(data);
@@ -165,7 +173,7 @@ const page = () => {
       ) : (
         <div className="flex flex-col justify-between min-h-screen">
           <div className="flex items-center flex-col mt-[100px]">
-            <div className="text-[#333333] text-3xl">PMS</div>
+            <Pabs width="150" height="50" />
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
               <span className="pb-[25px] text-primary font-bold text-xl lg:text-2xl mx-5 sm:mx-auto">
                 Please set a password for your account.

@@ -190,8 +190,8 @@ const ClientContent = forwardRef<
         setAccLayout(i.LayoutId);
         setAccContHrs(i.ContractHrs);
         setAccActHrs(i.InternalHrs);
-        setAccContHrsHasErr(true);
-        setAccActHrsHasErr(true);
+        accContHrs > 0 && setAccContHrsHasErr(true);
+        accActualHrs > 0 && setAccActHrsHasErr(true);
         setAccBillingHasErr(true);
         setAccGroupHasErr(true);
         setAccLayoutHasErr(true);
@@ -206,8 +206,8 @@ const ClientContent = forwardRef<
         setAuditLayout(i.LayoutId);
         setAuditContHrs(i.ContractHrs);
         setAuditActHrs(i.InternalHrs);
-        setAuditContHrsHasErr(true);
-        setAuditActHrsHasErr(true);
+        auditContHrs > 0 && setAuditContHrsHasErr(true);
+        auditActualHrs > 0 && setAuditActHrsHasErr(true);
         setAuditBillingHasErr(true);
         setAuditGroupHasErr(true);
         setAuditLayoutHasErr(true);
@@ -221,33 +221,32 @@ const ClientContent = forwardRef<
 
   const handleAccContHrs = (e: any) => {
     if (e.length <= 5) {
-      setAccContHrsErr(false);
+      // setAccContHrsErr(false);
       setAccContHrs(e);
     }
   };
 
   const handleAccActualHrs = (e: any) => {
     if (e.length <= 5) {
-      setAccActHrs(false);
+      // setAccActHrsErr(false);
       setAccActHrs(e);
     }
   };
 
   const handleAuditContHrs = (e: any) => {
     if (e.length <= 5) {
-      setAuditContHrsErr(false);
+      // setAuditContHrsErr(false);
       setAuditContHrs(e);
     }
   };
 
   const handleAuditActHrs = (e: any) => {
     if (e.length <= 5) {
-      setAuditActHrsErr(false);
+      // setAuditActHrsErr(false);
       setAuditActHrs(e);
     }
   };
 
-  // Function to check if all fields in at least one work type are filled
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
@@ -255,33 +254,22 @@ const ClientContent = forwardRef<
     address.trim().length <= 0 && setAddressError(true);
     email.trim().length <= 0 && setEmailError(true);
 
-    if (accounting === true) {
-      accContHrs <= 0 && setAccContHrsErr(true);
-      accContHrs <= 0 && setAccContHrsErrMsg("This is a required field.");
-      accActualHrs <= 0 && setAccActHrsErr(true);
-      accActualHrs <= 0 && setAccActualHrsErrMsg("This is a required field.");
-      accBillingType <= 0 && setAccBillingErr(true);
-      accGroup.length === 0 && setAccGroupErr(true);
-      accLayout <= 0 && setAccLayoutErr(true);
-
-      if (accActualHrs > accContHrs) {
-        setAccActHrsErr(true);
-        setAccActualHrsErrMsg("Actual Hours should less than conracted hours.");
-      } else if (
-        accActualHrs < 0 ||
-        accActualHrs === "0" ||
-        accActualHrs === "00" ||
-        accActualHrs === "000" ||
-        accActualHrs === "0000" ||
-        accActualHrs === "00000"
-      ) {
-        setAccActHrsErr(true);
-        setAccActualHrsErrMsg(`Actual Hours should not be ${accActualHrs}.`);
+    if (accounting) {
+      if (accBillingType <= 0) {
+        setAccBillingErr(true);
+      }
+      if (accGroup.length === 0) {
+        setAccGroupErr(true);
+      }
+      if (accLayout <= 0) {
+        setAccLayoutErr(true);
       }
 
-      if (
-        accContHrs < 0 ||
-        accContHrs === "0" ||
+      if (accContHrs < 0) {
+        setAccContHrsErr(true);
+        setAccContHrsErrMsg("Contracted Hours must be greater than 0.");
+      } else if (
+        accContHrs === 0 ||
         accContHrs === "00" ||
         accContHrs === "000" ||
         accContHrs === "0000" ||
@@ -290,40 +278,47 @@ const ClientContent = forwardRef<
         setAccContHrsErr(true);
         setAccContHrsErrMsg(`Contracted Hours should not be ${accContHrs}.`);
       }
+
+      if (accActualHrs < 0) {
+        setAccActHrsErr(true);
+        setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
+        return false;
+      } else if (Number(accActualHrs) > Number(accContHrs)) {
+        setAccActHrsErr(true);
+        setAccActualHrsErrMsg(
+          "Internal Hours should be less than or equal to contracted hours."
+        );
+        return false;
+      } else if (
+        accActualHrs === 0 ||
+        accActualHrs === "00" ||
+        accActualHrs === "000" ||
+        accActualHrs === "0000" ||
+        accActualHrs === "00000"
+      ) {
+        setAccActHrsErr(true);
+        setAccActualHrsErrMsg(`Internal Hours should not be ${accActualHrs}.`);
+        return false;
+      }
     }
 
-    if (audit === true) {
-      auditContHrs <= 0 && setAuditContHrsErr(true);
-      auditContHrs <= 0 && setAuditContHrsErrMsg("This is a required field.");
-      auditActualHrs <= 0 && setAuditActHrsErr(true);
-      auditActualHrs <= 0 &&
-        setAuditActualHrsErrMsg("This is a required field.");
-      auditBillingType <= 0 && setAuditBillingErr(true);
-      auditGroup.length === 0 && setAuditGroupErr(true);
-      auditLayout <= 0 && setAuditLayoutErr(true);
-
-      if (auditActualHrs > auditContHrs) {
-        setAuditActHrsErr(true);
-        setAuditActualHrsErrMsg(
-          "Actual Hours should less than conracted hours."
-        );
-      } else if (
-        auditActualHrs < 0 ||
-        auditActualHrs === "0" ||
-        auditActualHrs === "00" ||
-        auditActualHrs === "000" ||
-        auditActualHrs === "0000" ||
-        auditActualHrs === "00000"
-      ) {
-        setAuditActHrsErr(true);
-        setAuditActualHrsErrMsg(
-          `Actual Hours should not be ${auditActualHrs}.`
-        );
+    if (audit) {
+      if (auditBillingType <= 0) {
+        setAuditBillingErr(true);
+      }
+      if (auditGroup.length === 0) {
+        setAuditGroupErr(true);
+      }
+      if (auditLayout <= 0) {
+        setAuditLayoutErr(true);
       }
 
-      if (
-        auditContHrs < 0 ||
-        auditContHrs === "0" ||
+      if (auditContHrs < 0) {
+        setAuditContHrsErr(true);
+        setAuditContHrsErrMsg("Contracted Hours must be greater than 0.");
+        return false;
+      } else if (
+        auditContHrs === 0 ||
         auditContHrs === "00" ||
         auditContHrs === "000" ||
         auditContHrs === "0000" ||
@@ -334,32 +329,49 @@ const ClientContent = forwardRef<
           `Contracted Hours should not be ${auditContHrs}.`
         );
       }
+
+      if (auditActualHrs < 0) {
+        setAuditActHrsErr(true);
+        setAuditActualHrsErrMsg("Internal Hours must be greater than 0.");
+        return false;
+      } else if (Number(auditActualHrs) > Number(auditContHrs)) {
+        setAuditActHrsErr(true);
+        setAuditActualHrsErrMsg(
+          "Internal Hours should be less than or equal to contracted hours."
+        );
+        return false;
+      } else if (
+        auditActualHrs === 0 ||
+        auditActualHrs === "00" ||
+        auditActualHrs === "000" ||
+        auditActualHrs === "0000" ||
+        auditActualHrs === "00000"
+      ) {
+        setAuditActHrsErr(true);
+        setAuditActualHrsErrMsg(
+          `Internal Hours should not be ${auditActualHrs}.`
+        );
+        return false;
+      }
     }
 
-    if (
-      accounting === true &&
+    const accHasError =
+      accounting &&
       accContHrsHasErr &&
       accActualHrsHasErr &&
       accBillingHasErr &&
       accGroupHasErr &&
-      accLayoutHasErr
-    ) {
-      setAccHasError(true);
-    }
+      accLayoutHasErr;
 
-    if (
-      audit === true &&
+    const auditHasError =
+      audit &&
       auditActualHrsHasErr &&
       auditContHrsHasErr &&
       auditBillingHasErr &&
       auditGroupHasErr &&
-      auditLayoutHasErr
-    ) {
-      setAuditHasError(true);
-    }
+      auditLayoutHasErr;
 
-    accounting === true &&
-      accHasError &&
+    if (accounting && accHasError) {
       workTypeAccData.push({
         ClientWorkTypeId: accountingId,
         workTypeId: 1,
@@ -369,9 +381,9 @@ const ClientContent = forwardRef<
         internalHrs: accActualHrs,
         contractHrs: accContHrs,
       });
+    }
 
-    audit === true &&
-      auditHasError &&
+    if (audit && auditHasError) {
       workTypeAuditData.push({
         ClientWorkTypeId: auditId,
         WorkTypeId: 2,
@@ -381,6 +393,7 @@ const ClientContent = forwardRef<
         InternalHrs: auditActualHrs,
         ContractHrs: auditContHrs,
       });
+    }
 
     if (
       emailHasError &&
@@ -396,7 +409,7 @@ const ClientContent = forwardRef<
       !accounting &&
       !audit
     ) {
-      Toast.error("Please Select atleast one worktype.");
+      Toast.error("Please Select at least one work type.");
     }
   };
 
@@ -795,6 +808,7 @@ const ClientContent = forwardRef<
                   hasError={accBillingErr}
                   validate
                   errorClass="!-mt-[15px]"
+                  search
                 />
                 <MultiSelectChip
                   type="checkbox"
@@ -834,15 +848,14 @@ const ClientContent = forwardRef<
                   getError={(e) => setAccContHrsHasErr(e)}
                   hasError={accContHrsErr}
                   errorMessage={accContHrsErrMsg}
-                  noSpecialChar
                   noText
                   onWheel={(e) => e.currentTarget.blur()}
                 />
                 <Text
                   className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   type="number"
-                  label="Actual Hours"
-                  placeholder="Enter Total Actual Hours"
+                  label="Internal Hours"
+                  placeholder="Enter Total Internal Hours"
                   validate
                   maxLength={5}
                   value={accActualHrs === 0 ? "" : accActualHrs}
@@ -850,7 +863,6 @@ const ClientContent = forwardRef<
                   getError={(e) => setAccActHrsHasErr(e)}
                   hasError={accActualHrsErr}
                   errorMessage={accActualHrsErrMsg}
-                  noSpecialChar
                   noText
                   onWheel={(e) => e.currentTarget.blur()}
                 />
@@ -943,15 +955,14 @@ const ClientContent = forwardRef<
                   getError={(e) => setAuditContHrsHasErr(e)}
                   hasError={auditContHrsErr}
                   errorMessage={auditContHrsErrMsg}
-                  noSpecialChar
                   noText
                   onWheel={(e) => e.currentTarget.blur()}
                 />
                 <Text
                   className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   type="number"
-                  label="Actual Hours"
-                  placeholder="Enter Total Actual Hours"
+                  label="Internal Hours"
+                  placeholder="Enter Total Internal Hours"
                   validate
                   maxLength={5}
                   value={auditActualHrs === 0 ? "" : auditActualHrs}
@@ -959,7 +970,6 @@ const ClientContent = forwardRef<
                   getError={(e) => setAuditActHrsHasErr(e)}
                   hasError={auditActualHrsErr}
                   errorMessage={auditActualHrsErrMsg}
-                  noSpecialChar
                   noText
                   onWheel={(e) => e.currentTarget.blur()}
                 />

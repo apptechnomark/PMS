@@ -31,6 +31,11 @@ const page = () => {
     hasToken(router);
   }, [router]);
 
+  useEffect(() => {
+    email.trim().length > 0 && setEmailHasError(true);
+    password.trim().length > 0 && setPasswordHasError(true);
+  }, [email, password]);
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     email.trim().length <= 0 && setEmailError(true);

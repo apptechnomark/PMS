@@ -373,7 +373,7 @@ function page() {
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
               getPermissionDropdown();
-              Toast.success(`Role deleted successfully.`);
+              Toast.success(`Role has been deleted successfully!`);
             } else {
               const data = response.data.Message;
               if (data === null) {

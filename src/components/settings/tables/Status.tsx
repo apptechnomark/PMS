@@ -169,7 +169,7 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Status Deleted Successfully!");
+          Toast.success("Status has been deleted successfully!");
           getStatusList();
         } else {
           const data = response.data.Message;

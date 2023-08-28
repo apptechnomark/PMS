@@ -197,6 +197,14 @@ const GroupContent = forwardRef<
               Toast.error(data);
             }
           }
+        } else {
+          setLoader(false);
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again.");
+          } else {
+            Toast.error(data);
+          }
         }
       } catch (error) {
         setLoader(false);

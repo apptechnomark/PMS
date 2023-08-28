@@ -35,38 +35,43 @@ const ColumnFilterDropdown: React.FC<ColumnFilterDropdownProps> = ({
   }, []);
 
   return (
-    <span ref={selectRef} className="cursor-pointer">
-      <span onClick={handleToggleOpen}>
-        <ColFilterIcon />
-      </span>
-      {open && <div>
-        <ul
-          className={`absolute py-2 right-5 z-10 bg-pureWhite mt-[15px] overflow-y-auto transition-transform drop-shadow-lg 
-          ${open
+    <div ref={selectRef}>
+      <span className="cursor-pointer absolute -mt-3 right-2">
+        <span onClick={handleToggleOpen}>
+          <ColFilterIcon />
+        </span>
+        {open && (
+          <div className="mt-3 -right-20 absolute">
+            <ul
+              className={`py-2 z-10 bg-pureWhite !min-h-fit !min-w-[220px] transition-transform drop-shadow-lg 
+          ${
+            open
               ? "max-h-full translate-y-0 transition-opacity opacity-100 duration-500"
               : "max-h-0 translate-y-5 transition-opacity opacity-0 duration-500"
-            } 
+          } 
           ${open ? "ease-out" : ""}
           `}
-        >
-          {headers.map((header) => (
-            <li
-              key={header}
-              className="p-2 hover:bg-whiteSmoke font-normal cursor-pointer flex"
             >
-              <label>
-                <CheckBox
-                  id={header}
-                  label={header}
-                  checked={visibleHeaders.includes(header)}
-                  onChange={(e) => handleHeaderToggle(header)}
-                />
-              </label>
-            </li>
-          ))}
-        </ul>
-      </div>}
-    </span>
+              {headers.map((header) => (
+                <li
+                  key={header}
+                  className="p-2 hover:bg-whiteSmoke font-normal cursor-pointer flex"
+                >
+                  <label id="dropdown">
+                    <CheckBox
+                      id={header}
+                      label={header}
+                      checked={visibleHeaders.includes(header)}
+                      onChange={(e) => handleHeaderToggle(header)}
+                    />
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </span>
+    </div>
   );
 };
 

@@ -44,7 +44,7 @@ const ProjectContent = forwardRef<
   const [subProjectId, setSubProjectId] = useState(null);
 
   const [projectLabel, setProjectLabel] = useState("");
-  const [projectValue, setProjectValue] = useState(0);
+  const [projectValue, setProjectValue] = useState<any>(0);
 
   const [loader, setLoader] = useState(false);
 
@@ -226,6 +226,11 @@ const ProjectContent = forwardRef<
     // setSelectedRowId(null);
   };
 
+  const clearAllDataAfterAddProject = async () => {
+    await setDataTrue();
+    await clearAllFields();
+  };
+
   const clearAllData = async () => {
     onClose();
     await setDataTrue();
@@ -240,9 +245,9 @@ const ProjectContent = forwardRef<
     e.preventDefault();
 
     client <= 0 && setClientHasError(true);
-    project <= 0 && setProjectHasError(true);
+    projectValue <= 0 && setProjectHasError(true);
 
-    if (clientError && projectError) {
+    if (clientError && projectError && projectValue > 0) {
       setLoader(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -251,7 +256,7 @@ const ProjectContent = forwardRef<
           `${process.env.pms_api_url}/project/savesubproject`,
           {
             SubProjectId: subProjectId,
-            SubProjectName: subProject,
+            SubProjectName: subProject.trim(),
             ProjectId: projectValue,
           },
           {
@@ -325,11 +330,16 @@ const ProjectContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             Toast.success(
               `Project ${
-                projectValue !== 0 ? "Updated" : "created"
+                projectValue === 0 ||
+                projectValue === null ||
+                projectValue === "" ||
+                projectValue === undefined
+                  ? "created"
+                  : "Updated"
               } successfully.`
             );
             onDataFetch();
-            clearAllData();
+            clearAllDataAfterAddProject();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -377,55 +387,46 @@ const ProjectContent = forwardRef<
           onSelect={() => {}}
           options={clientDrpdown}
           hasError={clientHasError}
-          getValue={(e) => setClient(e)}
+          getValue={(e) => {
+            setClient(e);
+            setProjectValue(0);
+            setProjectHasError(false);
+          }}
           getError={(e) => setClientError(e)}
         />
-        {!onEdit ? (
-          <Select
-            label="Project Name"
-            id="project_name"
-            errorClass="!-mt-4"
-            placeholder="Select Project Name"
-            validate
-            defaultValue={projectValue === 0 ? "" : projectValue}
-            onSelect={() => {}}
-            options={projectDrpdown}
-            hasError={projectHasError}
-            getValue={(e) => setProjectValue(e)}
-            getError={(e) => setProjectError(e)}
-            addDynamicForm
-            addDynamicForm_Icons_Edit
-            addDynamicForm_Icons_Delete
-            addDynamicForm_Label="Project Name"
-            addDynamicForm_Placeholder="Project Name"
-            onChangeText={(value, label) => {
-              setProjectValue(value);
-              setProjectLabel(label);
-            }}
-            onClickButton={handleAddNewProject}
-            onDeleteButton={(e) => {
-              handleValueChange(e, true);
-            }}
-          />
-        ) : (
-          <Select
-            label="Project Name"
-            id="project_name"
-            errorClass="!-mt-4"
-            validate
-            defaultValue={projectValue}
-            onSelect={() => {}}
-            options={projectDrpdown}
-            hasError={projectHasError}
-            getValue={(e) => setProject(e)}
-            getError={(e) => setProjectError(e)}
-          />
-        )}
+        <Select
+          label="Project Name"
+          id="project_name"
+          errorClass="!-mt-4"
+          placeholder="Select Project Name"
+          validate
+          defaultValue={projectValue === 0 ? "" : projectValue}
+          onSelect={() => {}}
+          options={projectDrpdown}
+          hasError={projectHasError}
+          getValue={(e) => setProjectValue(e)}
+          getError={(e) => setProjectError(e)}
+          addDynamicForm
+          addDynamicForm_Icons_Edit={onEdit}
+          addDynamicForm_Icons_Delete={onEdit}
+          addDynamicForm_MaxLength={50}
+          addDynamicForm_Label="Project Name"
+          addDynamicForm_Placeholder="Project Name"
+          onChangeText={(value, label) => {
+            setProjectValue(value);
+            setProjectLabel(label);
+          }}
+          onClickButton={handleAddNewProject}
+          onDeleteButton={(e) => {
+            handleValueChange(e, true);
+          }}
+        />
         {!textFieldOpen && (
           <Text
             label="Sub-project Name"
             placeholder="Enter Sub-Project Name"
             value={subProject}
+            noSpecialChar
             getValue={(e) => setSubProject(e)}
             getError={(e) => {}}
           />

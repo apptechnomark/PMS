@@ -95,7 +95,7 @@ const Drawer = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("Project deleted successfully.");
+            Toast.success("Project has been deleted successfully!");
             onClose();
             onDataFetch();
           } else {
@@ -137,7 +137,7 @@ const Drawer = ({
   return (
     <>
       <div
-        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[400px] border border-lightSilver bg-pureWhite transform  ${
+        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[460px] border border-lightSilver bg-pureWhite transform  ${
           onOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >

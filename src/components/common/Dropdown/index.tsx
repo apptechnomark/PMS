@@ -36,7 +36,7 @@ export default function Dropdown({ options }: DropdownProps) {
 
   const handleRefresh = () => {
     window.location.reload();
-  };
+  };  
 
   const handleOutsideClick = (event: MouseEvent) => {
     if (

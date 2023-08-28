@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import { DataTable, Toast } from "next-ts-lib";
+import { DataTable, Toast, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
 
@@ -46,11 +46,15 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
     ...visibleHeaders,
     {
       header: (
-        <ColumnFilterDropdown
-          headers={headers.map((h) => h.accessor)}
-          visibleHeaders={visibleHeaders.map((h) => h.accessor)}
-          handleHeaderToggle={handleHeaderToggle}
-        />
+        <div className="ml-5">
+          <Tooltip position="right" content="Select columns">
+            <ColumnFilterDropdown
+              headers={headers.map((h) => h.accessor)}
+              visibleHeaders={visibleHeaders.map((h) => h.accessor)}
+              handleHeaderToggle={handleHeaderToggle}
+            />
+          </Tooltip>
+        </div>
       ),
       accessor: "actions",
       sortable: false,
@@ -173,19 +177,25 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
   };
 
   let tableData: any[] = data.map(
-    (i: any) =>
-      new Object({
+    (i: any) => {
+      const totalMinutes = i.EstimatedHour;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+      return {
         ...i,
         process: i.ParentProcessName,
         sub_process: i.ChildProcessName,
         activity: i.ActivityList.map((activity: any, index: number) =>
           index === i.ActivityList.length - 1 ? activity : activity + ","
         ),
-        est_time: i.EstimatedHour,
+        est_time: formattedTime,
         productive: i.IsProductive ? "Productive" : "Non-Productive",
         billable: i.IsBillable ? "Billable" : "Non-Billable",
         actions: <Actions actions={["Edit", "Delete"]} id={i.ProcessId} />,
-      })
+      };
+    }
   );
 
   // For Closing Modal
@@ -210,7 +220,7 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Process Deleted Successfully!");
+          Toast.success("Process has been deleted successfully!");
           getAll();
         } else {
           const data = response.data.Message;

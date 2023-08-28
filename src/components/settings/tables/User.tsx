@@ -2,7 +2,14 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { DataTable, Switch, Toast, Tooltip } from "next-ts-lib";
+import {
+  Avatar,
+  AvatarGroup,
+  DataTable,
+  Switch,
+  Toast,
+  Tooltip,
+} from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Import Common Components
 import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
@@ -50,13 +57,15 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
     ...visibleHeaders,
     {
       header: (
-        <Tooltip position={"right"} content="Select columns">
-          <ColumnFilterDropdown
-            headers={headersDropdown.map((h) => h.header)}
-            visibleHeaders={visibleHeaders.map((h) => h.header)}
-            handleHeaderToggle={handleHeaderToggle}
-          />
-        </Tooltip>
+        <div className="ml-5">
+          <Tooltip position="right" content="Select columns">
+            <ColumnFilterDropdown
+              headers={headersDropdown.map((h) => h.header)}
+              visibleHeaders={visibleHeaders.map((h) => h.header)}
+              handleHeaderToggle={handleHeaderToggle}
+            />
+          </Tooltip>
+        </div>
       ),
       accessor: "actions",
       sortable: false,
@@ -199,6 +208,15 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
         FullName: (
           <div className="text-[#0592C6] font-semibold">{i.FullName}</div>
         ),
+        GroupNames: (
+          <div className="flex">
+            <AvatarGroup show={3}>
+              {i.GroupNames?.map((i: any, index: any) => (
+                <Avatar key={index} name={i}></Avatar>
+              ))}
+            </AvatarGroup>
+          </div>
+        ),
         IsActive: <SwitchData id={i.UserId} IsActive={i.IsActive} />,
         actions: <Actions actions={["Edit", "Delete"]} id={i.UserId} />,
       })
@@ -283,7 +301,7 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("User deleted successfully.");
+            Toast.success("User has been deleted successfully!");
             getData();
           } else {
             const data = response.data.Message;

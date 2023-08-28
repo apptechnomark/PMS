@@ -98,7 +98,7 @@ function Group({ onOpen, onEdit, onDataFetch, onHandleGroupData }: any) {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Group Deleted Successfully!");
+          Toast.success("Group has been deleted successfully!");
           getAll();
         } else {
           const data = response.data.Message;

@@ -8,6 +8,7 @@ import {
   Select,
   Text,
   Toast,
+  Tooltip,
 } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
 
@@ -261,7 +262,7 @@ const ClientProcessDrawer = ({
         estimatedHour: stndrdTime[id] || 0,
         isProductive: processType[id] || false,
         isBillable: billableType[id] || false,
-        isActive: true, // Set isActive to true
+        isActive: true, 
       };
 
       setThisClientProcess((prevClientProcess: any) => ({
@@ -303,7 +304,6 @@ const ClientProcessDrawer = ({
             value={stndrdTime[d.Id] || ""}
             getValue={(e) => setStndrdTime({ ...stndrdTime, [d.Id]: e })}
             getError={(e) => setStndrdTimeHasErr(e)}
-            // hasError={stndrdTimeErr}
             validate
             noText
             noSpecialChar
@@ -343,9 +343,13 @@ const ClientProcessDrawer = ({
         actions: (
           <div
             onClick={() => handleActionValue(d.Id)}
-            className="cursor-pointer w-[66px] flex justify-center"
+            className="cursor-pointer w-[66px] flex justify-center transition-transform transform-gpu hover:scale-105 active:scale-95"
           >
-            <EditIcon />
+            <Tooltip position={"right"} content="Edit">
+              <span className="h-6 w-6">
+                <EditIcon />
+              </span>
+            </Tooltip>
           </div>
         ),
       })

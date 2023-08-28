@@ -88,11 +88,10 @@ const page = () => {
   return (
     <div className="flex flex-col justify-between min-h-screen">
       <div className="loginWrapper flex items-center flex-col pt-[90px]">
-        <Pabs width="150" height="50" />
-        <Typography
-          type="h5"
-          className="text-primary font-bold my-[20px]"
-        >
+        <span className="-ml-6">
+          <Pabs width="150" height="50" />
+        </span>
+        <Typography type="h5" className="text-primary font-bold my-[20px]">
           Please set a password for your account.
         </Typography>
         <form

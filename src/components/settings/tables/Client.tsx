@@ -104,7 +104,7 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("Client Deleted Successfully!");
+            Toast.success("Client has been deleted successfully!");
             getData();
           } else {
             const data = response.data.Message;
