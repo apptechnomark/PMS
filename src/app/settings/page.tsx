@@ -30,7 +30,9 @@ import { hasNoToken } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-const tabs = [
+type Tabs = { id: string; label: string };
+
+const initialTabs = [
   { id: "Client", label: "Client" },
   { id: "Project", label: "Project" },
   { id: "User", label: "User" },
@@ -42,6 +44,7 @@ const tabs = [
 ];
 
 function page() {
+  const [tabs, setTabs] = useState<Tabs[]>(initialTabs);
   const router = useRouter();
   const [tab, setTab] = useState<string>("Client");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
@@ -81,7 +84,7 @@ function page() {
 
   const handleProcessData = (data: any) => {
     setProcessData(data);
-  }
+  };
 
   const handleUserData = (data: any) => {
     setUserData(data);
@@ -91,12 +94,14 @@ function page() {
   const [getDataFunction, setGetDataFunction] = useState<(() => void) | null>(
     null
   );
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<(() => void) | null>(
-    null
-  );
+  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
+    (() => void) | null
+  >(null);
   const [permissionValue, setPermissionValue] = useState(0);
   const [permissionDropdownData, setPermissionDropdownData] = useState([]);
-  const [receivedData, setReceivedData] = useState(null);
+  const [isPermissionExpanded, setPermissionExpanded] =
+    useState<boolean>(false);
+  const [updatedPermissionsData, setUpdatedPermissionsData] = useState([]);
 
   const handleRefresh = () => {
     window.location.reload();
@@ -250,52 +255,54 @@ function page() {
 
   const handleSavePermissionData = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    const saveData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.pms_api_url}/Role/SavePermission`,
-          {
-            RoleId: permissionValue !== 0 && permissionValue,
-            Permissions: receivedData,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+    if (updatedPermissionsData.length > 0) {
+      saveData();
+      setPermissionExpanded(false);
+    } else {
+      Toast.error("Please try again after sometime.");
+    }
+  };
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            Toast.success("Data saved successfully.");
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again later.");
-            } else {
-              Toast.error(data);
-            }
-          }
+  const saveData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/Role/SavePermission`,
+        {
+          RoleId: permissionValue !== 0 && permissionValue,
+          Permissions: updatedPermissionsData,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          Toast.success("Data saved successfully.");
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            Toast.error("Please try again later.");
           } else {
             Toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again.");
+        } else {
+          Toast.error(data);
+        }
       }
-    };
-    saveData();
-  };
-
-  const handleDataFromChild = (data: any) => {
-    setReceivedData(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const [textName, setTextName] = useState("");
@@ -402,17 +409,47 @@ function page() {
     setGetOrgDetailsFunction(() => getData);
   };
 
+  const handleModuleNames = (
+    arg1: string,
+    arg2: string,
+    arg3: string,
+    arg4: string
+  ) => {
+    const updatedTabs = tabs.map((tab) => {
+      switch (tab.id.toLowerCase()) {
+        case "client":
+          return { ...tab, label: arg1 };
+          break;
+        case "project":
+          return { ...tab, label: arg2 };
+          break;
+        case "process":
+          return { ...tab, label: arg3 };
+          break;
+        default:
+          return { ...tab };
+          break;
+      }
+    });
+    setTabs(updatedTabs);
+    setVisibleTabs(updatedTabs.slice(0, 6));
+    setDropdownTabs(updatedTabs.slice(6));
+  };
+
   return (
     <Wrapper>
-      <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+      <Navbar
+        onUserDetailsFetch={handleUserDetailsFetch}
+        onHandleModuleNames={handleModuleNames}
+      />
       <div>
         <div className="bg-whiteSmoke flex justify-between items-center">
-          <div className="flex gap-[10px] items-center py-[6.5px]">
+          <div className="flex items-center py-[6.5px]">
             {visibleTabs.map((tab, index) => (
               <label
                 key={tab.id}
                 onClick={() => handleTabClick(tab.id, index)}
-                className={`border-r border-r-lightSilver px-[20px] text-[14px] cursor-pointer select-none ${selectedTabIndex === index
+                className={`border-r border-r-lightSilver px-[10px] text-[14px] cursor-pointer select-none ${selectedTabIndex === index
                     ? "text-[#0592C6] text-[16px] font-[600]"
                     : "text-slatyGrey"
                   }`}
@@ -453,7 +490,11 @@ function page() {
           </div>
 
           <div
-            className={`flex items-center px-[20px] ${tab !== "Permissions" ? "gap-[28px]" : "gap-[40px]"
+            className={`flex items-center px-[10px] ${tab === "Permissions"
+                ? "gap-[5px]"
+                : tab === "Organization"
+                  ? "gap-[10px]"
+                  : "gap-[10px]"
               }`}
           >
             {tab !== "Permissions" ? (
@@ -469,11 +510,11 @@ function page() {
                 </Tooltip>
               </>
             ) : (
-              <div className="flex items-center justify-center gap-5 mr-6">
+              <div className="flex items-center justify-center gap-3 mr-4">
                 <Select
                   id="permissionName"
-                  className="!w-[15vw]"
                   placeholder="Select Permission"
+                  className="!w-[200px]"
                   defaultValue={permissionValue === 0 ? "" : permissionValue}
                   getValue={(value) => {
                     setPermissionValue(value);
@@ -497,7 +538,9 @@ function page() {
                 <div className="w-[60px]">
                   <Button
                     variant="btn-secondary"
-                    className="rounded-md"
+                    className={`rounded-md ${permissionValue === 0 ? "opacity-50" : ""
+                      }`}
+                    disabled={permissionValue === 0 ? true : false}
                     onClick={handleSavePermissionData}
                   >
                     Save
@@ -508,11 +551,14 @@ function page() {
             <Button
               type="submit"
               variant="btn-secondary"
-              className="rounded-[4px] !h-[36px]"
+              className={tab === "Permissions" ? "rounded-[4px] !h-[45px] " : "rounded-[4px] !h-[36px] text-sm"}
               onClick={handleDrawerOpen}
             >
-              <span className="flex items-center justify-center gap-[10px] px-[5px]">
-                <span>
+              <span
+                className={`flex items-center justify-center ${tab === "Permissions" ? "text-sm" : ""
+                  }`}
+              >
+                <span className="mr-2">
                   <AddPlusIcon />
                 </span>
                 <span>Create {tab === "Permissions" ? "Role" : tab}</span>
@@ -550,6 +596,7 @@ function page() {
             onEdit={handleEdit}
             onHandleClientData={handleClientData}
             onDataFetch={handleDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Project" && (
@@ -558,6 +605,7 @@ function page() {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             onHandleProjectData={handleProjectData}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "User" && (
@@ -566,6 +614,7 @@ function page() {
             onEdit={handleEdit}
             onHandleUserData={handleUserData}
             onUserDataFetch={handleUserDataFetch}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Group" && (
@@ -574,6 +623,7 @@ function page() {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             onHandleGroupData={handleGroupData}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Process" && (
@@ -582,6 +632,7 @@ function page() {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             onHandleProcessData={handleProcessData}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Status" && (
@@ -590,14 +641,17 @@ function page() {
             onEdit={handleEdit}
             onDataFetch={handleDataFetch}
             onHandleStatusData={handleStatusData}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Permissions" && (
           <Permissions
             onOpen={handleDrawerOpen}
             onEdit={handleEdit}
+            expanded={isPermissionExpanded}
             permissionValue={permissionValue}
-            sendDataToParent={handleDataFromChild}
+            sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
+            getOrgDetailsFunction={getOrgDetailsFunction}
           />
         )}
         {tab === "Organization" && (

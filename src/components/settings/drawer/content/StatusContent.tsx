@@ -114,7 +114,7 @@ const StatusContent = forwardRef<
     statusName.trim().length <= 0 && setStatusNameError(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
-    if (!(statusName.length <= 0) && statusNameHasError) {
+    if (statusNameHasError) {
       setLoader(true);
       try {
         const response = await axios.post(
@@ -127,7 +127,7 @@ const StatusContent = forwardRef<
           {
             headers: {
               Authorization: `${token}`,
-              org_token: org_token,
+              org_token: Org_Token,
             },
           }
         );

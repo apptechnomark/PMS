@@ -173,7 +173,9 @@ const page = () => {
       ) : (
         <div className="flex flex-col justify-between min-h-screen">
           <div className="flex items-center flex-col mt-[100px]">
-            <Pabs width="150" height="50" />
+            <span className="-ml-6">
+              <Pabs width="150" height="50" />
+            </span>
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
               <span className="pb-[25px] text-primary font-bold text-xl lg:text-2xl mx-5 sm:mx-auto">
                 Please set a password for your account.

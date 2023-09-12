@@ -4,11 +4,17 @@ import React, { useEffect, useRef, useState } from "react";
 import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import { DataTable, Toast, Tooltip } from "next-ts-lib";
+import { DataTable, Loader, Toast, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
 
-function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
+function Process({
+  onOpen,
+  onEdit,
+  onDataFetch,
+  onHandleProcessData,
+  getOrgDetailsFunction,
+}: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
 
@@ -23,43 +29,13 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
       sortable: true,
     },
     { header: "BILLABLE/NON-BILLABLE", accessor: "billable", sortable: true },
+    { header: "ACTION", accessor: "actions", sortable: false },
   ];
-  const defaultVisibleHeaders = headers.slice(0, 6);
-  const [visibleHeaders, setVisibleHeaders] = useState(defaultVisibleHeaders);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [data, setData] = useState([]);
-
-  const handleHeaderToggle = (header: any) => {
-    const headerObj = headers.find((h) => h.accessor === header);
-    if (!headerObj) return;
-
-    if (visibleHeaders.some((h) => h.accessor === header)) {
-      setVisibleHeaders(visibleHeaders.filter((h) => h.accessor !== header));
-    } else {
-      setVisibleHeaders([...visibleHeaders, headerObj]);
-    }
-  };
-
-  const columns = [
-    ...visibleHeaders,
-    {
-      header: (
-        <div className="ml-5">
-          <Tooltip position="right" content="Select columns">
-            <ColumnFilterDropdown
-              headers={headers.map((h) => h.accessor)}
-              visibleHeaders={visibleHeaders.map((h) => h.accessor)}
-              handleHeaderToggle={handleHeaderToggle}
-            />
-          </Tooltip>
-        </div>
-      ),
-      accessor: "actions",
-      sortable: false,
-    },
-  ];
+  const [loader, setLoader] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,8 +72,11 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setData(response.data.ResponseData.List);
+          getOrgDetailsFunction();
         } else {
+          setLoader(false);
           const data = response.data.Message;
           if (data === null) {
             Toast.error("Error", "Please try again later.");
@@ -107,6 +86,7 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
         }
       }
     } catch (error) {
+      setLoader(false);
       console.error(error);
     }
   };
@@ -176,27 +156,61 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
     );
   };
 
-  let tableData: any[] = data.map(
-    (i: any) => {
-      const totalMinutes = i.EstimatedHour;
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  let tableData: any[] = data.map((i: any) => {
+    const modifiedList = i.ActivityList.map((activity: any, index: any) =>
+      index === 0 ? activity : ","
+    );
 
-      return {
-        ...i,
-        process: i.ParentProcessName,
-        sub_process: i.ChildProcessName,
-        activity: i.ActivityList.map((activity: any, index: number) =>
-          index === i.ActivityList.length - 1 ? activity : activity + ","
+    const firstActivity = modifiedList.length > 0 ? modifiedList[0] : "";
+
+    const remainingCount = modifiedList.filter(
+      (item: any) => item === ","
+    ).length;
+    const totalSeconds = i.EstimatedHour;
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingSeconds = totalSeconds % 3600;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const remainingSecondsFinal = remainingSeconds % 60;
+
+    const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSecondsFinal.toString().padStart(2, "0")}`;
+
+    return {
+      ...i,
+      process: i.ParentProcessName,
+      sub_process: i.ChildProcessName,
+      activity: `${firstActivity}${remainingCount > 0 ? `, +${remainingCount}` : ""
+        }`,
+      est_time: formattedTime,
+      productive: i.IsProductive ? "Productive" : "Non-Productive",
+      billable: i.IsBillable ? "Billable" : "Non-Billable",
+      actions: <Actions actions={["Edit", "Delete"]} id={i.ProcessId} />,
+      details:
+        modifiedList.length > 0 ? (
+          <DataTable
+            columns={[{ header: "", accessor: "column1", sortable: false }]}
+            data={[
+              {
+                column1: (
+                  <span className="text-[12px] text-darkCharcoal">
+                    <span className="font-medium ml-7">Activity: </span>
+                    {i.ActivityList.map((activity: any, index: number) =>
+                      index === i.ActivityList.length - 1
+                        ? activity
+                        : activity + ", "
+                    )}
+                  </span>
+                ),
+              },
+            ]}
+            noHeader
+          />
+        ) : (
+          ""
         ),
-        est_time: formattedTime,
-        productive: i.IsProductive ? "Productive" : "Non-Productive",
-        billable: i.IsBillable ? "Billable" : "Non-Billable",
-        actions: <Actions actions={["Edit", "Delete"]} id={i.ProcessId} />,
-      };
-    }
-  );
+    };
+  });
 
   // For Closing Modal
   const closeModal = () => {
@@ -245,36 +259,46 @@ function Process({ onOpen, onEdit, onDataFetch, onHandleProcessData }: any) {
   };
 
   return (
-    <div
-      className={`${tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
-    >
-      <DataTable columns={columns} data={tableData} sticky />
-      {data.length === 0 && (
-        <p className="flex justify-center items-center py-[17px] text-[14px]">
-          Currently there is no record, you may
-          <a
-            onClick={onOpen}
-            className=" text-primary underline cursor-pointer ml-1 mr-1"
-          >
-            Create Process
-          </a>
-          to continue
-        </p>
-      )}
-
-      {isDeleteOpen && (
-        <DeleteModal
-          isOpen={isDeleteOpen}
-          onClose={closeModal}
-          title="Delete Process"
-          actionText="Yes"
-          onActionClick={handleDeleteRow}
+    <>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div
+          className={`${tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+            }`}
         >
-          Are you sure you want to delete Process? <br /> If you delete Process,
-          you will permanently lose Process and Process related data.
-        </DeleteModal>
+          <DataTable columns={headers} data={tableData} sticky expandable />
+          {data.length === 0 && (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className=" text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                Create Process
+              </a>
+              to continue
+            </p>
+          )}
+
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete Process"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
+            >
+              Are you sure you want to delete Process? <br /> If you delete
+              Process, you will permanently lose Process and Process related
+              data.
+            </DeleteModal>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 }
 

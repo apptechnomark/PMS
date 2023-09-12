@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Toast, DataTable, Switch } from "next-ts-lib";
+import { Toast, DataTable, Switch, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Import Common Components
 import DeleteModal from "@/components/common/DeleteModal";
@@ -12,7 +12,7 @@ import SwitchModal from "@/components/common/SwitchModal";
 import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 
-function Client({ onOpen, onEdit, onDataFetch }: any) {
+function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
   const headers = [
     { header: "CLIENT NAME", accessor: "Name", sortable: true },
     { header: "EMAIL ID", accessor: "Email", sortable: true },
@@ -29,6 +29,7 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
+  const [loader, setLoader] = useState(true);
 
   const handleOpenProcessDrawer = () => {
     setOpenProcessDrawer(true);
@@ -61,8 +62,11 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setData(response.data.ResponseData.List);
+          getOrgDetailsFunction();
         } else {
+          setLoader(false);
           const data = response.data.Message;
           if (data === null) {
             Toast.error("Please try again later.");
@@ -71,6 +75,7 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
           }
         }
       } else {
+        setLoader(false);
         const data = response.data.Message;
         if (data === null) {
           Toast.error("Login failed. Please try again.");
@@ -79,6 +84,7 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
         }
       }
     } catch (error) {
+      setLoader(false);
       console.error(error);
     }
   };
@@ -291,64 +297,70 @@ function Client({ onOpen, onEdit, onDataFetch }: any) {
 
   return (
     <>
-      <div>
-        <Toast position="top_center" />
-        {data.length > 0 && (
-          <div className="h-[81vh]">
-            <DataTable columns={headers} data={table_Data} sticky />
-          </div>
-        )}
-        {table_Data.length === 0 && (
-          <p className="flex justify-center items-center py-[17px] text-[14px]">
-            Currently there is no record, you may
-            <a
-              onClick={onOpen}
-              className="text-primary underline cursor-pointer ml-1 mr-1"
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div>
+          <Toast position="top_center" />
+          {data.length > 0 && (
+            <div className="h-[81vh]">
+              <DataTable columns={headers} data={table_Data} sticky />
+            </div>
+          )}
+          {data.length <= 0 && (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className="text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                Create Client
+              </a>
+              to continue
+            </p>
+          )}
+
+          {/* Delete Modal */}
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete Client"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
             >
-              Create Client
-            </a>
-            to continue
-          </p>
-        )}
+              Are you sure you want to delete client? <br /> If you delete
+              client, you will permanently lose client and client related data.
+            </DeleteModal>
+          )}
 
-        {/* Delete Modal */}
-        {isDeleteOpen && (
-          <DeleteModal
-            isOpen={isDeleteOpen}
-            onClose={closeModal}
-            title="Delete Client"
-            actionText="Yes"
-            onActionClick={handleDeleteRow}
-          >
-            Are you sure you want to delete client? <br /> If you delete
-            client, you will permanently lose client and client related data.
-          </DeleteModal>
-        )}
+          {isOpenSwitchModal && (
+            <SwitchModal
+              isOpen={isOpenSwitchModal}
+              onClose={closeSwitchModal}
+              title={`${switchActive === false ? "Active" : "InActive"} Client`}
+              actionText="Yes"
+              onActionClick={handleToggleClient}
+            >
+              Are you sure you want to&nbsp;
+              {switchActive === false ? "Active" : "InActive"} Client?
+            </SwitchModal>
+          )}
 
-        {isOpenSwitchModal && (
-          <SwitchModal
-            isOpen={isOpenSwitchModal}
-            onClose={closeSwitchModal}
-            title={`${switchActive === false ? "Active" : "InActive"} Client`}
-            actionText="Yes"
-            onActionClick={handleToggleClient}
-          >
-            Are you sure you want to&nbsp;
-            {switchActive === false ? "Active" : "InActive"} Client?
-          </SwitchModal>
-        )}
-
-        <ClientProcessDrawer
-          onOpen={openProcessDrawer}
-          onClose={handleCloseProcessDrawer}
-          selectedRowId={selectedRowId}
-          onDataFetch={getData}
-        />
-        <DrawerOverlay
-          isOpen={openProcessDrawer}
-          onClose={handleCloseProcessDrawer}
-        />
-      </div>
+          <ClientProcessDrawer
+            onOpen={openProcessDrawer}
+            onClose={handleCloseProcessDrawer}
+            selectedRowId={selectedRowId}
+            onDataFetch={getData}
+          />
+          <DrawerOverlay
+            isOpen={openProcessDrawer}
+            onClose={handleCloseProcessDrawer}
+          />
+        </div>
+      )}
     </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Switch, Toast, DataTable } from "next-ts-lib";
+import { Table, Switch, Toast, DataTable, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 // Import Common Components
@@ -11,7 +11,12 @@ import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ACTION } from "next/dist/client/components/app-router-headers";
 
-const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
+const Project = ({
+  onOpen,
+  onEdit,
+  onDataFetch,
+  getOrgDetailsFunction,
+}: any) => {
   const headers = [
     { header: "CLIENT NAME", accessor: "ClientName", sortable: true },
     { header: "PROJECT NAME", accessor: "ProjectName", sortable: true },
@@ -27,6 +32,7 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
   const [data, setData] = useState([]);
+  const [loader, setLoader] = useState(true);
 
   const handleHeaderToggle = (header: any) => {
     const headerObj = headers.find((h) => h.header === header);
@@ -183,19 +189,52 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
     (i: any) =>
       new Object({
         ...i,
-        IsActive: (
-          <SwitchData
-            id={i.SubProjectId === null ? i.ProjectId : i.SubProjectId}
-            IsActive={i.IsActive}
-          />
-        ),
-        // IsActive: <Switch checked={i.IsActive} />,
-        actions: (
-          <Actions
-            actions={["Edit", "Delete"]}
-            id={i.SubProjectId === null ? i.ProjectId : i.SubProjectId}
-          />
-        ),
+        IsActive: <SwitchData id={i.ProjectId} IsActive={i.IsActive} />,
+        actions: <Actions actions={["Edit", "Delete"]} id={i.ProjectId} />,
+        details:
+          i.SubProject.length > 0 ? (
+            <div className="ml-6">
+              <DataTable
+                columns={columns}
+                data={i.SubProject.map((child: any, index: number) => {
+                  return {
+                    ...child,
+                    ClientName: (
+                      <span className="w-[155px]">{child.ClientName}</span>
+                    ),
+                    ProjectName: (
+                      <span className="w-[220px]">{child.ProjectName}</span>
+                    ),
+                    SubProjectName: (
+                      <span className="w-[180px] -ml-20">
+                        {child.SubProjectName}
+                      </span>
+                    ),
+                    IsActive: (
+                      <span className="mr-[120px] -ml-1">
+                        <SwitchData
+                          id={child.SubProjectId}
+                          IsActive={child.IsActive}
+                        />
+                      </span>
+                    ),
+                    // IsActive: <Switch checked={i.IsActive} />,
+                    actions: (
+                      <span className="mr-[137px]">
+                        <Actions
+                          actions={["Edit", "Delete"]}
+                          id={child.SubProjectId}
+                        />
+                      </span>
+                    ),
+                  };
+                })}
+                noHeader
+              />
+            </div>
+          ) : (
+            ""
+          ),
       })
   );
 
@@ -226,7 +265,9 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setData(response.data.ResponseData.List);
+          getOrgDetailsFunction();
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -236,6 +277,7 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
           }
         }
       } else {
+        setLoader(false);
         const data = response.data.Message;
         if (data === null) {
           Toast.error("Please try again.");
@@ -244,6 +286,7 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
         }
       }
     } catch (error) {
+      setLoader(false);
       console.error(error);
     }
   };
@@ -311,56 +354,68 @@ const Project = ({ onOpen, onEdit, onDataFetch }: any) => {
   };
 
   return (
-    <div
-      className={`${tableData.length === 0 ? "!h-full" : "!h-[440px] !w-full"}`}
-    >
-      {data.length > 0 && (
-        <DataTable columns={columns} data={tableData} sticky />
-      )}
-
-      {tableData.length === 0 && (
-        <p className="flex justify-center items-center py-[17px] text-[14px]">
-          Currently there is no record, you may
-          <a
-            onClick={onOpen}
-            className=" text-primary underline cursor-pointer ml-1 mr-1"
-          >
-            Create Project
-          </a>
-          to continue
-        </p>
-      )}
-
-      {/* Delete Modal */}
-      {isDeleteOpen && (
-        <DeleteModal
-          isOpen={isDeleteOpen}
-          onClose={closeModal}
-          title="Delete Project"
-          actionText="Yes"
-          onActionClick={handleDeleteRow}
+    <>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div
+          className={`${
+            tableData.length === 0 ? "!h-full" : "!h-[440px] !w-full"
+          }`}
         >
-          <p>
-            Are you sure you want to delete Project?
-            <br /> If you delete the project, you will permanently lose project
-            and project related data.
-          </p>
-        </DeleteModal>
-      )}
+          {data.length > 0 && (
+            <DataTable columns={columns} data={tableData} sticky expandable />
+          )}
 
-      {isOpenSwitchModal && (
-        <SwitchModal
-          isOpen={isOpenSwitchModal}
-          onClose={closeSwitchModal}
-          title={`${switchActive === false ? "Active" : "InActive"} Project`}
-          actionText="Yes"
-          onActionClick={handleOutsideClick}
-        >
-          Are you sure you want to&nbsp;
-          {switchActive === false ? "Active" : "InActive"} Project?
-        </SwitchModal>
+          {tableData.length === 0 && (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className=" text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                Create Project
+              </a>
+              to continue
+            </p>
+          )}
+
+          {/* Delete Modal */}
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete Project"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
+            >
+              <p>
+                Are you sure you want to delete Project?
+                <br /> If you delete the project, you will permanently lose
+                project and project related data.
+              </p>
+            </DeleteModal>
+          )}
+
+          {isOpenSwitchModal && (
+            <SwitchModal
+              isOpen={isOpenSwitchModal}
+              onClose={closeSwitchModal}
+              title={`${
+                switchActive === false ? "Active" : "InActive"
+              } Project`}
+              actionText="Yes"
+              onActionClick={handleOutsideClick}
+            >
+              Are you sure you want to&nbsp;
+              {switchActive === false ? "Active" : "InActive"} Project?
+            </SwitchModal>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

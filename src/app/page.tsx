@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Wrapper from "@/components/common/Wrapper";
 import { useRouter } from "next/navigation";

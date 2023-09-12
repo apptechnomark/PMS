@@ -1,11 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Toast, DataTable } from "next-ts-lib";
+import { Toast, DataTable, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 
-function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
+function Status({
+  onOpen,
+  onEdit,
+  onHandleOrgData,
+  onDataFetch,
+  getOrgDetailsFunction,
+}: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
   const [loading, setLoading] = useState(false);
@@ -15,6 +21,7 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const [rowData, setRowData] = useState();
+  const [loader, setLoader] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,9 +47,11 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
       const param = {
         pageNo: 1,
         pageSize: 50000,
-        sortColumn: "",
-        isDesc: true,
+        SortColumn: "",
+        IsDec: true,
         globalFilter: "",
+        IsDefault:true,
+        Export:false,
       };
       const response = await axios.post(
         `${process.env.pms_api_url}/status/GetAll`,
@@ -50,9 +59,12 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
         { headers: headers }
       );
       if (response.status === 200) {
+        setLoader(false);
         setStatusList(response.data.ResponseData.List);
+        getOrgDetailsFunction();
       }
     } catch {
+      setLoader(false);
       setLoading(false);
       setStatusList([]);
     }
@@ -89,9 +101,9 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
       if (actionType.toLowerCase() === "edit") {
         onEdit(actionId);
       }
-      if (actionType.toLowerCase() === "delete") {
-        setIsDeleteOpen(true);
-      }
+      // if (actionType.toLowerCase() === "delete") {
+      //   setIsDeleteOpen(true);
+      // }
     };
 
     return (
@@ -147,7 +159,7 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
             ></div>
           </div>
         ),
-        action: <Actions id={e.StatusId} actions={["Edit", "Delete"]} />,
+        action: <Actions id={e.StatusId} actions={["Edit"]} />,
       })
   );
 
@@ -194,46 +206,52 @@ function Status({ onOpen, onEdit, onHandleOrgData, onDataFetch }: any) {
   };
   return (
     <>
-      <div
-        className={`${
-          statusList.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
-        }`}
-      >
-        {statusList.length > 0 ? (
-          <>
-            <DataTable columns={headers} data={StatusData} sticky />
-          </>
-        ) : (
-          ""
-        )}
-        {statusList.length === 0 && (
-          <>
-            <p className="flex justify-center items-center py-[17px] text-[14px]">
-              Currently there is no record, you may
-              <a
-                onClick={onOpen}
-                className=" text-primary underline cursor-pointer ml-1 mr-1"
-              >
-                Create Status
-              </a>
-              to continue
-            </p>
-          </>
-        )}
-        {/* Delete Modal  */}
-        {isDeleteOpen && (
-          <DeleteModal
-            isOpen={isDeleteOpen}
-            onClose={closeModal}
-            title="Delete Status"
-            actionText="Yes"
-            onActionClick={handleDeleteRow}
-          >
-            Are you sure you want to delete status? <br /> If you delete status,
-            you will permanently lose status and status related data.
-          </DeleteModal>
-        )}
-      </div>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div
+          className={`${
+            statusList.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+          }`}
+        >
+          {statusList.length > 0 ? (
+            <>
+              <DataTable columns={headers} data={StatusData} sticky />
+            </>
+          ) : (
+            ""
+          )}
+          {statusList.length === 0 && (
+            <>
+              <p className="flex justify-center items-center py-[17px] text-[14px]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className=" text-primary underline cursor-pointer ml-1 mr-1"
+                >
+                  Create Status
+                </a>
+                to continue
+              </p>
+            </>
+          )}
+          {/* Delete Modal  */}
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete Status"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
+            >
+              Are you sure you want to delete status? <br /> If you delete
+              status, you will permanently lose status and status related data.
+            </DeleteModal>
+          )}
+        </div>
+      )}
     </>
   );
 }

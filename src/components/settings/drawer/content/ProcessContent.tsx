@@ -42,7 +42,7 @@ const ProcessContent = forwardRef<
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
-  const [estTime, setEstTime] = useState<any>("00:00");
+  const [estTime, setEstTime] = useState<any>("00:00:00");
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
   const [productive, setProductive] = useState<boolean>(true);
@@ -55,7 +55,8 @@ const ProcessContent = forwardRef<
   const [textValue, setTextValue] = useState("");
   const [textName, setTextName] = useState("");
   const [estErrMsg, setEstErrMsg] = useState("");
-
+  const [convertedSec, setConvertedSec] = useState<number>(0)
+  const [type, setType] = useState<string>("text");
   const [defaultProductive, setDefaultProductive] = useState(false);
   const [loader, setLoader] = useState(false);
 
@@ -65,28 +66,53 @@ const ProcessContent = forwardRef<
   };
 
   const handleEstTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value;
-
-    const validTimePattern = /^(?:2[0-3]|[01][0-9]):([0-5][0-9])$/;
-
-    if (validTimePattern.test(newValue)) {
-      const [hours, minutes] = newValue.split(":");
-
-      if (
-        parseInt(hours) >= 0 &&
-        parseInt(hours) <= 23 &&
-        parseInt(minutes) >= 0 &&
-        parseInt(minutes) <= 59
-      ) {
-        const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
-        setEstTime(newValue);
-        setEstTimeError(false);
-      }
-    } else {
-      setEstTimeError(true);
-      setEstErrMsg("This is a required filed.");
+    let newValue = event.target.value;
+    newValue = newValue.replace(/[^0-9]/g, "");
+    if (newValue.length > 8) {
+      return;
     }
-  };
+
+    let formattedValue = "";
+    if (newValue.length >= 1) {
+      const hours = parseInt(newValue.slice(0, 2));
+      if (hours >= 0 && hours <= 23) {
+        formattedValue = newValue.slice(0, 2);
+      } else {
+        formattedValue = '23';
+      }
+    }
+
+    if (newValue.length >= 3) {
+      const minutes = parseInt(newValue.slice(2, 4));
+      if (minutes >= 0 && minutes <= 59) {
+        formattedValue += ":" + newValue.slice(2, 4);
+      } else {
+        formattedValue += ":59";
+      }
+    }
+
+    if (newValue.length >= 5) {
+      const seconds = parseInt(newValue.slice(4, 6));
+      if (seconds >= 0 && seconds <= 59) {
+        formattedValue += ":" + newValue.slice(4, 6);
+      } else {
+        formattedValue += ':59';
+      }
+    }
+
+    // Convert formattedValue to seconds
+    let totalSeconds = 0;
+
+    if (formattedValue) {
+      const timeComponents = formattedValue.split(':');
+      const hours = parseInt(timeComponents[0]);
+      const minutes = parseInt(timeComponents[1]);
+      const seconds = parseInt(timeComponents[2]);
+      totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+    }
+    setConvertedSec(totalSeconds)
+    setEstTime(formattedValue);
+  }
 
   const initialInputList = activity.map((activityName) => ({
     activityName: activityName,
@@ -101,7 +127,9 @@ const ProcessContent = forwardRef<
   ) => {
     if (e.target) {
       const { value } = e.target;
-      if (value.length <= 50) {
+      const isValidInput = /^[a-zA-Z0-9\s,]*$/.test(value);
+
+      if (isValidInput && value.length <= 50) {
         const updatedInputList = [...inputList];
         updatedInputList[index].activityName = value;
         setInputList(updatedInputList);
@@ -109,6 +137,9 @@ const ProcessContent = forwardRef<
         const updatedActivity = [...activity];
         updatedActivity[index] = value;
         setActivity(updatedActivity);
+
+      } else {
+        setActivityHasError(true);
       }
     }
   };
@@ -135,15 +166,19 @@ const ProcessContent = forwardRef<
     setInputList(initialInputList);
   }, [activity]);
 
-  function minutesToHHMM(minutes: any) {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-
+  function secondsToHHMMSS(seconds: any) {
+    const hours = Math.floor(seconds / 3600);
+    const remainingSeconds = seconds % 3600;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const remainingSecondsFinal = remainingSeconds % 60;
+  
     const hoursStr = hours.toString().padStart(2, "0");
-    const minsStr = mins.toString().padStart(2, "0");
-
-    return `${hoursStr}:${minsStr}`;
+    const minsStr = minutes.toString().padStart(2, "0");
+    const secsStr = remainingSecondsFinal.toString().padStart(2, "0");
+  
+    return `${hoursStr}:${minsStr}:${secsStr}`;
   }
+
   // onEdit fetch data with id
   const fetchEditData = async () => {
     if (onEdit) {
@@ -163,7 +198,7 @@ const ProcessContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             setSelectValue(response.data.ResponseData.ParentId);
             setSubProcessName(response.data.ResponseData.Name);
-            const estTimeConverted = minutesToHHMM(
+            const estTimeConverted = secondsToHHMMSS(
               response.data.ResponseData.EstimatedHour
             );
             setEstTime(estTimeConverted);
@@ -245,14 +280,13 @@ const ProcessContent = forwardRef<
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            ProcessDataValue();
-            onDataFetch();
-            onClose();
+         
             Toast.success(
-              `${editing ? "" : "New"} Process ${
-                editing ? "Updated" : "added"
+              `${editing ? "" : "New"} Process ${editing ? "Updated" : "added"
               }  successfully.`
             );
+            await onDataFetch();
+            getDropdownData();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -283,12 +317,12 @@ const ProcessContent = forwardRef<
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            ProcessDataValue();
-            onDataFetch();
-            onClose();
+            await onDataFetch();
+            getDropdownData();
+            // ProcessDataValue();
+            // onDataFetch();
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -307,7 +341,7 @@ const ProcessContent = forwardRef<
     }
   };
 
-  const ProcessDataValue = async () => {
+  
     const setHasTrue = () => {
       // For process Dropdown
       setSelectValueErr(true);
@@ -321,7 +355,7 @@ const ProcessContent = forwardRef<
     };
     const clearData = () => {
       setSubProcessName("");
-      setEstTime("00:00");
+      setEstTime("00:00:00");
       setSelectValue(0);
 
       setInputList([]);
@@ -341,9 +375,12 @@ const ProcessContent = forwardRef<
       setActivityError(false);
       setActivityHasError(false);
     };
+    
+
+  const ProcessDataValue = async() => {
     await setHasTrue();
     await clearData();
-  };
+  }
 
   useImperativeHandle(ref, () => ({
     ProcessDataValue,
@@ -353,19 +390,16 @@ const ProcessContent = forwardRef<
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     selectValue <= 0 && setSelectValueErr(true);
+    const [hours, minutes, seconds] = estTime.split(":");
+    const estTimeTotalSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-    (activity[0]?.trim().length <= 0 || activity[0] === undefined) &&
-      setActivityError(true);
-    estTime === "00:00" && setEstTimeError(true);
-
-    const [hours, minutes] = estTime.split(":");
-    const estTimeTotalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+    estTimeTotalSeconds === 0 && setEstTimeError(true);
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(estTime === "00:00" ) &&
-       !(estTime === "") &&
-      !(activity[0]?.trim().length <= 0 || activity[0] === undefined)
+      !(estTime === "00:00:00") &&
+      !(estTime === "") &&
+      !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);
       try {
@@ -373,7 +407,7 @@ const ProcessContent = forwardRef<
           ProcessId: onEdit || 0,
           Name: subProcessName,
           ActivityList: activity,
-          EstimatedHour: estTimeTotalMinutes,
+          EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
           IsBillable: billable,
           ParentId: selectValue,
@@ -397,8 +431,7 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -415,28 +448,26 @@ const ProcessContent = forwardRef<
         setLoader(false);
         console.error(error);
       }
-    }
-    if (estTime === "00:00") {
-      setEstErrMsg("Estimated Time cannot be 00:00");
+    } if (estTime === "00:00:00") {
+      setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
   };
 
   const addMoreSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     selectValue <= 0 && setSelectValueErr(true);
+    const [hours, minutes, seconds] = estTime.split(":");
+    const estTimeTotalSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-    (activity[0]?.trim().length <= 0 || activity[0] === undefined) &&
-      setActivityError(true);
-    estTime === "00:00" && setEstTimeError(true);
+    estTimeTotalSeconds === 0 && setEstTimeError(true);
 
-    const [hours, minutes] = estTime.split(":");
-    const estTimeTotalMinutes = parseInt(hours) * 60 + parseInt(minutes);
+
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(estTime === "00:00" ) &&
-       !(estTime === "") &&
-      !(activity[0]?.trim().length <= 0 || activity[0] === undefined)
+      !(estTime === "00:00:00") &&
+      !(estTime === "") &&
+      !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);
       try {
@@ -444,7 +475,7 @@ const ProcessContent = forwardRef<
           ProcessId: onEdit || 0,
           Name: subProcessName,
           ActivityList: activity,
-          EstimatedHour: estTimeTotalMinutes,
+          EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
           IsBillable: billable,
           ParentId: selectValue,
@@ -467,8 +498,7 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -485,9 +515,8 @@ const ProcessContent = forwardRef<
         setLoader(false);
         console.error(error);
       }
-    }
-    if (estTime === "00:00") {
-      setEstErrMsg("Estimated Time cannot be 00:00");
+    } if (estTime === "00:00:00") {
+      setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
   };
 
@@ -514,7 +543,6 @@ const ProcessContent = forwardRef<
         if (response.data.ResponseStatus === "Success") {
           ProcessDataValue();
           onDataFetch();
-          onClose();
           setIsDeleteOpen(false);
           Toast.success("Process has been deleted successfully!");
         } else {
@@ -544,8 +572,10 @@ const ProcessContent = forwardRef<
     setActivity([]);
     setProductive(false);
     setBillable(false);
-    setEstTimeError(false);
-    setEstTime("00:00");
+    setEstTimeError(false)
+    setEstTimeHasError(false)
+    setEstErrMsg("")
+    setEstTime("00:00:00");
   }, [onClose]);
 
   const closeModal = () => {
@@ -628,11 +658,12 @@ const ProcessContent = forwardRef<
             errorMessage={estErrMsg}
             hasError={estTimeError}
             value={estTime === 0 ? "" : estTime}
-            maxLength={7}
-            type="time"
-            label="Estimated Time"
-            placeholder="Enter Estimated Time"
-            className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            type={type}
+            min={0}
+            max={23}
+            label="Estimated Time (HH:MM:SS)"
+            placeholder="Enter Estimated Time (HH:MM:SS)"
+            className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none &::-moz-time-text: { display: none; }"
           />
         </div>
 
@@ -644,14 +675,12 @@ const ProcessContent = forwardRef<
                   <Text
                     type="text"
                     label="Activities"
-                    validate
                     placeholder={"Enter Activities"}
                     value={inputItem.activityName}
                     getValue={(e: any) => handleInputChange(e, i)}
                     onChange={(e: any) => handleInputChange(e, i)}
                     getError={(e: any) => setActivityHasError(e)}
                     hasError={activityError}
-                    noSpecialChar
                   />
                 </span>
                 <div className="btn-box">
@@ -718,7 +747,9 @@ const ProcessContent = forwardRef<
               <Button
                 variant="btn-outline-primary"
                 className="rounded-[4px] !h-[36px]"
-                onClick={onClose}
+                onClick={() => {
+                  onClose()
+                }}
               >
                 Cancel
               </Button>

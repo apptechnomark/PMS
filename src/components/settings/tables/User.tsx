@@ -6,6 +6,7 @@ import {
   Avatar,
   AvatarGroup,
   DataTable,
+  Loader,
   Switch,
   Toast,
   Tooltip,
@@ -18,7 +19,13 @@ import DeleteModal from "@/components/common/DeleteModal";
 import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
 
-const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
+const User = ({
+  onOpen,
+  onEdit,
+  onHandleUserData,
+  onUserDataFetch,
+  getOrgDetailsFunction,
+}: any) => {
   const headers = [
     { header: "USER NAME", accessor: "FullName", sortable: true },
     { header: "USER TYPE", accessor: "UserType", sortable: true },
@@ -27,7 +34,7 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
     { header: "DEPARTMENT", accessor: "DepartmentName", sortable: false },
     { header: "REPORTING MANAGER", accessor: "RMUserName", sortable: false },
     { header: "GROUP", accessor: "GroupNames", sortable: false },
-    { header: "STATUS", accessor: "IsActive", sortable: true },
+    { header: "STATUS", accessor: "IsActive", sortable: false },
   ];
 
   const headersDropdown = [
@@ -37,11 +44,13 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
     { header: "DEPARTMENT", accessor: "DepartmentName", sortable: false },
     { header: "REPORTING MANAGER", accessor: "RMUserName", sortable: false },
     { header: "GROUP", accessor: "GroupNames", sortable: false },
-    { header: "STATUS", accessor: "IsActive", sortable: true },
+    { header: "STATUS", accessor: "IsActive", sortable: false },
   ];
 
   const defaultVisibleHeaders = headers.slice(0, 5);
   const [visibleHeaders, setVisibleHeaders] = useState(defaultVisibleHeaders);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loader, setLoader] = useState(true);
 
   const handleHeaderToggle = (header: any) => {
     const headerObj = headers.find((h) => h.header === header);
@@ -53,19 +62,26 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
       setVisibleHeaders([...visibleHeaders, headerObj]);
     }
   };
+
+  const handleOpen = (arg1: boolean) => {
+    setOpen(arg1);
+  };
+
   const columns = [
     ...visibleHeaders,
     {
       header: (
-        <div className="ml-5">
-          <Tooltip position="right" content="Select columns">
+        <Tooltip position="left" content="Select columns">
+          <span className="pl-5">
             <ColumnFilterDropdown
               headers={headersDropdown.map((h) => h.header)}
               visibleHeaders={visibleHeaders.map((h) => h.header)}
+              isOpen={open}
+              setOpen={handleOpen}
               handleHeaderToggle={handleHeaderToggle}
             />
-          </Tooltip>
-        </div>
+          </span>
+        </Tooltip>
       ),
       accessor: "actions",
       sortable: false,
@@ -249,7 +265,9 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setData(response.data.ResponseData.List);
+          getOrgDetailsFunction();
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -259,6 +277,7 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
           }
         }
       } else {
+        setLoader(false);
         const data = response.data.Message;
         if (data === null) {
           Toast.error("Please try again.");
@@ -267,6 +286,7 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
         }
       }
     } catch (error) {
+      setLoader(false);
       console.error(error);
     }
   };
@@ -337,54 +357,64 @@ const User = ({ onOpen, onEdit, onHandleUserData, onUserDataFetch }: any) => {
   }, []);
 
   return (
-    <div
-      className={`${tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
-    >
-      {data.length > 0 && (
-        <DataTable columns={columns} data={tableData} sticky />
-      )}
-      {tableData.length === 0 && (
-        <>
-          <p className="flex justify-center items-center py-[17px] md:text-xs text-[14px] border-b border-b-[#E6E6E6]">
-            Currently there is no record, you may
-            <a
-              onClick={onOpen}
-              className=" text-[#0592C6] underline cursor-pointer ml-1 mr-1"
+    <>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div
+          className={`${
+            tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+          }`}
+        >
+          {data.length > 0 && (
+            <DataTable columns={columns} data={tableData} sticky />
+          )}
+          {tableData.length === 0 && (
+            <>
+              <p className="flex justify-center items-center py-[17px] md:text-xs text-[14px] border-b border-b-[#E6E6E6]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className=" text-[#0592C6] underline cursor-pointer ml-1 mr-1"
+                >
+                  Create User
+                </a>
+                to continue
+              </p>
+            </>
+          )}
+
+          {/* Delete Modal */}
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete User"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
             >
-              Create User
-            </a>
-            to continue
-          </p>
-        </>
-      )}
+              Are you sure you want to delete User? <br /> If you delete User,
+              you will permanently lose user and user related data.
+            </DeleteModal>
+          )}
 
-      {/* Delete Modal */}
-      {isDeleteOpen && (
-        <DeleteModal
-          isOpen={isDeleteOpen}
-          onClose={closeModal}
-          title="Delete User"
-          actionText="Yes"
-          onActionClick={handleDeleteRow}
-        >
-          Are you sure you want to delete User? <br /> If you delete User, you
-          will permanently lose user and user related data.
-        </DeleteModal>
+          {isOpenSwitchModal && (
+            <SwitchModal
+              isOpen={isOpenSwitchModal}
+              onClose={closeSwitchModal}
+              title={`${switchActive === false ? "Active" : "InActive"} User`}
+              actionText="Yes"
+              onActionClick={handleToggleUser}
+            >
+              Are you sure you want to&nbsp;
+              {switchActive === false ? "Active" : "InActive"} User?
+            </SwitchModal>
+          )}
+        </div>
       )}
-
-      {isOpenSwitchModal && (
-        <SwitchModal
-          isOpen={isOpenSwitchModal}
-          onClose={closeSwitchModal}
-          title={`${switchActive === false ? "Active" : "InActive"} User`}
-          actionText="Yes"
-          onActionClick={handleToggleUser}
-        >
-          Are you sure you want to&nbsp;
-          {switchActive === false ? "Active" : "InActive"} User?
-        </SwitchModal>
-      )}
-    </div>
+    </>
   );
 };
 

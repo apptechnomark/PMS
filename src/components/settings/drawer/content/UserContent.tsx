@@ -614,7 +614,7 @@ const UserContent = forwardRef<
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={tel}
-              max={12}
+              maxLength={14}
               getValue={(e) => setTel(e.slice(4).replace(/\s/g, ""))}
               getError={(e) => {
                 e;
@@ -697,6 +697,7 @@ const UserContent = forwardRef<
             <Text
               label="First Name"
               placeholder="Enter First Name"
+              noNumeric
               noSpecialChar
               value={clientFirstName}
               validate
@@ -709,6 +710,7 @@ const UserContent = forwardRef<
               label="Last Name"
               placeholder="Enter Last Name"
               noSpecialChar
+              noNumeric
               value={clientLastName}
               validate
               maxChar={50}
@@ -732,7 +734,7 @@ const UserContent = forwardRef<
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={clientTel}
-              max={12}
+              maxLength={14}
               getValue={(e) => setClientTel(e.slice(4).replace(/\s/g, ""))}
               getError={(e) => {}}
             />

@@ -190,8 +190,8 @@ const ClientContent = forwardRef<
         setAccLayout(i.LayoutId);
         setAccContHrs(i.ContractHrs);
         setAccActHrs(i.InternalHrs);
-        accContHrs > 0 && setAccContHrsHasErr(true);
-        accActualHrs > 0 && setAccActHrsHasErr(true);
+        setAccContHrsHasErr(true);
+        setAccActHrsHasErr(true);
         setAccBillingHasErr(true);
         setAccGroupHasErr(true);
         setAccLayoutHasErr(true);
@@ -206,8 +206,8 @@ const ClientContent = forwardRef<
         setAuditLayout(i.LayoutId);
         setAuditContHrs(i.ContractHrs);
         setAuditActHrs(i.InternalHrs);
-        auditContHrs > 0 && setAuditContHrsHasErr(true);
-        auditActualHrs > 0 && setAuditActHrsHasErr(true);
+        setAuditContHrsHasErr(true);
+        setAuditActHrsHasErr(true);
         setAuditBillingHasErr(true);
         setAuditGroupHasErr(true);
         setAuditLayoutHasErr(true);
@@ -269,35 +269,60 @@ const ClientContent = forwardRef<
         setAccContHrsErr(true);
         setAccContHrsErrMsg("Contracted Hours must be greater than 0.");
       } else if (
-        accContHrs === 0 ||
+        accContHrs === "0" ||
         accContHrs === "00" ||
         accContHrs === "000" ||
         accContHrs === "0000" ||
-        accContHrs === "00000"
+        accContHrs === "00000" ||
+        accContHrs === "-0" ||
+        accContHrs === "-00" ||
+        accContHrs === "-000" ||
+        accContHrs === "-0000" ||
+        accContHrs === "-00000" 
       ) {
         setAccContHrsErr(true);
         setAccContHrsErrMsg(`Contracted Hours should not be ${accContHrs}.`);
+        return false;
+      } else if (
+        accContHrs.toString().includes(".") ||
+        accContHrs.toString().includes(",")
+      ) {
+        setAccContHrsErr(true);
+        setAccContHrsErrMsg("Contracted Hours must be a valid value.");
+        return false;
       }
 
       if (accActualHrs < 0) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
         return false;
-      } else if (Number(accActualHrs) > Number(accContHrs)) {
+      } else if (Number(accActualHrs) >= Number(accContHrs)) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(
           "Internal Hours should be less than or equal to contracted hours."
         );
         return false;
       } else if (
-        accActualHrs === 0 ||
+        accActualHrs === "0" ||
         accActualHrs === "00" ||
         accActualHrs === "000" ||
         accActualHrs === "0000" ||
-        accActualHrs === "00000"
+        accActualHrs === "00000"||
+        accContHrs === "-0" ||
+        accContHrs === "-00" ||
+        accContHrs === "-000" ||
+        accContHrs === "-0000" ||
+        accContHrs === "-00000" 
       ) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(`Internal Hours should not be ${accActualHrs}.`);
+        return false;
+      } else if (
+        accActualHrs.toString().includes(".") ||
+        accActualHrs.toString().includes(",")
+      ) {
+        setAccActHrsErr(true);
+        setAccActualHrsErrMsg("Internal Hours must be a valid value.");
         return false;
       }
     }
@@ -318,16 +343,29 @@ const ClientContent = forwardRef<
         setAuditContHrsErrMsg("Contracted Hours must be greater than 0.");
         return false;
       } else if (
-        auditContHrs === 0 ||
+        auditContHrs === "0" ||
         auditContHrs === "00" ||
         auditContHrs === "000" ||
         auditContHrs === "0000" ||
-        auditContHrs === "00000"
+        auditContHrs === "00000" ||
+        auditContHrs === "-0" ||
+        auditContHrs === "-00" ||
+        auditContHrs === "-000" ||
+        auditContHrs === "-0000" ||
+        auditContHrs === "-00000" 
       ) {
         setAuditContHrsErr(true);
         setAuditContHrsErrMsg(
           `Contracted Hours should not be ${auditContHrs}.`
         );
+        return false;
+      } else if (
+        auditContHrs.toString().includes(".") ||
+        auditContHrs.toString().includes(",")
+      ) {
+        setAuditContHrsErr(true);
+        setAuditContHrsErrMsg("Contracted Hours must be a valid value.");
+        return false;
       }
 
       if (auditActualHrs < 0) {
@@ -341,16 +379,28 @@ const ClientContent = forwardRef<
         );
         return false;
       } else if (
-        auditActualHrs === 0 ||
+        auditActualHrs === "0" ||
         auditActualHrs === "00" ||
         auditActualHrs === "000" ||
         auditActualHrs === "0000" ||
-        auditActualHrs === "00000"
+        auditActualHrs === "00000" ||
+        auditContHrs === "-0" ||
+        auditContHrs === "-00" ||
+        auditContHrs === "-000" ||
+        auditContHrs === "-0000" ||
+        auditContHrs === "-00000" 
       ) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg(
           `Internal Hours should not be ${auditActualHrs}.`
         );
+        return false;
+      } else if (
+        auditActualHrs.toString().includes(".") ||
+        auditActualHrs.toString().includes(",")
+      ) {
+        setAuditActHrsErr(true);
+        setAuditActualHrsErrMsg("Internal Hours must be a valid value.");
         return false;
       }
     }
@@ -757,7 +807,7 @@ const ClientContent = forwardRef<
             hasError={telError}
             placeholder="Enter Mobile No."
             label="Mobile Number"
-            max={15}
+            maxLength={14}
             getError={() => {}}
           />
 
@@ -849,6 +899,7 @@ const ClientContent = forwardRef<
                   hasError={accContHrsErr}
                   errorMessage={accContHrsErrMsg}
                   noText
+                  
                   onWheel={(e) => e.currentTarget.blur()}
                 />
                 <Text

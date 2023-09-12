@@ -1,16 +1,18 @@
 import EditIcon from "@/assets/icons/EditIcon";
+import SaveIcon from "@/assets/icons/SaveIcon";
 import axios from "axios";
 import {
   Button,
   CheckBox,
   Close,
   DataTable,
-  Select,
   Text,
   Toast,
   Tooltip,
 } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
+import Select from "@mui/material/Select";
+import { MenuItem } from "@mui/material";
 
 const ClientProcessDrawer = ({
   onOpen,
@@ -21,85 +23,187 @@ const ClientProcessDrawer = ({
   const [clientProcessData, setClientProcessData] = useState([]);
   const [thisclientProcess, setThisClientProcess] = useState([]);
   const [stndrdTime, setStndrdTime] = useState<any>([]);
-  const [stndrdTimeErr, setStndrdTimeErr] = useState(false);
-  const [stndrdTimeHasErr, setStndrdTimeHasErr] = useState(false);
   const [processType, setProcessType] = useState<any>([]);
-  const [processTypeErr, setProcessTypeErr] = useState<any>(false);
-  const [processTypeHasErr, setProcessTypeHasErr] = useState<any>(false);
   const [billableType, setBillableType] = useState<any>([]);
-  const [billableTypeErr, setBillableTypeErr] = useState<any>(false);
-  const [billableTypeHasErr, setBillableTypeHasErr] = useState<any>(false);
-  const [rowId, setRowId] = useState<number | null>(null);
+  const [type, setType] = useState<string>("text");
+  const [convertedSec, setConvertedSec] = useState<number>(0);
+
+  const [estTimeError, setEstTimeError] = useState(false);
+  const [estTimeHasError, setEstTimeHasError] = useState(false);
+  const [estErrMsg, setEstErrMsg] = useState("");
 
   const [selectedRowsData, setSelectedRowsData] = useState<any[]>([]);
+  const [editingRows, setEditingRows] = useState<{ [key: number]: boolean }>(
+    {}
+  );
+  const [selectAllChecked, setSelectAllChecked] = useState<boolean>(false);
+  // handling select-all checkbox
+  const checkAllCheked = Object.values(thisclientProcess).every(
+    (value) => value === true
+  );
+
+  // Making all checkbox true
+  const handleSelectAll = () => {
+    const updatedClientProcess: any = { ...thisclientProcess };
+    const updatedRowsData = [...selectedRowsData];
+
+    for (const id in updatedClientProcess) {
+      updatedClientProcess[id] = !checkAllCheked;
+    }
+
+    setThisClientProcess(updatedClientProcess);
+    setSelectAllChecked(!checkAllCheked);
+
+    if (!checkAllCheked) {
+      clientProcessData.forEach((item: any) => {
+        if (!updatedRowsData.some((data) => data.id === item.Id)) {
+          const estimatedTime = stndrdTime[item.Id] || "00:00:00";
+          const [hours, minutes, seconds] = estimatedTime.split(":");
+          const estTimeTotalSeconds =
+            parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+
+          updatedRowsData.push({
+            id: item.Id,
+            estimatedHour: estTimeTotalSeconds,
+            isProductive: processType[item.Id] || false,
+            isBillable: billableType[item.Id] || false,
+            isActive: true,
+          });
+        }
+      });
+    } else {
+      // Clear the selected rows data
+      updatedRowsData.length = 0;
+    }
+
+    setSelectedRowsData(updatedRowsData);
+  };
+
+  // converting minutes to HH:MM
+  function secondsToHHMMSS(seconds: any) {
+    const hours = Math.floor(seconds / 3600);
+    const remainingSeconds = seconds % 3600;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const remainingSecondsFinal = remainingSeconds % 60;
+
+    const hoursStr = hours.toString().padStart(2, "0");
+    const minsStr = minutes.toString().padStart(2, "0");
+    const secsStr = remainingSecondsFinal.toString().padStart(2, "0");
+
+    return `${hoursStr}:${minsStr}:${secsStr}`;
+  }
+
+  const handleEstTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    dId: string
+  ) => {
+    let newValue = event.target.value;
+    newValue = newValue.replace(/[^0-9]/g, "");
+    if (newValue.length > 8) {
+      return;
+    }
+
+    let formattedValue = "";
+    if (newValue.length >= 1) {
+      const hours = parseInt(newValue.slice(0, 2));
+      if (hours >= 0 && hours <= 23) {
+        formattedValue = newValue.slice(0, 2);
+      } else {
+        formattedValue = "23";
+      }
+    }
+
+    if (newValue.length >= 3) {
+      const minutes = parseInt(newValue.slice(2, 4));
+      if (minutes >= 0 && minutes <= 59) {
+        formattedValue += ":" + newValue.slice(2, 4);
+      } else {
+        formattedValue += ":59";
+      }
+    }
+
+    if (newValue.length >= 5) {
+      const seconds = parseInt(newValue.slice(4, 6));
+      if (seconds >= 0 && seconds <= 59) {
+        formattedValue += ":" + newValue.slice(4, 6);
+      } else {
+        formattedValue += ":59";
+      }
+    }
+
+    let totalSeconds = 0;
+
+    if (formattedValue) {
+      const timeComponents = formattedValue.split(":");
+      const hours = parseInt(timeComponents[0]);
+      const minutes = parseInt(timeComponents[1]);
+      const seconds = parseInt(timeComponents[2]);
+      totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    }
+    setConvertedSec(totalSeconds);
+    setStndrdTime((prevStndrdTime: any) => ({
+      ...prevStndrdTime,
+      [dId]: formattedValue,
+    }));
+  };
 
   const headers = [
-    { header: "", accessor: "Check", sortable: false },
+    {
+      header: (
+        <CheckBox
+          id="select-all"
+          checked={checkAllCheked}
+          onChange={handleSelectAll}
+        />
+      ),
+      accessor: "Check",
+      sortable: false,
+    },
     { header: "PROCESS", accessor: "Process", sortable: true },
     { header: "SUB-PROCESS", accessor: "SubProcess", sortable: true },
-    { header: "STANDARD HRS", accessor: "EstimatedHour", sortable: true },
-    { header: "PROCESS TYPE", accessor: "IsProductive", sortable: true },
-    { header: "BILL TYPE", accessor: "IsBillable", sortable: true },
+    { header: "STANDARD HRS", accessor: "EstimatedHour", sortable: false },
+    { header: "PROCESS TYPE", accessor: "IsProductive", sortable: false },
+    { header: "BILL TYPE", accessor: "IsBillable", sortable: false },
     { header: "ACTIONS", accessor: "actions", sortable: false },
   ];
 
   const handleClose = () => {
     setSelectedRowsData([]);
     onClose();
-    setRowId(null);
+    setEditingRows({});
   };
 
   const handleSubmit = () => {
-    const updatedStndrdTime = { ...stndrdTime };
-    const updatedProcessType = { ...processType };
-    const updatedBillableType = { ...billableType };
-
-    let hasErrors = false;
-
-    clientProcessData.forEach((item: any) => {
-      if (updatedStndrdTime[item.Id].length <= 0) {
-        setStndrdTimeErr(true);
-        hasErrors = true;
-        Toast.error("Standard time is required.");
-      }
-
-      if (
-        updatedProcessType[item.Id] !== true &&
-        updatedProcessType[item.Id] !== false
-      ) {
-        setProcessTypeErr(true);
-        hasErrors = true;
-        Toast.error("Process type is required.");
-      }
-
-      if (
-        updatedBillableType[item.Id] !== true &&
-        updatedBillableType[item.Id] !== false
-      ) {
-        setBillableTypeErr(true);
-        hasErrors = true;
-        Toast.error("Billable type is required.");
-      }
-    });
-
-    if (hasErrors) {
-      return; // Exit early if there are errors
-    }
-
     if (selectedRowsData.length === 0) {
       Toast.error("Please select a Process.");
-      return;
+      return false;
     }
 
-    const editedData = selectedRowsData.map((item: any) => ({
+    // Define a function to convert time strings to seconds
+    const timeStringToSeconds = (timeString: string) => {
+      if (
+        !timeString ||
+        typeof timeString !== "string" ||
+        !timeString.match(/^\d{2}:\d{2}:\d{2}$/)
+      ) {
+        return 0;
+      }
+
+      const timeComponents = timeString.split(":");
+      const hours = parseInt(timeComponents[0], 10);
+      const minutes = parseInt(timeComponents[1], 10);
+      const seconds = parseInt(timeComponents[2], 10);
+      return hours * 3600 + minutes * 60 + seconds;
+    };
+
+    const editedData = selectedRowsData.map((item) => ({
       Id: item.Id,
-      EstimatedHour: stndrdTime[item.Id],
+      EstimatedHour: timeStringToSeconds(stndrdTime[item.Id]),
       IsProductive: processType[item.Id],
       IsBillable: billableType[item.Id],
     }));
 
     setSelectedRowsData(editedData);
-
     saveProcess();
   };
 
@@ -176,7 +280,7 @@ const ClientProcessDrawer = ({
           const billableTypeData: any = {};
           const isClientProcess: any = {};
           response.data.ResponseData.forEach((item: any) => {
-            stndrdTimeData[item.Id] = item.EstimatedHour;
+            stndrdTimeData[item.Id] = secondsToHHMMSS(item.EstimatedHour);
             processTypeData[item.Id] = item.IsProductive;
             billableTypeData[item.Id] = item.IsBillable;
             isClientProcess[item.Id] = item.IsClientProcess;
@@ -206,17 +310,6 @@ const ClientProcessDrawer = ({
     }
   };
 
-  const clearClientProcessData = () => {
-    setStndrdTimeErr(false);
-    setStndrdTimeHasErr(false);
-    setBillableTypeErr(false);
-    setBillableTypeHasErr(false);
-    setProcessTypeErr(false);
-    setProcessTypeHasErr(false);
-
-    handleClose();
-  };
-
   useEffect(() => {
     if (selectedRowId && onOpen) {
       getProcessByClient();
@@ -224,7 +317,10 @@ const ClientProcessDrawer = ({
   }, [selectedRowId, onOpen]);
 
   const handleActionValue = (id: any) => {
-    setRowId(id);
+    setEditingRows((prevEditingRows) => ({
+      ...prevEditingRows,
+      [id]: !prevEditingRows[id],
+    }));
   };
 
   const handleAddProcessData = (id: any) => {
@@ -232,53 +328,65 @@ const ClientProcessDrawer = ({
       (data: any) => data.id === id
     );
 
-    if (thisclientProcess[id]) {
-      // If thisclientProcess is true, set isActive to false
-      const rowData = {
-        id: id,
-        estimatedHour: stndrdTime[id] || 0,
-        isProductive: processType[id] || false,
-        isBillable: billableType[id] || false,
-        isActive: false, // Set isActive to false
-      };
+    const estimatedTime = stndrdTime[id] || "00:00:00";
+    const [hours, minutes, seconds] = estimatedTime.split(":");
+    const estTimeTotalSeconds =
+      parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
-      setThisClientProcess((prevClientProcess: any) => ({
-        ...prevClientProcess,
-        [id]: false,
-      }));
+    const updatedRow = {
+      id: id,
+      estimatedHour: estTimeTotalSeconds,
+      isProductive: processType[id] || false,
+      isBillable: billableType[id] || false,
+      isActive: !thisclientProcess[id],
+    };
 
-      if (existingIndex !== -1) {
-        const updatedSelectedRowsData = selectedRowsData.filter(
-          (data: any) => data.id !== id
-        );
-        setSelectedRowsData(updatedSelectedRowsData);
-      } else {
-        setSelectedRowsData([...selectedRowsData, rowData]);
-      }
+    const updatedRowsData = [...selectedRowsData];
+    if (existingIndex !== -1) {
+      updatedRowsData[existingIndex] = updatedRow;
     } else {
-      // If thisclientProcess is false, set isActive to true
-      const rowData = {
-        id: id,
-        estimatedHour: stndrdTime[id] || 0,
-        isProductive: processType[id] || false,
-        isBillable: billableType[id] || false,
-        isActive: true, 
-      };
-
-      setThisClientProcess((prevClientProcess: any) => ({
-        ...prevClientProcess,
-        [id]: true,
-      }));
-
-      if (existingIndex !== -1) {
-        const updatedSelectedRowsData = selectedRowsData.filter(
-          (data: any) => data.id !== id
-        );
-        setSelectedRowsData(updatedSelectedRowsData);
-      } else {
-        setSelectedRowsData([...selectedRowsData, rowData]);
-      }
+      updatedRowsData.push(updatedRow);
     }
+
+    setSelectedRowsData(updatedRowsData);
+
+    setThisClientProcess((prevClientProcess: any) => ({
+      ...prevClientProcess,
+      [id]: !thisclientProcess[id],
+    }));
+  };
+
+  const handleUpdateProcessData = (id: any) => {
+    const existingIndex = selectedRowsData.findIndex(
+      (data: any) => data.id === id
+    );
+
+    const estimatedTime = stndrdTime[id] || "00:00:00";
+    const [hours, minutes, seconds] = estimatedTime.split(":");
+    const estTimeTotalSeconds =
+      parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+
+    const updatedRow = {
+      id: id,
+      estimatedHour: estTimeTotalSeconds,
+      isProductive: processType[id] || false,
+      isBillable: billableType[id] || false,
+      isActive: true,
+    };
+
+    const updatedRowsData = [...selectedRowsData];
+    if (existingIndex !== -1) {
+      updatedRowsData[existingIndex] = updatedRow;
+    } else {
+      updatedRowsData.push(updatedRow);
+    }
+
+    setSelectedRowsData(updatedRowsData);
+
+    setThisClientProcess((prevClientProcess: any) => ({
+      ...prevClientProcess,
+      [id]: true,
+    }));
   };
 
   // Setting Table Data
@@ -290,66 +398,79 @@ const ClientProcessDrawer = ({
           <div>
             <CheckBox
               id={d.Id}
-              checked={
-                thisclientProcess[d.Id]
-                // || selectedRowsData.some((data) => data.id === d.Id)
-              }
+              checked={thisclientProcess[d.Id]}
               onChange={() => handleAddProcessData(d.Id)}
             />
           </div>
         ),
 
         EstimatedHour: (
-          <Text
-            value={stndrdTime[d.Id] || ""}
-            getValue={(e) => setStndrdTime({ ...stndrdTime, [d.Id]: e })}
-            getError={(e) => setStndrdTimeHasErr(e)}
-            validate
-            noText
-            noSpecialChar
-            disabled={rowId !== d.Id}
-          />
+          <div className="w-36">
+            <Text
+              value={stndrdTime[d.Id] || ""}
+              getValue={(e) => setStndrdTime({ ...stndrdTime, [d.Id]: e })}
+              getError={(e: any) => setEstTimeHasError(e)}
+              errorMessage={estErrMsg}
+              hasError={estTimeError}
+              type={type}
+              disabled={!editingRows[d.Id]}
+              onChange={(event) => handleEstTimeChange(event, d.Id)}
+              className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
         ),
         IsProductive: (
           <Select
-            defaultValue={processType[d.Id]}
-            id={`processType-${d.Id}`}
-            options={[
-              { label: "Productive", value: true },
-              { label: "Non-Productive", value: false },
-            ]}
-            getValue={(e) => setProcessType({ ...processType, [d.Id]: e })}
-            getError={(e) => setProcessTypeHasErr(e)}
-            // hasError={processTypeErr}
-            validate
-            disabled={rowId !== d.Id}
-          />
+            className="w-36"
+            variant="standard"
+            value={processType[d.Id]}
+            onChange={(e) =>
+              setProcessType({ ...processType, [d.Id]: e.target.value })
+            }
+            disabled={!editingRows[d.Id]}
+          >
+            <MenuItem value={"true"}>Productive</MenuItem>
+            <MenuItem value={"false"}>Non-Productive</MenuItem>
+          </Select>
         ),
         IsBillable: (
           <Select
-            defaultValue={billableType[d.Id]}
-            id={`billableType-${d.Id}`}
-            options={[
-              { label: "Billable", value: true },
-              { label: "Non-Billable", value: false },
-            ]}
-            getValue={(e) => setBillableType({ ...billableType, [d.Id]: e })}
-            getError={(e) => setBillableTypeHasErr(e)}
-            // hasError={billableTypeErr}
-            validate
-            disabled={rowId !== d.Id}
-          />
+            className="w-36"
+            variant="standard"
+            value={billableType[d.Id]}
+            onChange={(e) =>
+              setBillableType({ ...billableType, [d.Id]: e.target.value })
+            }
+            disabled={!editingRows[d.Id]}
+          >
+            <MenuItem value={"true"}>Billable</MenuItem>
+            <MenuItem value={"false"}>Non-Billable</MenuItem>
+          </Select>
         ),
         actions: (
           <div
             onClick={() => handleActionValue(d.Id)}
-            className="cursor-pointer w-[66px] flex justify-center transition-transform transform-gpu hover:scale-105 active:scale-95"
+            className="cursor-pointer w-[66px] h-8 flex justify-center"
           >
-            <Tooltip position={"right"} content="Edit">
-              <span className="h-6 w-6">
-                <EditIcon />
-              </span>
-            </Tooltip>
+            {editingRows[d.Id] ? (
+              <>
+                <Tooltip position="top" content="Save">
+                  <Button
+                    variant="btn-primary"
+                    className="rounded-md"
+                    onClick={() => handleUpdateProcessData(d.Id)}
+                  >
+                    <SaveIcon />
+                  </Button>
+                </Tooltip>
+              </>
+            ) : (
+              <Tooltip position="top" content="Edit">
+                <Button variant="btn-primary" className="rounded-md">
+                  <EditIcon />
+                </Button>
+              </Tooltip>
+            )}
           </div>
         ),
       })
@@ -363,7 +484,7 @@ const ClientProcessDrawer = ({
     >
       <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
         <span className="text-pureBlack text-lg font-medium">Edit Process</span>
-        <span onClick={clearClientProcessData}>
+        <span onClick={handleClose}>
           <Close variant="medium" />
         </span>
       </div>
@@ -387,7 +508,7 @@ const ClientProcessDrawer = ({
           Update Process
         </Button>
         <Button
-          onClick={clearClientProcessData}
+          onClick={handleClose}
           variant="btn-error"
           className="rounded-[4px] !h-[36px]"
         >

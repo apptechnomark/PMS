@@ -1,25 +1,31 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Toast, DataTable, AvatarGroup, Avatar } from "next-ts-lib";
+import { Toast, DataTable, AvatarGroup, Avatar, Loader } from "next-ts-lib";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import "next-ts-lib/dist/index.css";
 
-function Group({ onOpen, onEdit, onDataFetch, onHandleGroupData }: any) {
+function Group({
+  onOpen,
+  onEdit,
+  onDataFetch,
+  onHandleGroupData,
+  getOrgDetailsFunction,
+}: any) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [data, setData] = useState([]);
+  const [loader, setLoader] = useState(true);
+  const token = localStorage.getItem("token");
+  const org_token = localStorage.getItem("Org_Token");
 
   const headers = [
     { header: "GROUP NAME", accessor: "Name", sortable: true },
     { header: "USER", accessor: "user", sortable: false },
     { header: "ACTION", accessor: "action", sortable: false },
   ];
-
-  const token = localStorage.getItem("token");
-  const org_token = localStorage.getItem("Org_Token");
 
   // setting getData function for sending in parent component
   useEffect(() => {
@@ -59,9 +65,12 @@ function Group({ onOpen, onEdit, onDataFetch, onHandleGroupData }: any) {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setData(response.data.ResponseData.List);
+          getOrgDetailsFunction();
         } else {
           const data = response.data.Message;
+          setLoader(false);
           if (data === null) {
             Toast.error("Error", "Please try again later.");
           } else {
@@ -70,6 +79,7 @@ function Group({ onOpen, onEdit, onDataFetch, onHandleGroupData }: any) {
         }
       }
     } catch (error) {
+      setLoader(false);
       console.error(error);
     }
   };
@@ -207,40 +217,50 @@ function Group({ onOpen, onEdit, onDataFetch, onHandleGroupData }: any) {
   );
 
   return (
-    <div className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}>
-      <Toast position="top_center" />
-
-      {data.length > 0 && (
-        <DataTable columns={headers} data={groupData} sticky />
-      )}
-
-      {data.length === 0 && (
-        <p className="flex justify-center items-center py-[17px] text-[14px]">
-          Currently there is no record, you may
-          <a
-            onClick={onOpen}
-            className=" text-primary underline cursor-pointer ml-1 mr-1"
-          >
-            create Group
-          </a>
-          to continue
-        </p>
-      )}
-
-      {/* Delete Modal  */}
-      {isDeleteOpen && (
-        <DeleteModal
-          isOpen={isDeleteOpen}
-          onClose={closeModal}
-          title="Delete Group"
-          actionText="Yes"
-          onActionClick={handleDeleteRow}
+    <>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
+      ) : (
+        <div
+          className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
         >
-          Are you sure you want to delete group? <br /> If you delete group, you
-          will permanently lose group and group related data.
-        </DeleteModal>
+          <Toast position="top_center" />
+
+          {data.length > 0 && (
+            <DataTable columns={headers} data={groupData} sticky />
+          )}
+
+          {groupData.length === 0 && (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className=" text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                create Group
+              </a>
+              to continue
+            </p>
+          )}
+
+          {/* Delete Modal  */}
+          {isDeleteOpen && (
+            <DeleteModal
+              isOpen={isDeleteOpen}
+              onClose={closeModal}
+              title="Delete Group"
+              actionText="Yes"
+              onActionClick={handleDeleteRow}
+            >
+              Are you sure you want to delete group? <br /> If you delete group,
+              you will permanently lose group and group related data.
+            </DeleteModal>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 }
 

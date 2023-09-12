@@ -2,12 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-
-::-webkit-scrollbar{
-    width: 0px;
+::-webkit-scrollbar {
+  width: 0px;
 }
 
 /* For time logo hide */
 input[type="time"]::-webkit-calendar-picker-indicator {
-    background: none;
+  background: none;
 }
+
+.css-11mde6h-MuiPaper-root {
+  box-shadow: none !important;
+}
+
+.css-hyum1k-MuiToolbar-root {
+  min-height: 64px;
+}
+
+.css-1ygcj2i-MuiTableCell-root {
+  padding: 16px;
+}
+
+.tss-ylo811-MUIDataTableSelectCell-headerCell {
+  background-color: #f6f6f6 !important;
+}
+
+
+/* Hide the AM/PM indicator for input[type="time"] */
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+input[type="time"]::-moz-time-text {
+  display: none;
+} 
+
+
+

@@ -1,7 +1,10 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Autocomplete, Checkbox, TextField } from "@mui/material";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import axios from "axios";
-import { Button, Loader, MultiSelectChip, Text, Toast } from "next-ts-lib";
+import { Button, Loader, Toast } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -12,6 +15,14 @@ import React, {
 export interface GroupContentRef {
   groupDataValue: () => void;
 }
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
+
+type Options = {
+  label: string;
+  value: string;
+};
 
 const GroupContent = forwardRef<
   GroupContentRef,
@@ -24,17 +35,20 @@ const GroupContent = forwardRef<
     groupData: any;
   }
 >(({ tab, orgData, groupData, onEdit, onClose, onDataFetch }, ref) => {
-  const [data, setData] = useState([]);
-  const [name, setName] = useState("");
+  const [data, setData] = useState<Options[]>([]);
+  const [name, setName] = useState<string>("");
   const [nameErr, setNameErr] = useState(false);
-  const [nameHasError, setNameHasError] = useState(false);
-  const [selectValue, setSelectValue] = useState([]);
+  const [nameErrText, setNameErrText] = useState<string>(
+    "This field is required."
+  );
+  const [selectValue, setSelectValue] = useState<any[]>([]);
+  const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
   const [selectvalueErr, setSelectValueErr] = useState(false);
   const [selectvalueHasErr, setSelectValueHasErr] = useState(false);
   const [loader, setLoader] = useState(false);
-
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
+
   const fetchEditData = async () => {
     if (onEdit) {
       try {
@@ -52,11 +66,19 @@ const GroupContent = forwardRef<
         if (response.status === 200) {
           let groupuserIds = response.data.ResponseData.GroupUserIds;
 
+          const filteredOptionsData = data.filter((d) => {
+            return groupuserIds.some((id: number) => {
+              return id === parseInt(d.value);
+            });
+          });
+          console.log("filter", filteredOptionsData);
+
           if (response.data.ResponseStatus === "Success") {
             setName(response.data.ResponseData.Name);
             if (!groupuserIds) {
               groupuserIds = null;
             } else {
+              setSelectOptions(filteredOptionsData);
               setSelectValue(response.data.ResponseData.GroupUserIds);
             }
           } else {
@@ -73,6 +95,7 @@ const GroupContent = forwardRef<
       }
     } else {
       setName("");
+      setSelectOptions([]);
       setSelectValue([]);
     }
   };
@@ -84,7 +107,7 @@ const GroupContent = forwardRef<
     getDropdownData();
 
     setNameErr(false);
-    setNameHasError(false);
+    setNameErrText("This field is required.");
     setSelectValueErr(false);
     setSelectValueHasErr(false);
   }, [onEdit]);
@@ -135,9 +158,10 @@ const GroupContent = forwardRef<
     const clearData = () => {
       setName("");
       setSelectValue([]);
+      setSelectOptions([]);
       setNameErr(false);
       setSelectValueErr(false);
-      setNameHasError(false);
+      setNameErrText("This field is required.");
       setSelectValueHasErr(false);
     };
     await setHasTrue();
@@ -152,13 +176,13 @@ const GroupContent = forwardRef<
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     name.trim().length <= 0 && setNameErr(true);
-    const validName = /^[a-zA-Z0-9 ]+$/.test(name);
+    // const validName = /^[a-zA-Z0-9 ]+$/.test(name);
 
-    if (!validName) {
-      setNameErr(true);
-      return;
-    }
-    if (!(name.trim().length <= 0)) {
+    // if (!validName) {
+    //   setNameErr(true);
+    //   return;
+    // }
+    if (!nameErr && name !== "" && name.trim.length <= 0) {
       setLoader(true);
       try {
         const prams = {
@@ -217,7 +241,8 @@ const GroupContent = forwardRef<
   const addMoreSubmit = async (e: any) => {
     e.preventDefault();
     name.trim().length <= 0 && setNameErr(true);
-    if (!(name.trim().length <= 0)) {
+
+    if (!nameErr && name !== "" && name.trim.length <= 0) {
       try {
         const prams = {
           id: onEdit || 0,
@@ -258,46 +283,84 @@ const GroupContent = forwardRef<
       }
       setName("");
       setSelectValue([]);
+      setSelectOptions([]);
     }
   };
 
-  const handleGroupChange = (value: any) => {
-    if (value.length <= 20) {
+  const handleGroupName = (e: any) => {
+    if (e.target.value === "" || e.target.value.trim().length <= 0) {
+      setName(e.target.value);
+      setNameErr(true);
+      setNameErrText("This is required field.");
+    } else if (/[^a-zA-Z0-9\s]/.test(e.target.value)) {
+      setName(e.target.value);
+      setNameErr(true);
+      setNameErrText("Special Character is not allowed.");
+    } else if (e.target.value.length > 20) {
+      setName(e.target.value);
+      setNameErr(true);
+      setNameErrText("More than 20 Characters are not allowed.");
+    } else {
+      setName(e.target.value);
       setNameErr(false);
-      setName(value);
+      setNameErrText("This field is required.");
+    }
+  };
+
+  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+    if (value !== undefined) {
+      const selectedValue = value.map((v: any) => v.value);
+      setSelectOptions(value);
+      setSelectValue(selectedValue);
+    } else {
+      setSelectValue([]);
     }
   };
 
   return (
     <>
       <div className="flex gap-[20px] flex-col p-[20px]">
-        <Text
-          getValue={(value: any) => handleGroupChange(value)}
-          validate
-          label="Group Name"
-          placeholder="Add group Name"
-          hasError={nameErr}
+        <TextField
           value={name}
-          // noSpecialChar
-          getError={(e) => setNameHasError(e)}
+          error={nameErr}
+          helperText={nameErr && nameErrText}
+          required
+          id="standard-basic"
+          label="Group Name"
+          placeholder="Add group name"
+          variant="standard"
+          onChange={handleGroupName}
         />
-        <MultiSelectChip
-          errorClass="!-mt-4"
-          label="User"
-          id="user"
-          onSelect={(value: any) => {
-            setSelectValue(value);
-          }}
+        <Autocomplete
+          multiple
+          limitTags={2}
+          id="checkboxes-tags-demo"
           options={data}
-          defaultValue={selectValue}
-          getError={(e: any) => {
-            setSelectValueHasErr(e);
-          }}
-          type="checkbox"
-          hasError={selectvalueErr}
-          getValue={(value: any) => {
-            setSelectValue(value);
-          }}
+          value={selectedOptions}
+          getOptionLabel={(option) => option.label}
+          getOptionDisabled={(option) => selectValue.includes(option.value)}
+          disableCloseOnSelect
+          onChange={handleMultiSelect}
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox
+                icon={icon}
+                checkedIcon={checkedIcon}
+                style={{ marginRight: 8 }}
+                checked={selectValue.includes(option.value)}
+              />
+              {option.label}
+            </li>
+          )}
+          style={{ width: 500 }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="User"
+              placeholder="Please Select..."
+              variant="standard"
+            />
+          )}
         />
       </div>
 
@@ -307,7 +370,7 @@ const GroupContent = forwardRef<
             <Button
               variant="btn-outline-primary"
               className="rounded-[4px] !h-[36px]"
-              onClick={groupDataValue}
+              onClick={()=> onClose()}
             >
               Cancel
             </Button>

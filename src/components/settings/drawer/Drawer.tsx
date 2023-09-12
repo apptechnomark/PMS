@@ -77,7 +77,7 @@ const Drawer = ({
   const handleDeleteRow = async () => {
     if (selectedRowId) {
       const token = await localStorage.getItem("token");
-      const org_Token = "9245fe4a-d402-451c-b9ed-9c1a04247482";
+      const org_Token = await localStorage.getItem("Org_Token");
 
       try {
         const response = await axios.post(
@@ -137,7 +137,7 @@ const Drawer = ({
   return (
     <>
       <div
-        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[460px] border border-lightSilver bg-pureWhite transform  ${
+        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[40%] border border-lightSilver bg-pureWhite transform  ${
           onOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >

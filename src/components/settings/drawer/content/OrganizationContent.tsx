@@ -72,7 +72,6 @@ const OrganizationContent = forwardRef<
       }
     }, [orgData, onEdit]);
 
-    const clearOrganizationData = async () => {
       const clear = () => {
         setResponseData([]);
         setOrganizationId(0);
@@ -101,9 +100,13 @@ const OrganizationContent = forwardRef<
         setProjectNameHasError(true);
       };
 
+     
+
+    const clearOrganizationData = async() => {
       await setDataErrorTrue();
       await clear();
-    };
+      onClose();
+    }
 
     useImperativeHandle(ref, () => ({
       clearOrganizationData,
@@ -329,7 +332,9 @@ const OrganizationContent = forwardRef<
               <Button
                 variant="btn-outline-primary"
                 className="rounded-[4px] !h-[36px]"
-                onClick={clearOrganizationData}
+                onClick={() => {
+                  clearOrganizationData();
+                }}
               >
                 Cancel
               </Button>

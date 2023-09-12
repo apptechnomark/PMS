@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ColFilterIcon() {
   return (
-    <div>
+    <div className="ml-5">
       <svg
         width="24"
         height="24"

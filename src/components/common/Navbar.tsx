@@ -8,7 +8,7 @@ import axios from "axios";
 import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
 
-const Navbar = ({ onUserDetailsFetch }: any) => {
+const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
   const router = useRouter();
   const [orgData, setOrgData] = useState([]);
   const [openLogout, setOpenLogout] = useState(false);
@@ -92,11 +92,30 @@ const Navbar = ({ onUserDetailsFetch }: any) => {
           );
         }
         getData();
-      } else if (response.status === 401) {
+        const filteredOrganization =
+          response.data.ResponseData.Organizations.filter(
+            (org: any) =>
+              org.OrganizationName === localStorage.getItem("Org_Name")
+          );
+        const {
+          ClientModuleName,
+          ProjectModuleName,
+          ProcessModuleName,
+          SubProcessModuleName,
+        } = filteredOrganization[0];
+        onHandleModuleNames(
+          ClientModuleName,
+          ProjectModuleName,
+          ProcessModuleName,
+          SubProcessModuleName
+        );
+      }
+    } catch (error: any) {
+      if (error.response.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
-    } catch {}
+    }
   };
 
   const fetchData = async () => {

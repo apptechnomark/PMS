@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Switch, DataTable, Toast } from "next-ts-lib";
+import { Switch, DataTable, Toast, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import axios from "axios";
@@ -22,6 +22,7 @@ function Organization({
   const [switchActive, setSwitchActive] = useState(false);
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("org_token");
+  const [loader, setLoader] = useState(true);
 
   const columns = [
     {
@@ -232,8 +233,10 @@ function Organization({
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoader(false);
           setUserList(response.data.ResponseData);
         } else {
+          setLoader(false);
           const data = response.data.Message;
           if (data === null) {
             Toast.error("Please try again later.");
@@ -243,42 +246,53 @@ function Organization({
         }
       }
     } catch {
+      setLoader(false);
       setUserList([]);
     }
   };
 
   return (
-    <div className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}>
-      <Toast position="top_center" />
-      {userList.length > 0 ? (
-        <DataTable columns={columns} data={tableData} sticky />
+    <>
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
       ) : (
-        <p className="flex justify-center items-center py-[17px] text-[14px]">
-          Currently there is no record, you may
-          <a
-            onClick={onOpen}
-            className=" text-primary underline cursor-pointer ml-1 mr-1"
-          >
-            Create Organization
-          </a>
-          to continue
-        </p>
-      )}
-      {isOpenSwitchModal && (
-        <SwitchModal
-          isOpen={isOpenSwitchModal}
-          onClose={closeSwitchModal}
-          title={`${
-            switchActive === false ? "Active" : "InActive"
-          } Organization`}
-          actionText="Yes"
-          onActionClick={handleToggleUser}
+        <div
+          className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}
         >
-          Are you sure you want to&nbsp;
-          {switchActive === false ? "Active" : "InActive"} Organization?
-        </SwitchModal>
+          <Toast position="top_center" />
+          {tableData.length > 0 ? (
+            <DataTable columns={columns} data={tableData} sticky />
+          ) : (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className=" text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                Create Organization
+              </a>
+              to continue
+            </p>
+          )}
+          {isOpenSwitchModal && (
+            <SwitchModal
+              isOpen={isOpenSwitchModal}
+              onClose={closeSwitchModal}
+              title={`${
+                switchActive === false ? "Active" : "InActive"
+              } Organization`}
+              actionText="Yes"
+              onActionClick={handleToggleUser}
+            >
+              Are you sure you want to&nbsp;
+              {switchActive === false ? "Active" : "InActive"} Organization?
+            </SwitchModal>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 }
 

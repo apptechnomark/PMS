@@ -1,14 +1,31 @@
+/* eslint-disable react/jsx-key */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckBox, DataTable, Toast } from "next-ts-lib";
+import { CheckBox, DataTable, Loader, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 
-const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
+interface Action {
+  IsChecked: boolean;
+}
+
+const Permissions = ({
+  onOpen,
+  permissionValue,
+  sendDataToParent,
+  expanded,
+  loading,
+  getOrgDetailsFunction,
+}: any) => {
   const [data, setData] = useState<any>([]);
-  const [isAction, setIsAction] = useState<string>("")
-  const [checkboxStates, setCheckboxStates] = useState<{ [id: string]: boolean }>({});
+  const [isAction, setIsAction] = useState<string>("");
+
+  useEffect(() => {
+    if (permissionValue > 0) {
+      getData();
+    }
+  }, [permissionValue]);
 
   const getLargestArray = (arr: any) => {
     let index = 0;
@@ -18,53 +35,142 @@ const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
         arrLength = a?.ActionList.length;
         index = i;
       }
-    })
+    });
     return arr && arr[index]?.ActionList;
-  }
-
-  const handleCheckboxChange = (actionId: string) => {
-    setCheckboxStates((prevStates) => ({
-      ...prevStates,
-      [actionId]: !prevStates[actionId],    }));
   };
 
-  const getCheckbox = (actionList: any) => {
-    return actionList?.sort((a: any, b: any) => b.ActionName.localeCompare(a.ActionName)).map((Name: any, index: number) => { return <CheckBox checked={Name.IsChecked} onChange={() => handleCheckboxChange(Name.Id)} id={Math.random().toString()} label={Name.ActionName} key={index} /> });
+  const handleCheckboxChange = (
+    parentId: number,
+    childIndex: number | undefined,
+    actionIndex: number
+  ) => {
+    const updatedData = data.map((parent: any, parentIdx: number) => {
+      if (parentIdx === parentId) {
+        if (childIndex !== undefined) {
+          return {
+            ...parent,
+            Children: parent.Children.map((child: any, childIdx: number) => {
+              if (childIdx === childIndex) {
+                return {
+                  ...child,
+                  ActionList: child.ActionList.map(
+                    (action: any, actionIdx: number) => {
+                      if (actionIdx === actionIndex) {
+                        return {
+                          ...action,
+                          IsChecked: !action.IsChecked,
+                        };
+                      }
+                      return action;
+                    }
+                  ),
+                };
+              }
+              return child;
+            }),
+          };
+        } else {
+          return {
+            ...parent,
+            ActionList: parent.ActionList.map(
+              (action: any, actionIdx: number) => {
+                if (actionIdx === actionIndex) {
+                  return {
+                    ...action,
+                    IsChecked: !action.IsChecked,
+                  };
+                }
+                return action;
+              }
+            ),
+          };
+        }
+      }
+      return parent;
+    });
+
+    setData(updatedData);
+    sendDataToParent(updatedData);
+  };
+
+  const getCheckbox = (
+    actionList: any,
+    parentId: number,
+    childIndex?: number | 0
+  ) => {
+    return actionList
+      ?.sort((a: any, b: any) => b.ActionName.localeCompare(a.ActionName))
+      .map((action: any, index: number) => {
+        const uniqueId =
+          childIndex === undefined
+            ? parentId.toString() +
+              action.ActionName +
+              action.ActionId.toString()
+            : parentId.toString() +
+              action.ActionName +
+              childIndex +
+              action.ActionId.toString();
+
+        return (
+          <CheckBox
+            key={uniqueId}
+            label={action.ActionName}
+            type="checkbox"
+            id={uniqueId}
+            checked={action.IsChecked}
+            onChange={() => handleCheckboxChange(parentId, childIndex, index)}
+          />
+        );
+      });
   };
 
   function generateColumns(data: any) {
     const largestChildArray = getLargestArray(data);
     const columns = [
       { header: "", accessor: "Name", sortable: false },
-      ...(largestChildArray ? largestChildArray.map((child: any, index: number) => ({ header: "", accessor: index, sortable: false })) : [])
+      ...(largestChildArray
+        ? largestChildArray.map((child: any, index: number) => ({
+            header: "",
+            accessor: index,
+            sortable: false,
+          }))
+        : []),
     ];
 
     return columns;
-    ;
   }
 
   let tableData: any[] = data.map((i: any) => {
     const isViewChecked = i.ActionList;
+    const Id = i.Sequence - 1;
+
     return {
       ...i,
-      ...getCheckbox(isViewChecked),
+      ...getCheckbox(isViewChecked, Id),
 
-      details: i.Children.length > 0 && (
-        <div className="ml-12">
-
-          <DataTable
-            columns={[{ header: "", accessor: "name", sortable: false }, ...getLargestArray(i?.Children).map((child: any, index: number) =>
-              new Object({ header: "", accessor: index, sortable: false }
-              ))]}
-            data={i.Children.map(({ Name, ActionList, ...more }: any, index: number) =>
-              new Object({
-                name: Name,
-                ...getCheckbox(ActionList),
-              })
-            )}
-          />
-        </div>
-      ),
+      details:
+        i.Children.length > 0 ? (
+          <div className="ml-12">
+            <DataTable
+              columns={[
+                { header: "", accessor: "name", sortable: false },
+                ...getLargestArray(i?.Children).map(
+                  (child: any, index: number) =>
+                    new Object({ header: "", accessor: index, sortable: false })
+                ),
+              ]}
+              data={i.Children.map(
+                ({ Name, ActionList, ...more }: any, index: number) =>
+                  new Object({
+                    name: Name,
+                    ...getCheckbox(ActionList, Id, index),
+                  })
+              )}
+            />
+          </div>
+        ) : (
+          ""
+        ),
     };
   });
 
@@ -89,15 +195,22 @@ const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
         if (response.data.ResponseStatus === "Success") {
           const responseData = response.data.ResponseData;
           setData(responseData);
+          getOrgDetailsFunction();
           if (Array.isArray(responseData) && responseData.length > 0) {
-            const actionNames = responseData.map(item => {
-              if (item.ActionList && Array.isArray(item.ActionList) && item.ActionList.length > 0) {
+            const actionNames = responseData.map((item) => {
+              if (
+                item.ActionList &&
+                Array.isArray(item.ActionList) &&
+                item.ActionList.length > 0
+              ) {
                 return item.ActionList[0].ActionName;
               }
               return null;
             });
-            const isAction = actionNames.find(actionName => actionName !== null);
-            setIsAction(isAction)
+            const isAction = actionNames.find(
+              (actionName) => actionName !== null
+            );
+            setIsAction(isAction);
           }
 
           sendDataToParent(response.data.ResponseData);
@@ -121,6 +234,7 @@ const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
       console.error(error);
     }
   };
+
   useEffect(() => {
     if (permissionValue > 0) {
       getData();
@@ -128,14 +242,13 @@ const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
   }, [permissionValue]);
 
   return (
-    <div
-      className={`${tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"}`}
-    >
-
-      {data.length > 0 && (
-        <DataTable expandable columns={generateColumns(data)} data={tableData} />
+    <>
+      {loading && (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
       )}
-      {tableData.length === 0 && (
+      {data.length <= 0 ? (
         <p className="flex justify-center items-center py-[17px] text-[14px]">
           Currently there is no record, you may
           <a
@@ -146,8 +259,23 @@ const Permissions = ({ onOpen, permissionValue, sendDataToParent }: any) => {
           </a>
           to continue
         </p>
+      ) : (
+        <div
+          className={`${
+            tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
+          }`}
+        >
+          {data.length > 0 && (
+            <DataTable
+              expandable
+              columns={generateColumns(data)}
+              data={tableData}
+              isExpanded={expanded}
+            />
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

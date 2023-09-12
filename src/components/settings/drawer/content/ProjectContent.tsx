@@ -37,10 +37,6 @@ const ProjectContent = forwardRef<
   const [projectDrpdown, setProjectDrpdown] = useState([]);
   const [subProject, setSubProject] = useState("");
 
-  // const [addProjectName, setAddProjectName] = useState("");
-  // const [addProjectNameError, setAddProjectNameError] = useState(false);
-  // const [addProjectNameHasError, setAddProjectNameHasError] = useState(false);
-
   const [subProjectId, setSubProjectId] = useState(null);
 
   const [projectLabel, setProjectLabel] = useState("");
@@ -158,49 +154,49 @@ const ProjectContent = forwardRef<
     clearAllFields();
   }, [onEdit, onClose]);
 
-  useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.pms_api_url}/project/getdropdown`,
-          {
-            ClientId: client,
-            SelectAll: true,
+  const getData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      let response = await axios.post(
+        `${process.env.pms_api_url}/project/getdropdown`,
+        {
+          ClientId: client,
+          SelectAll: true,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setProjectDrpdown(response.data.ResponseData.List);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again later.");
-            } else {
-              Toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setProjectDrpdown(response.data.ResponseData.List);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            Toast.error("Please try again later.");
           } else {
             Toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again.");
+        } else {
+          Toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getData();
   }, [client]);
 
@@ -220,15 +216,6 @@ const ProjectContent = forwardRef<
     setSubProject("");
     setTextFieldOpen(false);
     setProjectLabel("");
-    // setAddProjectName("");
-    // setAddProjectNameError(false);
-    // setAddProjectNameHasError(false);
-    // setSelectedRowId(null);
-  };
-
-  const clearAllDataAfterAddProject = async () => {
-    await setDataTrue();
-    await clearAllFields();
   };
 
   const clearAllData = async () => {
@@ -247,7 +234,13 @@ const ProjectContent = forwardRef<
     client <= 0 && setClientHasError(true);
     projectValue <= 0 && setProjectHasError(true);
 
-    if (clientError && projectError && projectValue > 0) {
+    if (
+      clientError &&
+      projectError &&
+      projectValue > 0 &&
+      subProject !== null &&
+      subProject.trim().length > 0
+    ) {
       setLoader(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -301,6 +294,8 @@ const ProjectContent = forwardRef<
         setLoader(false);
         console.error(error);
       }
+    } else if (client > 0 && projectValue > 0) {
+      onClose();
     }
   };
 
@@ -338,8 +333,7 @@ const ProjectContent = forwardRef<
                   : "Updated"
               } successfully.`
             );
-            onDataFetch();
-            clearAllDataAfterAddProject();
+            getData();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -407,8 +401,8 @@ const ProjectContent = forwardRef<
           getValue={(e) => setProjectValue(e)}
           getError={(e) => setProjectError(e)}
           addDynamicForm
-          addDynamicForm_Icons_Edit={onEdit}
-          addDynamicForm_Icons_Delete={onEdit}
+          addDynamicForm_Icons_Edit
+          addDynamicForm_Icons_Delete
           addDynamicForm_MaxLength={50}
           addDynamicForm_Label="Project Name"
           addDynamicForm_Placeholder="Project Name"
