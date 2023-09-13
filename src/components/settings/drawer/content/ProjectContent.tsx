@@ -296,6 +296,7 @@ const ProjectContent = forwardRef<
       }
     } else if (client > 0 && projectValue > 0) {
       onClose();
+      onDataFetch();
     }
   };
 
