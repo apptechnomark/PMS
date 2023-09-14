@@ -397,6 +397,7 @@ const ClientProcessDrawer = ({
         Check: (
           <div>
             <CheckBox
+              className="checkboxCssChange"
               id={d.Id}
               checked={thisclientProcess[d.Id]}
               onChange={() => handleAddProcessData(d.Id)}
