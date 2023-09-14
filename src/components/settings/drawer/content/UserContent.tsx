@@ -464,7 +464,6 @@ const UserContent = forwardRef<
       email.trim().length <= 0 && setEmailHasError(true);
       role <= 0 && setRoleHasError(true);
       department <= 0 && setDepartmentHasError(true);
-      // reportValue <= 0 && setReportHasError(true);
       group.length <= 0 && setGroupHasError(true);
       if (
         firstNameError &&
@@ -473,12 +472,8 @@ const UserContent = forwardRef<
         lastName.trim().length !== 0 &&
         emailError &&
         email.trim().length !== 0 &&
-        roleError &&
         role !== 0 &&
-        departmentError &&
         department !== 0 &&
-        // reportError &&
-        groupError &&
         group.length !== 0
       ) {
         saveUser();

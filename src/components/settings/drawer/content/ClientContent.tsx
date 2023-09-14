@@ -296,7 +296,7 @@ const ClientContent = forwardRef<
         setAccActHrsErr(true);
         setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
         return false;
-      } else if (Number(accActualHrs) >= Number(accContHrs)) {
+      } else if (Number(accActualHrs) > Number(accContHrs)) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(
           "Internal Hours should be less than or equal to contracted hours."
