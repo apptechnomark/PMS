@@ -610,7 +610,7 @@ const UserContent = forwardRef<
               placeholder="Enter Mobile Number"
               value={tel}
               maxLength={14}
-              getValue={(e) => setTel(e.slice(4).replace(/\s/g, ""))}
+              getValue={(e) => setTel(e.slice(4).replace(/\D/g, ""))}
               getError={(e) => {
                 e;
               }}
@@ -730,7 +730,7 @@ const UserContent = forwardRef<
               placeholder="Enter Mobile Number"
               value={clientTel}
               maxLength={14}
-              getValue={(e) => setClientTel(e.slice(4).replace(/\s/g, ""))}
+              getValue={(e) => setClientTel(e.slice(4).replace(/\D/g, ""))}
               getError={(e) => {}}
             />
           </>

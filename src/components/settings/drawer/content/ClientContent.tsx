@@ -802,7 +802,7 @@ const ClientContent = forwardRef<
           <Tel
             value={tel}
             getValue={(e) => {
-              setTel(e.slice(4).replace(/\s/g, ""));
+              setTel(e.slice(4).replace(/\D/g, ""));
             }}
             hasError={telError}
             placeholder="Enter Mobile No."
