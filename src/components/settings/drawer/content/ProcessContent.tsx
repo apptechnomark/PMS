@@ -1,6 +1,14 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Loader, Radio, Select, Text, Toast } from "next-ts-lib";
+import {
+  Button,
+  CheckBox,
+  Loader,
+  Radio,
+  Select,
+  Text,
+  Toast,
+} from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -46,7 +54,7 @@ const ProcessContent = forwardRef<
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
   const [productive, setProductive] = useState<boolean>(true);
-  const [billable, setBillable] = useState<boolean>(false);
+  const [billable, setBillable] = useState<boolean>(true);
   const [activityHasError, setActivityHasError] = useState<boolean>(false);
   const [activityError, setActivityError] = useState<boolean>(false);
   const [activity, setActivity] = useState<string[]>([""]);
@@ -55,9 +63,9 @@ const ProcessContent = forwardRef<
   const [textValue, setTextValue] = useState("");
   const [textName, setTextName] = useState("");
   const [estErrMsg, setEstErrMsg] = useState("");
-  const [convertedSec, setConvertedSec] = useState<number>(0)
+  const [convertedSec, setConvertedSec] = useState<number>(0);
   const [type, setType] = useState<string>("text");
-  const [defaultProductive, setDefaultProductive] = useState(false);
+  // const [defaultProductive, setDefaultProductive] = useState(false);
   const [loader, setLoader] = useState(false);
 
   const handleDelete = (ProcessId: any) => {
@@ -78,7 +86,7 @@ const ProcessContent = forwardRef<
       if (hours >= 0 && hours <= 23) {
         formattedValue = newValue.slice(0, 2);
       } else {
-        formattedValue = '23';
+        formattedValue = "23";
       }
     }
 
@@ -96,7 +104,7 @@ const ProcessContent = forwardRef<
       if (seconds >= 0 && seconds <= 59) {
         formattedValue += ":" + newValue.slice(4, 6);
       } else {
-        formattedValue += ':59';
+        formattedValue += ":59";
       }
     }
 
@@ -104,15 +112,15 @@ const ProcessContent = forwardRef<
     let totalSeconds = 0;
 
     if (formattedValue) {
-      const timeComponents = formattedValue.split(':');
+      const timeComponents = formattedValue.split(":");
       const hours = parseInt(timeComponents[0]);
       const minutes = parseInt(timeComponents[1]);
       const seconds = parseInt(timeComponents[2]);
-      totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+      totalSeconds = hours * 3600 + minutes * 60 + seconds;
     }
-    setConvertedSec(totalSeconds)
+    setConvertedSec(totalSeconds);
     setEstTime(formattedValue);
-  }
+  };
 
   const initialInputList = activity.map((activityName) => ({
     activityName: activityName,
@@ -137,7 +145,6 @@ const ProcessContent = forwardRef<
         const updatedActivity = [...activity];
         updatedActivity[index] = value;
         setActivity(updatedActivity);
-
       } else {
         setActivityHasError(true);
       }
@@ -171,11 +178,11 @@ const ProcessContent = forwardRef<
     const remainingSeconds = seconds % 3600;
     const minutes = Math.floor(remainingSeconds / 60);
     const remainingSecondsFinal = remainingSeconds % 60;
-  
+
     const hoursStr = hours.toString().padStart(2, "0");
     const minsStr = minutes.toString().padStart(2, "0");
     const secsStr = remainingSecondsFinal.toString().padStart(2, "0");
-  
+
     return `${hoursStr}:${minsStr}:${secsStr}`;
   }
 
@@ -217,10 +224,6 @@ const ProcessContent = forwardRef<
       } catch (error) {
         console.error(error);
       }
-    } else {
-      setDefaultProductive(true);
-      setProductive(true);
-      setBillable(false);
     }
   };
 
@@ -280,13 +283,13 @@ const ProcessContent = forwardRef<
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-         
             Toast.success(
-              `${editing ? "" : "New"} Process ${editing ? "Updated" : "added"
+              `${editing ? "" : "New"} Process ${
+                editing ? "Updated" : "added"
               }  successfully.`
             );
             await onDataFetch();
-            getDropdownData();
+            // getDropdownData();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -322,7 +325,8 @@ const ProcessContent = forwardRef<
             // ProcessDataValue();
             // onDataFetch();
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -341,57 +345,55 @@ const ProcessContent = forwardRef<
     }
   };
 
-  
-    const setHasTrue = () => {
-      // For process Dropdown
-      setSelectValueErr(true);
+  const setHasTrue = () => {
+    // For process Dropdown
+    setSelectValueErr(true);
 
-      // For sub-process
-      setSubProcessNameError(true);
+    // For sub-process
+    setSubProcessNameError(true);
 
-      setEstTimeError(true);
+    setEstTimeError(true);
 
-      setActivityError(true);
-    };
-    const clearData = () => {
-      setSubProcessName("");
-      setEstTime("00:00:00");
-      setSelectValue(0);
+    setActivityError(true);
+  };
+  const clearData = () => {
+    setSubProcessName("");
+    setEstTime("00:00:00");
+    setSelectValue(0);
 
-      setInputList([]);
+    setInputList([]);
 
-      // For processDropdown
-      setSelectValueErr(false);
-      setSelectValueHasErr(false);
+    // For processDropdown
+    setSelectValueErr(false);
+    setSelectValueHasErr(false);
 
-      // For sub-process
-      setSubProcessNameError(false);
-      setSubProcessNameHasError(false);
+    // For sub-process
+    setSubProcessNameError(false);
+    setSubProcessNameHasError(false);
 
-      // for Est Time
-      setEstTimeError(false);
-      setEstTimeHasError(false);
+    // for Est Time
+    setEstTimeError(false);
+    setEstTimeHasError(false);
 
-      setActivityError(false);
-      setActivityHasError(false);
-    };
-    
+    setActivityError(false);
+    setActivityHasError(false);
+  };
 
-  const ProcessDataValue = async() => {
+  const ProcessDataValue = async () => {
     await setHasTrue();
     await clearData();
-  }
+  };
 
   useImperativeHandle(ref, () => ({
     ProcessDataValue,
   }));
 
-
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     selectValue <= 0 && setSelectValueErr(true);
     const [hours, minutes, seconds] = estTime.split(":");
-    const estTimeTotalSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+    const estTimeTotalSeconds =
+      parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
     estTimeTotalSeconds === 0 && setEstTimeError(true);
     if (
@@ -426,12 +428,13 @@ const ProcessContent = forwardRef<
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            onClose();
+            closeDrawer();
             ProcessDataValue();
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -448,7 +451,8 @@ const ProcessContent = forwardRef<
         setLoader(false);
         console.error(error);
       }
-    } if (estTime === "00:00:00") {
+    }
+    if (estTime === "00:00:00") {
       setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
   };
@@ -457,10 +461,10 @@ const ProcessContent = forwardRef<
     e.preventDefault();
     selectValue <= 0 && setSelectValueErr(true);
     const [hours, minutes, seconds] = estTime.split(":");
-    const estTimeTotalSeconds = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+    const estTimeTotalSeconds =
+      parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
     estTimeTotalSeconds === 0 && setEstTimeError(true);
-
 
     if (
       !(selectValue <= 0) &&
@@ -498,7 +502,8 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -515,7 +520,8 @@ const ProcessContent = forwardRef<
         setLoader(false);
         console.error(error);
       }
-    } if (estTime === "00:00:00") {
+    }
+    if (estTime === "00:00:00") {
       setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
   };
@@ -561,22 +567,34 @@ const ProcessContent = forwardRef<
   };
 
   useEffect(() => {
-    fetchEditData();
     getDropdownData();
     if (!onEdit) {
       setActivity([]);
+    } else {
+      fetchEditData();
     }
   }, [onEdit]);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   console.log("onClose", onClose);
+  //     setActivity([]);
+  //     setProductive(false);
+  //     setBillable(false);
+  //     setEstTimeError(false);
+  //     setEstTimeHasError(false);
+  //     setEstErrMsg("");
+  //     setEstTime("00:00:00");
+  // },[onClose]);
+  const closeDrawer = () => {
     setActivity([]);
-    setProductive(false);
-    setBillable(false);
-    setEstTimeError(false)
-    setEstTimeHasError(false)
-    setEstErrMsg("")
+    setProductive(true);
+    setBillable(true);
+    setEstTimeError(false);
+    setEstTimeHasError(false);
+    setEstErrMsg("");
     setEstTime("00:00:00");
-  }, [onClose]);
+    onClose();
+  };
 
   const closeModal = () => {
     setIsDeleteOpen(false);
@@ -587,15 +605,26 @@ const ProcessContent = forwardRef<
     setBillable(isBillable);
   };
 
-  const handleProductiveChange = (e: any) => {
-    if (e.target.checked && e.target.id === "p1" && defaultProductive) {
-      setDefaultProductive(true);
+  const handleProductiveChange = (id: any) => {
+    // console.log("Hello");
+
+    console.log("e", id);
+    // debugger;
+    if (id === "p1") {
       setProductive(true);
-    }
-    if (e.target.checked && e.target.id === "non_p1") {
+    } else {
       setProductive(false);
       setBillable(false);
     }
+
+    // if (e.target.checked && e.target.id === "p1" && productive) {
+    //   setProductive(true);
+    //   setBillable(false);
+    // }
+    // if (e.target.checked && e.target.id === "non_p1") {
+    //   setProductive(false);
+    //   setBillable(false);
+    // }
   };
 
   const handleSubProcesChange = (value: any) => {
@@ -701,43 +730,55 @@ const ProcessContent = forwardRef<
             </>
           ))}
         </div>
-        <span className="flex items-center pr-[20px] pl-[10px] pb-[20px]">
-          <Radio
-            id="p1"
-            name="group1"
-            label="Productive"
-            defaultChecked={defaultProductive}
-            onChange={handleProductiveChange}
-            value="productive"
-          />
-          <Radio
-            id="non_p1"
-            name="group1"
-            label="Non-Productive"
-            defaultChecked={!defaultProductive}
-            onChange={handleProductiveChange}
-            value="non_productive"
-          />
+        <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+          <div className="mr-[100px] checkboxRadio">
+            <input
+              type="checkbox"
+              id="p1"
+              name="group1"
+              checked={productive}
+              onChange={() => handleProductiveChange("p1")}
+              value="productive"
+            />
+            <span>Productive</span>
+          </div>
+          <div className="checkboxRadio">
+            <input
+              type="checkbox"
+              id="non_p1"
+              name="group1"
+              checked={!productive}
+              onChange={() => handleProductiveChange("non_p1")}
+              value="non_productive"
+            />
+            <span>Non-Productive</span>
+          </div>
         </span>
-        <span className="flex items-center pr-[20px] pl-[10px] pb-[20px]">
-          <Radio
-            id="billable"
-            label="Billable"
-            name="group2"
-            onChange={() => handleBillableChange("billable")}
-            disabled={!productive}
-            checked={billable}
-            value="billable"
-          />
-          <Radio
-            label="Non-Billable"
-            onChange={() => handleBillableChange("non_billable")}
-            disabled={!productive}
-            checked={!billable}
-            value="non_billable"
-            name="group2"
-            id="non_billable"
-          />
+        <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+          <div className="mr-[128px] checkboxRadio">
+            <input
+              type="checkbox"
+              id="billable"
+              name="group2"
+              onChange={() => handleBillableChange("billable")}
+              disabled={!productive}
+              checked={billable}
+              value="billable"
+            />
+            <span>Billable</span>
+          </div>
+          <div className="checkboxRadio">
+            <input
+              type="checkbox"
+              onChange={() => handleBillableChange("non_billable")}
+              disabled={!productive}
+              checked={!billable}
+              value="non_billable"
+              name="group2"
+              id="non_billable"
+            />
+            <span>Non Billable</span>
+          </div>
         </span>
 
         {/* Footer */}
@@ -748,7 +789,7 @@ const ProcessContent = forwardRef<
                 variant="btn-outline-primary"
                 className="rounded-[4px] !h-[36px]"
                 onClick={() => {
-                  onClose()
+                  closeDrawer();
                 }}
               >
                 Cancel
