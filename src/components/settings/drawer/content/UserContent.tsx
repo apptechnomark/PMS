@@ -606,6 +606,7 @@ const UserContent = forwardRef<
               getError={(e) => setEmailError(e)}
             />
             <Tel
+            className="telPadding"
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={tel}
@@ -726,6 +727,7 @@ const UserContent = forwardRef<
               getError={(e) => setClientEmailError(e)}
             />
             <Tel
+            className="telPadding"
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={clientTel}

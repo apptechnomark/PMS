@@ -800,6 +800,7 @@ const ClientContent = forwardRef<
             maxChar={100}
           />
           <Tel
+            className="telPadding"
             value={tel}
             getValue={(e) => {
               setTel(e.slice(4).replace(/\D/g, ""));
