@@ -24,9 +24,11 @@ const StatusContent = forwardRef<
   }
 >(({ tab, onClose, onEdit, statusData, onDataFetch }, ref) => {
   const [statusName, setStatusName] = useState("");
+  const [type, setType] = useState("");
   const [colorName, setColorName] = useState("");
   const [statusNameHasError, setStatusNameHasError] = useState(false);
   const [statusNameError, setStatusNameError] = useState(false);
+  const [isDefualt, setIsDefualt] = useState(false);
 
   const [loader, setLoader] = useState(false);
 
@@ -51,9 +53,15 @@ const StatusContent = forwardRef<
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             const data = await response.data.ResponseData;
+            console.log(
+              "🚀 ~ file: StatusContent.tsx:55 ~ fetchEditData ~ data:",
+              data
+            );
             setStatusName(data.Name);
+            setType(data.Type);
+            setIsDefualt(data.IsDefault);
             setColorName(data.ColorCode);
-            setStatusNameHasError(true)
+            setStatusNameHasError(true);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -83,6 +91,8 @@ const StatusContent = forwardRef<
     setStatusNameError(false);
     setStatusNameHasError(false);
     setColorName("#000000");
+    setIsDefualt(false);
+    setType("");
   }, [onClose]);
 
   useEffect(() => {
@@ -122,6 +132,7 @@ const StatusContent = forwardRef<
           {
             statusId: onEdit || 0,
             name: statusName,
+            Type: type,
             colorCode: colorName,
           },
           {
@@ -180,6 +191,7 @@ const StatusContent = forwardRef<
           {
             statusId: onEdit || 0,
             name: statusName,
+            type: type,
             colorCode: colorName,
           },
           {
@@ -234,6 +246,14 @@ const StatusContent = forwardRef<
           hasError={statusNameError}
           getValue={(e: any) => setStatusName(e)}
           getError={(e: any) => setStatusNameHasError(e)}
+        />
+        <Text
+          label="Type"
+          placeholder="Enter Type"
+          value={type}
+          getValue={(e: any) => setType(e)}
+          getError={() => {}}
+          disabled={isDefualt}
         />
 
         <ColorPicker
