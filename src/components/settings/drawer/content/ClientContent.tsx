@@ -803,7 +803,7 @@ const ClientContent = forwardRef<
             className="telPadding"
             value={tel}
             getValue={(e) => {
-              setTel(e.slice(4).replace(/\D/g, ""));
+              setTel(e);
             }}
             hasError={telError}
             placeholder="Enter Mobile No."

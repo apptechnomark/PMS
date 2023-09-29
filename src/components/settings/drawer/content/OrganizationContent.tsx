@@ -50,6 +50,13 @@ const OrganizationContent = forwardRef<
     const [loader, setLoader] = useState(false);
 
     useEffect(() => {
+      setClientName("Client");
+      setProjectName("Project");
+      setProcessName("Process");
+      setSubProcessName("SubProcess");
+    }, []);
+
+    useEffect(() => {
       if (orgData && onEdit) {
         setOrganizationId(orgData.OrganizationId);
         setOrganizationName(orgData.OrganizationName);
@@ -72,41 +79,39 @@ const OrganizationContent = forwardRef<
       }
     }, [orgData, onEdit]);
 
-      const clear = () => {
-        setResponseData([]);
-        setOrganizationId(0);
-        setClientName("");
-        setClientNameHasError(false);
-        setClientNameError(false);
-        setProjectName("");
-        setProjectNameHasError(false);
-        setProjectNameError(false);
-        setProcessName("");
-        setProcessNameError(false);
-        setProcessNameHasError(false);
-        setSubProcessName("");
-        setSubProcessNameError(false);
-        setSubProcessNameHasError(false);
-        setOrganizationName("");
-        setOrganizationNameError(false);
-        setOrganizationNameHasError(false);
-      };
+    const clear = () => {
+      setResponseData([]);
+      setOrganizationId(0);
+      setClientName("");
+      setClientNameHasError(false);
+      setClientNameError(false);
+      setProjectName("");
+      setProjectNameHasError(false);
+      setProjectNameError(false);
+      setProcessName("");
+      setProcessNameError(false);
+      setProcessNameHasError(false);
+      setSubProcessName("");
+      setSubProcessNameError(false);
+      setSubProcessNameHasError(false);
+      setOrganizationName("");
+      setOrganizationNameError(false);
+      setOrganizationNameHasError(false);
+    };
 
-      const setDataErrorTrue = () => {
-        setOrganizationNameHasError(true);
-        setSubProcessNameHasError(true);
-        setProcessNameHasError(true);
-        setClientNameHasError(true);
-        setProjectNameHasError(true);
-      };
+    const setDataErrorTrue = () => {
+      setOrganizationNameHasError(true);
+      setSubProcessNameHasError(true);
+      setProcessNameHasError(true);
+      setClientNameHasError(true);
+      setProjectNameHasError(true);
+    };
 
-     
-
-    const clearOrganizationData = async() => {
+    const clearOrganizationData = async () => {
       await setDataErrorTrue();
       await clear();
       onClose();
-    }
+    };
 
     useImperativeHandle(ref, () => ({
       clearOrganizationData,
