@@ -202,7 +202,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
             <div className="absolute top-[55px] rounded-md -right-2 w-50 h-12 px-5 flex items-center justify-center bg-pureWhite shadow-xl z-50">
               <p
                 onClick={handleLogout}
-                className="flex items-center justify-center cursor-pointer"
+                className="flex items-center justify-center cursor-pointer hover:text-defaultRed"
               >
                 <svg
                   stroke="currentColor"
