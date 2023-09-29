@@ -42,7 +42,7 @@ const ProcessContent = forwardRef<
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
-  const [estTime, setEstTime] = useState<any>("");
+  const [estTime, setEstTime] = useState<any>("00:00:00");
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
   const [productive, setProductive] = useState<boolean>(true);
@@ -350,7 +350,7 @@ const ProcessContent = forwardRef<
   };
   const clearData = () => {
     setSubProcessName("");
-    setEstTime("");
+    setEstTime("00:00:00");
     setSelectValue(0);
 
     setInputList([]);
@@ -669,7 +669,7 @@ const ProcessContent = forwardRef<
             min={0}
             max={23}
             label="Estimated Time (HH:MM:SS)"
-            placeholder="00:00:00"
+            placeholder="Enter Estimated Time (HH:MM:SS)"
             className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none &::-moz-time-text: { display: none; }"
           />
         </div>
