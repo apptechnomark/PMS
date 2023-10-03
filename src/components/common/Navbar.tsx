@@ -73,6 +73,22 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
       if (response.status === 200) {
         setUserData(response.data.ResponseData);
         setOrgData(response.data.ResponseData.Organizations);
+
+        localStorage.setItem(
+          "IsHaveManageAssignee",
+          response.data.ResponseData.IsHaveManageAssignee
+        );
+
+        localStorage.setItem(
+          "permission",
+          JSON.stringify(response.data.ResponseData.Menu)
+        );
+        localStorage.setItem("roleId", response.data.ResponseData.RoleId);
+        localStorage.setItem(
+          "isAdmin",
+          response.data.ResponseData.IsClientUser
+        );
+        localStorage.setItem("UserId", response.data.ResponseData.UserId);
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
             "Org_Token",
@@ -111,7 +127,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
         );
       }
     } catch (error: any) {
-      if (error.response.status === 401) {
+      if (error.response?.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
@@ -139,10 +155,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
   const handleLogout = () => {
     setOpenLogout(false);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("Org_Token");
-      localStorage.removeItem("Org_Id");
-      localStorage.removeItem("Org_Name");
+      localStorage.clear();
     }
     router.push("/login");
   };
@@ -163,19 +176,25 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
 
   return (
     <div className="flex items-center justify-between px-[20px] py-[13px] border-b border-lightSilver z-5">
-      {orgData.length > 0 ? ( // Check if orgData is not empty
-        <Dropdown
-          options={orgData.map(
-            ({ Token, OrganizationName, OrganizationId }) => {
-              return {
-                id: OrganizationId,
-                label: OrganizationName,
-                token: Token,
-              };
-            }
-          )}
-        />
-      ) : null}
+      {userData.RoleId === 1 ? (
+        orgData.length > 0 ? (
+          <Dropdown
+            options={orgData.map(
+              ({ Token, OrganizationName, OrganizationId, IsFavourite }) => {
+                return {
+                  id: OrganizationId,
+                  label: OrganizationName,
+                  token: Token,
+                  isFavourite: IsFavourite,
+                };
+              }
+            )}
+            getUserDetails={getUserDetails}
+          />
+        ) : null
+      ) : (
+        <div></div>
+      )}
       <span className="flex items-center gap-[30px]">
         <NotificationIcon />
         <div className="flex flex-col -m-2">

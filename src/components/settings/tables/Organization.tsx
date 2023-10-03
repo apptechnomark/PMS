@@ -15,6 +15,7 @@ function Organization({
   onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
+  onSearchOrgData,
 }: any) {
   const [userList, setUserList] = useState([]);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
@@ -174,6 +175,15 @@ function Organization({
     fetchData();
     getOrganizationList();
   }, [token]);
+
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchOrgData) {
+      setUserList(onSearchOrgData);
+    } else {
+      getOrganizationList();
+    }
+  }, [onSearchOrgData]);
 
   const getUserById = async (data: any) => {
     try {

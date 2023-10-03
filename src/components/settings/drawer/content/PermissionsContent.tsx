@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import axios from "axios";
-import { Button, Loader, Text, Toast } from "next-ts-lib";
+import { Button, Loader, Radio, Text, Toast } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -21,16 +21,22 @@ const PermissionsContent = forwardRef<
   }
 >(({ tab, onClose, getPermissionDropdown }, ref) => {
   const [role, setRole] = useState("");
+  const [type, setType] = useState("1");
   const [roleError, setRoleError] = useState(false);
   const [roleHasError, setRoleHasError] = useState(false);
   const [loader, setLoader] = useState(false);
 
-  const clearAllData = async () => {
-    await setRoleHasError(true);
-    await setRole("");
-    await setRoleError(false);
-    await setRoleHasError(false);
+  const clearData = () => {
+    setRoleHasError(true);
+    setRole("");
+    setRoleError(false);
+    setRoleHasError(false);
+    setType("1");
+  };
+
+  const clearAllData = () => {
     onClose();
+    clearData();
   };
 
   useImperativeHandle(ref, () => ({
@@ -46,6 +52,7 @@ const PermissionsContent = forwardRef<
         `${process.env.pms_api_url}/Role/Save`,
         {
           Name: role,
+          type: parseInt(type),
         },
         {
           headers: {
@@ -98,9 +105,29 @@ const PermissionsContent = forwardRef<
   return (
     <form onSubmit={handleSubmit}>
       <div className="flex gap-[20px] flex-col p-[20px]">
+        <div className="flex -ml-4">
+          <Radio
+            label="Employee"
+            checked={type === "1" ? true : false}
+            id="1"
+            name="user"
+            onChange={(e) => setType(e.target.id)}
+          />
+          <span className="mr-64">
+            <Radio
+              label="Client"
+              checked={type === "2" ? true : false}
+              id="2"
+              name="user"
+              onChange={(e) => setType(e.target.id)}
+            />
+          </span>
+        </div>
+
         <Text
           label=" Role"
           placeholder="Enter Role"
+          value={role}
           minChar={3}
           maxChar={50}
           validate

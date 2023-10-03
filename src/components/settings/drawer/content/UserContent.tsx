@@ -81,6 +81,9 @@ const UserContent = forwardRef<
   const [clientEmail, setClientEmail] = useState("");
   const [clientEmailHasError, setClientEmailHasError] = useState(false);
   const [clientEmailError, setClientEmailError] = useState(false);
+  const [clientRole, setClientRole] = useState(0);
+  const [clientRoleHasError, setClientRoleHasError] = useState(false);
+  const [clientRoleError, setClientRoleError] = useState(false);
   const [clientTel, setClientTel] = useState("");
 
   const [clientDropdownData, setClientDropdownData] = useState([]);
@@ -145,6 +148,8 @@ const UserContent = forwardRef<
                 setClientEmail(data.Email);
                 setClientEmailError(true);
                 setClientTel(data.ContactNo);
+                setClientRole(data.RoleId);
+                setClientRoleError(true);
               }
             } else {
               const data = response.data.Message;
@@ -359,6 +364,7 @@ const UserContent = forwardRef<
     setClientFirstNameHasError(true);
     setClientLastNameHasError(true);
     setClientEmailHasError(true);
+    setClientRoleHasError(true);
   };
 
   const clearDataClient = () => {
@@ -375,6 +381,9 @@ const UserContent = forwardRef<
     setClientEmail("");
     setClientEmailError(false);
     setClientEmailHasError(false);
+    setClientRole(0);
+    setClientRoleError(false);
+    setClientRoleHasError(false);
     setClientTel("");
     setRole(0);
     setDepartment(0);
@@ -396,7 +405,7 @@ const UserContent = forwardRef<
           LastName: clientLastName,
           Email: clientEmail,
           ContactNo: clientTel,
-          RoleId: 0,
+          RoleId: clientRole,
           DepartmentId: 0,
           RMId: 0,
           GroupIds: [],
@@ -483,6 +492,8 @@ const UserContent = forwardRef<
       clientFirstName.trim().length <= 0 && setClientFirstNameHasError(true);
       clientLastName.trim().length <= 0 && setClientLastNameHasError(true);
       clientEmail.trim().length <= 0 && setClientEmailHasError(true);
+      clientRole <= 0 && setClientRoleHasError(true);
+
       if (
         clientNameError &&
         clientName !== 0 &&
@@ -491,7 +502,9 @@ const UserContent = forwardRef<
         clientLastNameError &&
         clientLastName.trim().length !== 0 &&
         clientEmailError &&
-        clientEmail.trim().length !== 0
+        clientEmail.trim().length !== 0 &&
+        clientRoleError &&
+        clientRole > 0
       ) {
         saveClient();
       }
@@ -606,12 +619,14 @@ const UserContent = forwardRef<
               getError={(e) => setEmailError(e)}
             />
             <Tel
-            className="telPadding"
+              className="telPadding"
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={tel}
               maxLength={14}
-              getValue={(e) => setTel(e)}
+              getValue={(e) => 
+                setTel(e)
+              }
               getError={(e) => {
                 e;
               }}
@@ -628,7 +643,9 @@ const UserContent = forwardRef<
                 setRole(value);
               }}
               getError={(e) => setRoleError(e)}
-              options={roleDropdownData}
+              options={roleDropdownData
+                .map((i: any) => (i.Type === 1 ? i : undefined))
+                .filter((i: any) => i !== undefined)}
             />
             <Select
               label="Department"
@@ -726,8 +743,23 @@ const UserContent = forwardRef<
               getValue={(e) => setClientEmail(e)}
               getError={(e) => setClientEmailError(e)}
             />
+            <Select
+              label="Role"
+              id="role"
+              placeholder="Select Role"
+              validate
+              defaultValue={clientRole === 0 ? "" : clientRole}
+              errorClass="!-mt-[15px]"
+              hasError={clientRoleHasError}
+              getValue={(value) => {
+                setClientRole(value);
+              }}
+              getError={(e) => setClientRoleError(e)}
+              options={roleDropdownData
+                .map((i: any) => (i.Type === 2 ? i : undefined))
+                .filter((i: any) => i !== undefined)}
+            />
             <Tel
-            className="telPadding"
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               value={clientTel}

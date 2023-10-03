@@ -10,11 +10,7 @@ interface OptionsProps {
   token: string;
 }
 
-interface DropdownProps {
-  options: OptionsProps[];
-}
-
-export default function Dropdown({ options }: DropdownProps) {
+export default function Dropdown({ options, getUserDetails }: any) {
   let Org_Name;
   if (typeof window !== "undefined") {
     Org_Name = localStorage.getItem("Org_Name");
@@ -36,7 +32,7 @@ export default function Dropdown({ options }: DropdownProps) {
 
   const handleRefresh = () => {
     window.location.reload();
-  };  
+  };
 
   const handleOutsideClick = (event: MouseEvent) => {
     if (
@@ -51,7 +47,7 @@ export default function Dropdown({ options }: DropdownProps) {
     }
   };
 
-  const filteredOptions = options.filter((option) =>
+  const filteredOptions = options.filter((option: any) =>
     option.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -106,7 +102,7 @@ export default function Dropdown({ options }: DropdownProps) {
         <ul
           className={`max-h-[400px] m-0 p-0 list-none border-b border-b-[#d8d8d8] overflow-auto`}
         >
-          {filteredOptions.map((option, index) => (
+          {filteredOptions.map((option: any, index: number) => (
             <li
               key={index}
               className="mx-5 my-5 cursor-pointer flex items-center justify-between text-[14px] font-normal"
@@ -137,8 +133,10 @@ export default function Dropdown({ options }: DropdownProps) {
                 <Building />
                 <span className="truncate w-40">{option.label}</span>
               </span>
-              <div className="starContainer">
-                <Star />
+              <div
+                className="starContainer"
+              >
+                <Star data={option} getUserDetails={getUserDetails} />
               </div>
             </li>
           ))}

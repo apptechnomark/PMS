@@ -14,6 +14,9 @@ function Process({
   onDataFetch,
   onHandleProcessData,
   getOrgDetailsFunction,
+  canEdit,
+  canDelete,
+  onSearchProcessData,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -51,7 +54,7 @@ function Process({
   const getAll = async () => {
     try {
       const prams = {
-        GlobalFilter: "",
+        GlobalFilter: null,
         PageNo: 1,
         PageSize: 50000,
         SortColumn: "",
@@ -91,6 +94,15 @@ function Process({
     }
   };
 
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchProcessData) {
+      setData(onSearchProcessData);
+    } else {
+      getAll();
+    }
+  }, [onSearchProcessData]);
+
   const handleActionValue = async (actionId: string, id: any) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
@@ -104,6 +116,7 @@ function Process({
   const Actions = ({ actions, id }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         actionsRef.current &&
@@ -120,7 +133,13 @@ function Process({
       };
     }, []);
 
-    return (
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "delete" && canDelete)
+    );
+
+    return actionPermissions.length > 0 ? (
       <div
         ref={actionsRef}
         className="w-5 h-5 cursor-pointer relative"
@@ -132,26 +151,34 @@ function Process({
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actions.map((action: any, index: any) => (
-                    <li
-                      key={index}
-                      onClick={() => {
-                        handleActionValue(action, id);
-                      }}
-                      className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
-                    >
-                      <div className="flex justify-center items-center ml-2 cursor-pointer">
-                        <label className="inline-block text-xs cursor-pointer">
-                          {action}
-                        </label>
-                      </div>
-                    </li>
-                  ))}
+                  {actionPermissions.map(
+                    (action: any, index: any) =>
+                      ((action.toLowerCase() === "edit" && canEdit) ||
+                        (action.toLowerCase() === "delete" && canDelete)) && (
+                        <li
+                          key={index}
+                          onClick={() => {
+                            handleActionValue(action, id);
+                          }}
+                          className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
+                        >
+                          <div className="flex justify-center items-center ml-2 cursor-pointer">
+                            <label className="inline-block text-xs cursor-pointer">
+                              {action}
+                            </label>
+                          </div>
+                        </li>
+                      )
+                  )}
                 </ul>
               </div>
             </div>
           </React.Fragment>
         )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
       </div>
     );
   };
@@ -180,8 +207,9 @@ function Process({
       ...i,
       process: i.ParentProcessName,
       sub_process: i.ChildProcessName,
-      activity: `${firstActivity}${remainingCount > 0 ? `, +${remainingCount}` : ""
-        }`,
+      activity: `${firstActivity}${
+        remainingCount > 0 ? `, +${remainingCount}` : ""
+      }`,
       est_time: formattedTime,
       productive: i.IsProductive ? "Productive" : "Non-Productive",
       billable: i.IsBillable ? "Billable" : "Non-Billable",
@@ -266,8 +294,9 @@ function Process({
         </div>
       ) : (
         <div
-          className={`${tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
-            }`}
+          className={`${
+            tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+          }`}
         >
           <DataTable columns={headers} data={tableData} sticky expandable />
           {data.length === 0 && (

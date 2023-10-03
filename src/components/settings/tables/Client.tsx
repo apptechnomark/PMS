@@ -12,7 +12,16 @@ import SwitchModal from "@/components/common/SwitchModal";
 import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 
-function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
+function Client({
+  onOpen,
+  onEdit,
+  onDataFetch,
+  getOrgDetailsFunction,
+  canEdit,
+  canDelete,
+  canProcess,
+  onSearchClientData,
+}: any) {
   const headers = [
     { header: "CLIENT NAME", accessor: "Name", sortable: true },
     { header: "EMAIL ID", accessor: "Email", sortable: true },
@@ -38,6 +47,16 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
   const handleCloseProcessDrawer = () => {
     setOpenProcessDrawer(false);
   };
+
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchClientData) {
+      setData(onSearchClientData);
+    } else {
+      getData();
+    }
+  }, [onSearchClientData]);
+
   // for getting all data
   const getData = async () => {
     const token = await localStorage.getItem("token");
@@ -47,7 +66,7 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
         `${process.env.pms_api_url}/client/GetAll`,
         {
           GlobalSearch: "",
-          SortColumn: "Name",
+          SortColumn: null,
           IsDesc: false,
           PageNo: 1,
           PageSize: 50000,
@@ -201,6 +220,7 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
   const Actions = ({ actions, id }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         actionsRef.current &&
@@ -218,7 +238,14 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
       };
     }, []);
 
-    return (
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "delete" && canDelete) ||
+        (action.toLowerCase() === "process" && canProcess)
+    );
+
+    return actionPermissions.length > 0 ? (
       <div
         ref={actionsRef}
         className="w-5 h-5 cursor-pointer relative"
@@ -230,7 +257,7 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: any, index: any) => (
                     <li
                       key={index}
                       onClick={() => handleActionValue(action, id)}
@@ -248,6 +275,10 @@ function Client({ onOpen, onEdit, onDataFetch, getOrgDetailsFunction }: any) {
             </div>
           </React.Fragment>
         )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
       </div>
     );
   };

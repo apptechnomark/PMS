@@ -11,6 +11,9 @@ function Status({
   onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
+  canEdit,
+  canDelete,
+  onSearchStatusData,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -38,6 +41,15 @@ function Status({
     setIsDeleteOpen(false);
   };
 
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchStatusData) {
+      setStatusList(onSearchStatusData);
+    } else {
+      getStatusList();
+    }
+  }, [onSearchStatusData]);
+
   const getStatusList = async () => {
     try {
       const headers = {
@@ -49,9 +61,10 @@ function Status({
         pageSize: 50000,
         SortColumn: "",
         IsDec: true,
-        globalFilter: "",
-        IsDefault:true,
-        Export:false,
+        globalFilter: null,
+        IsDefault: null,
+        Type: "",
+        Export: false,
       };
       const response = await axios.post(
         `${process.env.pms_api_url}/status/GetAll`,
@@ -62,8 +75,16 @@ function Status({
         setLoader(false);
         setStatusList(response.data.ResponseData.List);
         getOrgDetailsFunction();
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Error", "Please try again later.");
+        } else {
+          Toast.error("Error", data);
+        }
       }
-    } catch {
+    } catch (error) {
+      console.error(error)
       setLoader(false);
       setLoading(false);
       setStatusList([]);
@@ -88,6 +109,7 @@ function Status({
         setOpen(false);
       }
     };
+
     useEffect(() => {
       window.addEventListener("click", handleOutsideClick);
       return () => {
@@ -106,7 +128,13 @@ function Status({
       // }
     };
 
-    return (
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "delete" && canDelete)
+    );
+
+    return actionPermissions.length > 0 ? (
       <div
         ref={actionsRef}
         className="w-5 h-5 cursor-pointer relative"
@@ -118,26 +146,34 @@ function Status({
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actions.map((action: any, index: any) => (
-                    <li
-                      key={index}
-                      onClick={() => {
-                        handleActions(action, id);
-                      }}
-                      className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
-                    >
-                      <div className="flex justify-center items-center ml-2 cursor-pointer">
-                        <label className="inline-block text-xs cursor-pointer">
-                          {action}
-                        </label>
-                      </div>
-                    </li>
-                  ))}
+                  {actionPermissions.map(
+                    (action: any, index: any) =>
+                      ((action.toLowerCase() === "edit" && canEdit) ||
+                        (action.toLowerCase() === "delete" && canDelete)) && (
+                        <li
+                          key={index}
+                          onClick={() => {
+                            handleActions(action, id);
+                          }}
+                          className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
+                        >
+                          <div className="flex justify-center items-center ml-2 cursor-pointer">
+                            <label className="inline-block text-xs cursor-pointer">
+                              {action}
+                            </label>
+                          </div>
+                        </li>
+                      )
+                  )}
                 </ul>
               </div>
             </div>
           </React.Fragment>
         )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
       </div>
     );
   };

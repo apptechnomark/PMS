@@ -51,21 +51,11 @@ const page = () => {
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.success("Password set successfully.");
-            } else {
-              Toast.success(data);
-            }
+            Toast.success("Password set successfully.");
             router.push(`/login`);
           } else {
             setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again.");
-            } else {
-              Toast.error(data);
-            }
+            Toast.error("Please try again.");
           }
         } else {
           setClicked(false);

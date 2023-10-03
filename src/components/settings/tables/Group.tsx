@@ -13,6 +13,9 @@ function Group({
   onDataFetch,
   onHandleGroupData,
   getOrgDetailsFunction,
+  canEdit,
+  canDelete,
+  onSearchGroupData,
 }: any) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -38,6 +41,15 @@ function Group({
 
     getAll();
   }, []);
+
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchGroupData) {
+      setData(onSearchGroupData);
+    } else {
+      getAll();
+    }
+  }, [onSearchGroupData]);
 
   // For show all data in Data Table
   const getAll = async () => {
@@ -162,7 +174,13 @@ function Group({
       }
     };
 
-    return (
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "delete" && canDelete)
+    );
+
+    return actionPermissions.length > 0 ? (
       <div
         ref={actionsRef}
         className="w-5 h-5 cursor-pointer relative"
@@ -174,7 +192,7 @@ function Group({
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: any, index: any) => (
                     <li
                       key={index}
                       onClick={() => {
@@ -194,6 +212,10 @@ function Group({
             </div>
           </React.Fragment>
         )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
       </div>
     );
   };

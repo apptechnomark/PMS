@@ -29,20 +29,10 @@ export default function ForgetPassword() {
           );
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
-              const data = response.data.Message;
-              if (data === null) {
-                Toast.success("Please check your email.");
-              } else {
-                Toast.success(data);
-              }
+              Toast.success("Please check your email.");
               router.push(`/forgot-confirm/?email=${forgetValue}`);
             } else {
-              const data = response.data.Message;
-              if (data === null) {
-                Toast.error("Please try again.");
-              } else {
-                Toast.error(data);
-              }
+              Toast.error("Please try again.");
               setClicked(false);
             }
           } else {
@@ -56,7 +46,7 @@ export default function ForgetPassword() {
           }
         }
       } catch (error) {
-        setClicked(false)
+        setClicked(false);
         console.error(error);
       }
     }

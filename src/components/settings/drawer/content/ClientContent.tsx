@@ -35,15 +35,17 @@ const ClientContent = forwardRef<
     onOpen: boolean;
   }
 >(({ tab, onEdit, onClose, clientData, onOpen, onDataFetch }, ref) => {
-  // const [workType, setWorkType] = useState<any>([]);
+  const [workType, setWorkType] = useState<any>([]);
   const [billingTypeData, setBillingTypeData] = useState([]);
   const [layoutTypeData, setLayoutTypeData] = useState([]);
   const [groupTypeData, setGroupTypeData] = useState([]);
+  const [hasTax, setHasTax] = useState(false);
   const [addMoreClicked, setAddMoreClicked] = useState(false);
 
   const [Id, setId] = useState(0);
   const [accountingId, setAccountingId] = useState(0);
   const [auditId, setAuditId] = useState(0);
+  const [taxId, setTaxId] = useState(0);
   const [clientName, setClientName] = useState("");
   const [clientError, setClientError] = useState(false);
   const [clientNameHasError, setClientNameHasError] = useState(false);
@@ -58,13 +60,16 @@ const ClientContent = forwardRef<
 
   const [accounting, setAccounting] = useState(false);
   const [audit, setAudit] = useState(false);
+  const [tax, setTax] = useState(false);
   const [isAccountingOpen, setIsAccountingOpen] = useState(false);
   const [isAuditOpen, setIsAuditOpen] = useState(false);
+  const [isTaxOpen, setIsTaxOpen] = useState(false);
 
   // Getting WorkType's Data
   const [workTypeData, setWorkTypeData] = useState<any>([]);
   const [workTypeAccData, setWorkTypeAccData] = useState<any>([]);
   const [workTypeAuditData, setWorkTypeAuditData] = useState<any>([]);
+  const [workTypeTaxData, setWorkTypeTaxData] = useState<any>([]);
 
   const [accBillingType, setAccBillingType] = useState(0);
   const [accBillingErr, setAccBillingErr] = useState(false);
@@ -104,6 +109,25 @@ const ClientContent = forwardRef<
   const [auditActualHrsHasErr, setAuditActHrsHasErr] = useState(false);
   const [auditHasError, setAuditHasError] = useState(false);
 
+  const [taxBillingType, setTaxBillingType] = useState(0);
+  const [taxBillingErr, setTaxBillingErr] = useState(false);
+  const [taxBillingHasErr, setTaxBillingHasErr] = useState(false);
+  const [taxGroup, setTaxGroup] = useState([]);
+  const [taxGroupErr, setTaxGroupErr] = useState(false);
+  const [taxGroupHasErr, setTaxGroupHasErr] = useState(false);
+  const [taxLayout, setTaxLayout] = useState(0);
+  const [taxLayoutErr, setTaxLayoutErr] = useState(false);
+  const [taxLayoutHasErr, setTaxLayoutHasErr] = useState(false);
+  const [taxContHrs, setTaxContHrs] = useState<any>(0);
+  const [taxContHrsErr, setTaxContHrsErr] = useState(false);
+  const [taxContHrsHasErr, setTaxContHrsHasErr] = useState(false);
+  const [taxContHrsErrMsg, setTaxContHrsErrMsg] = useState("");
+  const [taxActualHrs, setTaxActHrs] = useState<any>(0);
+  const [taxActualHrsErr, setTaxActHrsErr] = useState(false);
+  const [taxActualHrsErrMsg, setTaxActualHrsErrMsg] = useState("");
+  const [taxActualHrsHasErr, setTaxActHrsHasErr] = useState(false);
+  const [taxHasError, setTaxHasError] = useState(false);
+
   const [loader, setLoader] = useState(false);
 
   const toggleAccountingAccordion = (
@@ -120,6 +144,13 @@ const ClientContent = forwardRef<
     setAudit(e.target.checked);
     // setIsAccountingOpen(false);
     // setIsTaxationOpen(false);
+  };
+
+  const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsTaxOpen((prevIsOpen) => !prevIsOpen);
+    setTax(e.target.checked);
+    // setIsAccountingOpen(false);
+    // setIsAuditOpen(false);
   };
 
   useEffect(() => {
@@ -212,6 +243,22 @@ const ClientContent = forwardRef<
         setAuditGroupHasErr(true);
         setAuditLayoutHasErr(true);
       }
+
+      if (i.WorkTypeId === 3) {
+        setTaxId(i.ClientWorkTypeId);
+        setTax(true);
+        setIsTaxOpen(true);
+        setTaxBillingType(i.BillingTypeId);
+        setTaxGroup(i.GroupIds);
+        setTaxLayout(i.LayoutId);
+        setTaxContHrs(i.ContractHrs);
+        setTaxActHrs(i.InternalHrs);
+        setTaxContHrsHasErr(true);
+        setTaxActHrsHasErr(true);
+        setTaxBillingHasErr(true);
+        setTaxGroupHasErr(true);
+        setTaxLayoutHasErr(true);
+      }
     });
   };
 
@@ -247,6 +294,20 @@ const ClientContent = forwardRef<
     }
   };
 
+  const handleTaxContHrs = (e: any) => {
+    if (e.length <= 5) {
+      // setAuditContHrsErr(false);
+      setTaxContHrs(e);
+    }
+  };
+
+  const handleTaxActHrs = (e: any) => {
+    if (e.length <= 5) {
+      // setAuditActHrsErr(false);
+      setTaxActHrs(e);
+    }
+  };
+
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
@@ -278,7 +339,7 @@ const ClientContent = forwardRef<
         accContHrs === "-00" ||
         accContHrs === "-000" ||
         accContHrs === "-0000" ||
-        accContHrs === "-00000" 
+        accContHrs === "-00000"
       ) {
         setAccContHrsErr(true);
         setAccContHrsErrMsg(`Contracted Hours should not be ${accContHrs}.`);
@@ -307,12 +368,12 @@ const ClientContent = forwardRef<
         accActualHrs === "00" ||
         accActualHrs === "000" ||
         accActualHrs === "0000" ||
-        accActualHrs === "00000"||
+        accActualHrs === "00000" ||
         accContHrs === "-0" ||
         accContHrs === "-00" ||
         accContHrs === "-000" ||
         accContHrs === "-0000" ||
-        accContHrs === "-00000" 
+        accContHrs === "-00000"
       ) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(`Internal Hours should not be ${accActualHrs}.`);
@@ -352,7 +413,7 @@ const ClientContent = forwardRef<
         auditContHrs === "-00" ||
         auditContHrs === "-000" ||
         auditContHrs === "-0000" ||
-        auditContHrs === "-00000" 
+        auditContHrs === "-00000"
       ) {
         setAuditContHrsErr(true);
         setAuditContHrsErrMsg(
@@ -388,7 +449,7 @@ const ClientContent = forwardRef<
         auditContHrs === "-00" ||
         auditContHrs === "-000" ||
         auditContHrs === "-0000" ||
-        auditContHrs === "-00000" 
+        auditContHrs === "-00000"
       ) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg(
@@ -401,6 +462,80 @@ const ClientContent = forwardRef<
       ) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg("Internal Hours must be a valid value.");
+        return false;
+      }
+    }
+
+    if (tax) {
+      if (taxBillingType <= 0) {
+        setTaxBillingErr(true);
+      }
+      if (taxGroup.length === 0) {
+        setTaxGroupErr(true);
+      }
+      if (taxLayout <= 0) {
+        setTaxLayoutErr(true);
+      }
+
+      if (taxContHrs < 0) {
+        setTaxContHrsErr(true);
+        setTaxContHrsErrMsg("Contracted Hours must be greater than 0.");
+        return false;
+      } else if (
+        taxContHrs === "0" ||
+        taxContHrs === "00" ||
+        taxContHrs === "000" ||
+        taxContHrs === "0000" ||
+        taxContHrs === "00000" ||
+        taxContHrs === "-0" ||
+        taxContHrs === "-00" ||
+        taxContHrs === "-000" ||
+        taxContHrs === "-0000" ||
+        taxContHrs === "-00000"
+      ) {
+        setTaxContHrsErr(true);
+        setTaxContHrsErrMsg(`Contracted Hours should not be ${taxContHrs}.`);
+        return false;
+      } else if (
+        taxContHrs.toString().includes(".") ||
+        taxContHrs.toString().includes(",")
+      ) {
+        setTaxContHrsErr(true);
+        setTaxContHrsErrMsg("Contracted Hours must be a valid value.");
+        return false;
+      }
+
+      if (taxActualHrs < 0) {
+        setTaxActHrsErr(true);
+        setTaxActualHrsErrMsg("Internal Hours must be greater than 0.");
+        return false;
+      } else if (Number(taxActualHrs) > Number(taxContHrs)) {
+        setTaxActHrsErr(true);
+        setTaxActualHrsErrMsg(
+          "Internal Hours should be less than or equal to contracted hours."
+        );
+        return false;
+      } else if (
+        taxActualHrs === "0" ||
+        taxActualHrs === "00" ||
+        taxActualHrs === "000" ||
+        taxActualHrs === "0000" ||
+        taxActualHrs === "00000" ||
+        taxContHrs === "-0" ||
+        taxContHrs === "-00" ||
+        taxContHrs === "-000" ||
+        taxContHrs === "-0000" ||
+        taxContHrs === "-00000"
+      ) {
+        setTaxActHrsErr(true);
+        setTaxActualHrsErrMsg(`Internal Hours should not be ${taxActualHrs}.`);
+        return false;
+      } else if (
+        taxActualHrs.toString().includes(".") ||
+        taxActualHrs.toString().includes(",")
+      ) {
+        setTaxActHrsErr(true);
+        setTaxActualHrsErrMsg("Internal Hours must be a valid value.");
         return false;
       }
     }
@@ -420,6 +555,14 @@ const ClientContent = forwardRef<
       auditBillingHasErr &&
       auditGroupHasErr &&
       auditLayoutHasErr;
+
+    const taxHasError =
+      tax &&
+      taxActualHrsHasErr &&
+      taxContHrsHasErr &&
+      taxBillingHasErr &&
+      taxGroupHasErr &&
+      taxLayoutHasErr;
 
     if (accounting && accHasError) {
       workTypeAccData.push({
@@ -445,11 +588,23 @@ const ClientContent = forwardRef<
       });
     }
 
+    if (tax && taxHasError) {
+      workTypeTaxData.push({
+        ClientWorkTypeId: taxId,
+        WorkTypeId: 3,
+        BillingTypeId: taxBillingType,
+        GroupIds: taxGroup,
+        LayoutId: taxLayout,
+        InternalHrs: taxActualHrs,
+        ContractHrs: taxContHrs,
+      });
+    }
+
     if (
       emailHasError &&
       clientNameHasError &&
       addressHasError &&
-      (accHasError || auditHasError)
+      (accHasError || auditHasError || taxHasError)
     ) {
       saveClient();
     } else if (
@@ -457,7 +612,8 @@ const ClientContent = forwardRef<
       clientNameHasError &&
       addressHasError &&
       !accounting &&
-      !audit
+      !audit &&
+      !tax
     ) {
       Toast.error("Please Select at least one work type.");
     }
@@ -468,6 +624,7 @@ const ClientContent = forwardRef<
     setAddressError(true);
     setEmailError(true);
     settelError(true);
+
     setAccBillingErr(true);
     setAccGroupErr(true);
     setAccLayoutErr(true);
@@ -483,6 +640,14 @@ const ClientContent = forwardRef<
     setAuditActHrsErr(true);
     setAuditActualHrsErrMsg("");
     setAuditContHrsErrMsg("");
+
+    setTaxBillingErr(true);
+    setTaxGroupErr(true);
+    setTaxLayoutErr(true);
+    setTaxContHrsErr(true);
+    setTaxActHrsErr(true);
+    setTaxActualHrsErrMsg("");
+    setTaxContHrsErrMsg("");
   };
 
   const clearClientData = () => {
@@ -540,6 +705,27 @@ const ClientContent = forwardRef<
     setAuditActualHrsErrMsg("");
     setAuditContHrsErrMsg("");
     setAuditActHrsHasErr(false);
+
+    setTaxId(0);
+    setTax(false);
+    setIsTaxOpen(false);
+    setTaxBillingType(0);
+    setTaxBillingErr(false);
+    setTaxBillingHasErr(false);
+    setTaxGroup([]);
+    setTaxGroupErr(false);
+    setTaxGroupHasErr(false);
+    setTaxLayout(0);
+    setTaxLayoutErr(false);
+    setTaxLayoutHasErr(false);
+    setTaxContHrs(0);
+    setTaxContHrsErr(false);
+    setTaxContHrsHasErr(false);
+    setTaxActHrs(0);
+    setTaxActHrsErr(false);
+    setTaxActualHrsErrMsg("");
+    setTaxContHrsErrMsg("");
+    setTaxActHrsHasErr(false);
   };
 
   const saveClient = async () => {
@@ -548,6 +734,13 @@ const ClientContent = forwardRef<
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      const workTypes = [];
+      if (accounting)
+        workTypes.push(workTypeAccData[workTypeAccData.length - 1]);
+      if (audit)
+        workTypes.push(workTypeAuditData[workTypeAuditData.length - 1]);
+      if (tax) workTypes.push(workTypeTaxData[workTypeTaxData.length - 1]);
+
       const response = await axios.post(
         `${process.env.pms_api_url}/client/save`,
         {
@@ -558,15 +751,7 @@ const ClientContent = forwardRef<
           address: address,
           isActive: true,
 
-          WorkTypes:
-            accounting && audit
-              ? [
-                  accounting && workTypeAccData[workTypeAccData.length - 1],
-                  audit && workTypeAuditData[workTypeAuditData.length - 1],
-                ]
-              : accounting
-              ? [workTypeAccData[workTypeAccData.length - 1]]
-              : audit && [workTypeAuditData[workTypeAuditData.length - 1]],
+          WorkTypes: workTypes.length > 0 ? workTypes : null,
         },
         {
           headers: {
@@ -627,43 +812,58 @@ const ClientContent = forwardRef<
   // Getting WorkTypes
   useEffect(() => {
     if (onOpen) {
-      // getWorkTypes();
+      getWorkTypes();
       getBillingTypes();
       getLayoutTypes();
       getGroupTypes();
     }
   }, [onOpen]);
 
-  // const getWorkTypes = async () => {
-  //   const token = await localStorage.getItem("token");
-  //   const Org_Token = await localStorage.getItem("Org_Token");
-  //   try {
-  //     const response = await axios.get(
-  //       `${process.env.pms_api_url}/WorkType/GetDropdown`,
-  //       {
-  //         headers: {
-  //           Authorization: `bearer ${token}`,
-  //           org_token: `${Org_Token}`,
-  //         },
-  //       }
-  //     );
+  const getWorkTypes = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/WorkType/GetDropdown`,
+        {
+          clientId: 0,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
 
-  //     if (response.status === 200) {
-  //       if (response.data.ResponseStatus === "Success") {
-  //         setWorkType(response.data.ResponseData);
-  //       }
-  //     } else {
-  //       const data = response.data.Message;
-  //       if (data === null) {
-  //         Toast.error("Failed Please try again.");
-  //       } else {
-  //         Toast.error(data);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setWorkType(response.data.ResponseData);
+
+          const workTypeLabels = response.data.ResponseData.map(
+            (item: { label: any }) => item.label
+          );
+          setHasTax(workTypeLabels.includes("Tax"));
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again later.");
+          } else {
+            Toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getBillingTypes = async () => {
     const token = await localStorage.getItem("token");
@@ -802,9 +1002,7 @@ const ClientContent = forwardRef<
           <Tel
             className="telPadding"
             value={tel}
-            getValue={(e) => {
-              setTel(e);
-            }}
+            getValue={(e) => setTel(e)}
             hasError={telError}
             placeholder="Enter Mobile No."
             label="Mobile Number"
@@ -900,7 +1098,6 @@ const ClientContent = forwardRef<
                   hasError={accContHrsErr}
                   errorMessage={accContHrsErrMsg}
                   noText
-                  
                   onWheel={(e) => e.currentTarget.blur()}
                 />
                 <Text
@@ -1028,6 +1225,115 @@ const ClientContent = forwardRef<
               </div>
             </div>
           </div>
+
+          {/* Taxation Section */}
+          {hasTax && (
+            <div>
+              <label
+                className={`flex items-center justify-between cursor-pointer`}
+                htmlFor="Tax"
+              >
+                <span className="flex items-center">
+                  <CheckBox
+                    checked={tax}
+                    id="Tax"
+                    label="Tax"
+                    onChange={toggleTaxAccordion}
+                  />
+                </span>
+                {isTaxOpen ? (
+                  <span
+                    className={`transition-transform duration-300 transform rotate-180`}
+                  >
+                    <ChevronDownIcon />
+                  </span>
+                ) : (
+                  <span
+                    className={`transition-transform duration-300 transform rotate-0`}
+                  >
+                    <ChevronDownIcon />
+                  </span>
+                )}
+              </label>
+              <div
+                className={`${
+                  isTaxOpen
+                    ? "max-h-[430px] transition-all duration-700 pt-[10px]"
+                    : "max-h-0 transition-all duration-700"
+                } overflow-hidden`}
+              >
+                <div className="flex flex-col gap-[17px] pl-[34px]">
+                  <Select
+                    id="billing_type"
+                    label="Billing Type"
+                    defaultValue={taxBillingType}
+                    options={billingTypeData}
+                    onSelect={() => {}}
+                    getValue={(e) => setTaxBillingType(e)}
+                    getError={(e) => setTaxBillingHasErr(e)}
+                    hasError={taxBillingErr}
+                    validate
+                    errorClass="!-mt-[15px]"
+                  />
+                  <MultiSelectChip
+                    type="checkbox"
+                    id="Group"
+                    label="Group"
+                    defaultValue={taxGroup}
+                    options={groupTypeData}
+                    onSelect={() => {}}
+                    getValue={(e) => setTaxGroup(e)}
+                    getError={(e) => setTaxGroupHasErr(e)}
+                    hasError={taxGroupErr}
+                    validate
+                    errorClass="!-mt-[15px]"
+                  />
+                  <Select
+                    id="Layout"
+                    label="Layout"
+                    defaultValue={taxLayout}
+                    options={layoutTypeData}
+                    onSelect={() => {}}
+                    getValue={(e) => setTaxLayout(e)}
+                    getError={(e) => setTaxLayoutHasErr(e)}
+                    hasError={taxLayoutErr}
+                    validate
+                    errorClass="!-mt-[15px]"
+                  />
+                  <Text
+                    className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number"
+                    label="Contracted Hours"
+                    placeholder="Enter Total Contracted Hours"
+                    validate
+                    maxLength={5}
+                    value={taxContHrs === 0 ? "" : taxContHrs}
+                    getValue={(e) => handleTaxContHrs(e)}
+                    getError={(e) => setTaxContHrsHasErr(e)}
+                    hasError={taxContHrsErr}
+                    errorMessage={taxContHrsErrMsg}
+                    noText
+                    onWheel={(e) => e.currentTarget.blur()}
+                  />
+                  <Text
+                    className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number"
+                    label="Internal Hours"
+                    placeholder="Enter Total Internal Hours"
+                    validate
+                    maxLength={5}
+                    value={taxActualHrs === 0 ? "" : taxActualHrs}
+                    getValue={(e) => handleTaxActHrs(e)}
+                    getError={(e) => setTaxActHrsHasErr(e)}
+                    hasError={taxActualHrsErr}
+                    errorMessage={taxActualHrsErrMsg}
+                    noText
+                    onWheel={(e) => e.currentTarget.blur()}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">

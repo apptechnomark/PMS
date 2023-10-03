@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Loader, Radio, Select, Text, Toast } from "next-ts-lib";
+import { Button, CheckBox, Loader, Radio, Select, Text, Toast } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -276,8 +276,7 @@ const ProcessContent = forwardRef<
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             Toast.success(
-              `${editing ? "" : "New"} Process ${
-                editing ? "Updated" : "added"
+              `${editing ? "" : "New"} Process ${editing ? "Updated" : "added"
               }  successfully.`
             );
             await onDataFetch();
@@ -317,8 +316,7 @@ const ProcessContent = forwardRef<
             // ProcessDataValue();
             // onDataFetch();
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -425,8 +423,7 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -494,8 +491,7 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${
-                onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -594,15 +590,6 @@ const ProcessContent = forwardRef<
       setProductive(false);
       setBillable(false);
     }
-
-    // if (e.target.checked && e.target.id === "p1" && productive) {
-    //   setProductive(true);
-    //   setBillable(false);
-    // }
-    // if (e.target.checked && e.target.id === "non_p1") {
-    //   setProductive(false);
-    //   setBillable(false);
-    // }
   };
 
   const handleSubProcesChange = (value: any) => {
@@ -708,43 +695,55 @@ const ProcessContent = forwardRef<
             </>
           ))}
         </div>
-        <span className="flex items-center pr-[20px] pl-[10px] pb-[20px]">
-          <Radio
-            id="p1"
-            name="group1"
-            label="Productive"
-            checked={productive}
-            onChange={() => handleProductiveChange("p1")}
-            value="productive"
-          />
-          <Radio
-            id="non_p1"
-            name="group1"
-            label="Non-Productive"
-            checked={!productive}
-            onChange={() => handleProductiveChange("non_p1")}
-            value="non_productive"
-          />
+        <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+          <div className="mr-[100px] checkboxRadio">
+            <input
+              type="checkbox"
+              id="p1"
+              name="group1"
+              checked={productive}
+              onChange={() => handleProductiveChange("p1")}
+              value="productive"
+            />
+            <span>Productive</span>
+          </div>
+          <div className="checkboxRadio">
+            <input
+              type="checkbox"
+              id="non_p1"
+              name="group1"
+              checked={!productive}
+              onChange={() => handleProductiveChange("non_p1")}
+              value="non_productive"
+            />
+            <span>Non-Productive</span>
+          </div>
         </span>
-        <span className="flex items-center pr-[20px] pl-[10px] pb-[20px]">
-          <Radio
-            id="billable"
-            label="Billable"
-            name="group2"
-            onChange={() => handleBillableChange("billable")}
-            disabled={!productive}
-            checked={billable}
-            value="billable"
-          />
-          <Radio
-            label="Non-Billable"
-            onChange={() => handleBillableChange("non_billable")}
-            disabled={!productive}
-            checked={!billable}
-            value="non_billable"
-            name="group2"
-            id="non_billable"
-          />
+        <span className="flex items-center pr-[20px] pl-[20px] pb-[20px]">
+          <div className="mr-[128px] checkboxRadio">
+            <input
+              type="checkbox"
+              id="billable"
+              name="group2"
+              onChange={() => handleBillableChange("billable")}
+              disabled={!productive}
+              checked={billable}
+              value="billable"
+            />
+            <span>Billable</span>
+          </div>
+          <div className="checkboxRadio">
+            <input
+              type="checkbox"
+              onChange={() => handleBillableChange("non_billable")}
+              disabled={!productive}
+              checked={!billable}
+              value="non_billable"
+              name="group2"
+              id="non_billable"
+            />
+            <span>Non-Billable</span>
+          </div>
         </span>
 
         {/* Footer */}
@@ -755,7 +754,8 @@ const ProcessContent = forwardRef<
                 variant="btn-outline-primary"
                 className="rounded-[4px] !h-[36px]"
                 onClick={() => {
-                  closeDrawer();
+                  ProcessDataValue();
+                  onClose();
                 }}
               >
                 Cancel

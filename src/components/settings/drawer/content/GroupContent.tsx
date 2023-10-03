@@ -71,7 +71,6 @@ const GroupContent = forwardRef<
               return id === parseInt(d.value);
             });
           });
-          console.log("filter", filteredOptionsData);
 
           if (response.data.ResponseStatus === "Success") {
             setName(response.data.ResponseData.Name);

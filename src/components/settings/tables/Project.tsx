@@ -16,6 +16,9 @@ const Project = ({
   onEdit,
   onDataFetch,
   getOrgDetailsFunction,
+  canEdit,
+  canDelete,
+  onSearchProjectData,
 }: any) => {
   const headers = [
     { header: "CLIENT NAME", accessor: "ClientName", sortable: true },
@@ -134,6 +137,7 @@ const Project = ({
   const Actions = ({ actions, id }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         actionsRef.current &&
@@ -149,10 +153,17 @@ const Project = ({
         window.removeEventListener("click", handleOutsideClick);
       };
     }, []);
-    return (
+
+    const actionPermissions = actions.filter(
+      (action: any) =>
+        (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "delete" && canDelete)
+    );
+
+    return actionPermissions.length > 0 ? (
       <div
         ref={actionsRef}
-        className="w-5 h-5 cursor-pointer relative"
+        className={`w-5 h-5 cursor-pointer relative`}
         onClick={() => setOpen(!open)}
       >
         <TableActionIcon />
@@ -161,7 +172,7 @@ const Project = ({
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actions.map((action: any, index: any) => (
+                  {actionPermissions.map((action: any, index: any) => (
                     <li
                       key={index}
                       onClick={() => {
@@ -181,6 +192,10 @@ const Project = ({
             </div>
           </React.Fragment>
         )}
+      </div>
+    ) : (
+      <div className="w-5 h-5 relative opacity-50 pointer-events-none">
+        <TableActionIcon />
       </div>
     );
   };
@@ -290,6 +305,15 @@ const Project = ({
       console.error(error);
     }
   };
+
+  // for showing value according to search
+  useEffect(() => {
+    if (onSearchProjectData) {
+      setData(onSearchProjectData);
+    } else {
+      getData();
+    }
+  }, [onSearchProjectData]);
 
   useEffect(() => {
     getData();
