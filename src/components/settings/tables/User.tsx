@@ -18,6 +18,8 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
+import DrawerOverlay from "../drawer/DrawerOverlay";
+import UserPermissionDrawer from "../drawer/UserPermissionDrawer";
 
 const User = ({
   onOpen,
@@ -25,8 +27,10 @@ const User = ({
   onHandleUserData,
   onUserDataFetch,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
+  canPermission,
   onSearchUserData,
 }: any) => {
   const headers = [
@@ -96,11 +100,29 @@ const User = ({
   const [switchActive, setSwitchActive] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [data, setData] = useState<any>([]);
+  const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
+  const [roleId, setRoleId] = useState(0);
+  const [userId, setUserId] = useState(0);
 
-  const handleActionValue = async (actionId: string, id: any) => {
+  const handleOpenProcessDrawer = () => {
+    setOpenProcessDrawer(true);
+  };
+
+  const handleCloseProcessDrawer = () => {
+    setOpenProcessDrawer(false);
+    setRoleId(0);
+    setUserId(0);
+  };
+
+  const handleActionValue = async (actionId: string, id: any, roleId: any) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
+    }
+    if (actionId.toLowerCase() === "permissions") {
+      setOpenProcessDrawer(true);
+      setRoleId(roleId);
+      setUserId(id);
     }
     if (actionId.toLowerCase() === "delete") {
       setIsDeleteOpen(true);
@@ -168,7 +190,7 @@ const User = ({
     );
   };
 
-  const Actions = ({ actions, id }: any) => {
+  const Actions = ({ actions, id, roleId }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -191,6 +213,7 @@ const User = ({
     const actionPermissions = actions.filter(
       (action: any) =>
         (action.toLowerCase() === "edit" && canEdit) ||
+        (action.toLowerCase() === "permissions" && canPermission) ||
         (action.toLowerCase() === "delete" && canDelete)
     );
 
@@ -209,10 +232,12 @@ const User = ({
                   {actionPermissions.map(
                     (action: any, index: any) =>
                       ((action.toLowerCase() === "edit" && canEdit) ||
+                        (action.toLowerCase() === "permissions" &&
+                          canPermission) ||
                         (action.toLowerCase() === "delete" && canDelete)) && (
                         <li
                           key={index}
-                          onClick={() => handleActionValue(action, id)}
+                          onClick={() => handleActionValue(action, id, roleId)}
                           className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
                         >
                           <div className="flex justify-center items-center ml-2 cursor-pointer">
@@ -253,7 +278,13 @@ const User = ({
           </div>
         ),
         IsActive: <SwitchData id={i.UserId} IsActive={i.IsActive} />,
-        actions: <Actions actions={["Edit", "Delete"]} id={i.UserId} />,
+        actions: (
+          <Actions
+            actions={["Edit", "Permissions", "Delete"]}
+            id={i.UserId}
+            roleId={i.RoleId}
+          />
+        ),
       })
   );
 
@@ -386,60 +417,78 @@ const User = ({
 
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div
+            className={`${
+              tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+            }`}
+          >
+            {data.length > 0 && (
+              <DataTable columns={columns} data={tableData} sticky />
+            )}
+            {tableData.length === 0 && (
+              <>
+                <p className="flex justify-center items-center py-[17px] md:text-xs text-[14px] border-b border-b-[#E6E6E6]">
+                  Currently there is no record, you may
+                  <a
+                    onClick={onOpen}
+                    className=" text-[#0592C6] underline cursor-pointer ml-1 mr-1"
+                  >
+                    Create User
+                  </a>
+                  to continue
+                </p>
+              </>
+            )}
+
+            {/* Delete Modal */}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete User"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
+              >
+                Are you sure you want to delete User? <br /> If you delete User,
+                you will permanently lose user and user related data.
+              </DeleteModal>
+            )}
+
+            {isOpenSwitchModal && (
+              <SwitchModal
+                isOpen={isOpenSwitchModal}
+                onClose={closeSwitchModal}
+                title={`${switchActive === false ? "Active" : "InActive"} User`}
+                actionText="Yes"
+                onActionClick={handleToggleUser}
+              >
+                Are you sure you want to&nbsp;
+                {switchActive === false ? "Active" : "InActive"} User?
+              </SwitchModal>
+            )}
+
+            <UserPermissionDrawer
+              onOpen={openProcessDrawer}
+              onClose={handleCloseProcessDrawer}
+              userId={userId}
+              roleId={roleId}
+              onDataFetch={getData}
+            />
+            <DrawerOverlay
+              isOpen={openProcessDrawer}
+              onClose={handleCloseProcessDrawer}
+            />
+          </div>
+        )
       ) : (
-        <div
-          className={`${
-            tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
-          }`}
-        >
-          {data.length > 0 && (
-            <DataTable columns={columns} data={tableData} sticky />
-          )}
-          {tableData.length === 0 && (
-            <>
-              <p className="flex justify-center items-center py-[17px] md:text-xs text-[14px] border-b border-b-[#E6E6E6]">
-                Currently there is no record, you may
-                <a
-                  onClick={onOpen}
-                  className=" text-[#0592C6] underline cursor-pointer ml-1 mr-1"
-                >
-                  Create User
-                </a>
-                to continue
-              </p>
-            </>
-          )}
-
-          {/* Delete Modal */}
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete User"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              Are you sure you want to delete User? <br /> If you delete User,
-              you will permanently lose user and user related data.
-            </DeleteModal>
-          )}
-
-          {isOpenSwitchModal && (
-            <SwitchModal
-              isOpen={isOpenSwitchModal}
-              onClose={closeSwitchModal}
-              title={`${switchActive === false ? "Active" : "InActive"} User`}
-              actionText="Yes"
-              onActionClick={handleToggleUser}
-            >
-              Are you sure you want to&nbsp;
-              {switchActive === false ? "Active" : "InActive"} User?
-            </SwitchModal>
-          )}
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>
