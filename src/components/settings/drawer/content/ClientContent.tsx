@@ -322,9 +322,9 @@ const ClientContent = forwardRef<
       if (accGroup.length === 0) {
         setAccGroupErr(true);
       }
-      if (accLayout <= 0) {
-        setAccLayoutErr(true);
-      }
+      // if (accLayout <= 0) {
+      //   setAccLayoutErr(true);
+      // }
 
       if (accContHrs < 0) {
         setAccContHrsErr(true);
@@ -395,9 +395,9 @@ const ClientContent = forwardRef<
       if (auditGroup.length === 0) {
         setAuditGroupErr(true);
       }
-      if (auditLayout <= 0) {
-        setAuditLayoutErr(true);
-      }
+      // if (auditLayout <= 0) {
+      //   setAuditLayoutErr(true);
+      // }
 
       if (auditContHrs < 0) {
         setAuditContHrsErr(true);
@@ -473,9 +473,9 @@ const ClientContent = forwardRef<
       if (taxGroup.length === 0) {
         setTaxGroupErr(true);
       }
-      if (taxLayout <= 0) {
-        setTaxLayoutErr(true);
-      }
+      // if (taxLayout <= 0) {
+      //   setTaxLayoutErr(true);
+      // }
 
       if (taxContHrs < 0) {
         setTaxContHrsErr(true);
@@ -545,24 +545,24 @@ const ClientContent = forwardRef<
       accContHrsHasErr &&
       accActualHrsHasErr &&
       accBillingHasErr &&
-      accGroupHasErr &&
-      accLayoutHasErr;
+      accGroupHasErr;
+    // && accLayoutHasErr;
 
     const auditHasError =
       audit &&
       auditActualHrsHasErr &&
       auditContHrsHasErr &&
       auditBillingHasErr &&
-      auditGroupHasErr &&
-      auditLayoutHasErr;
+      auditGroupHasErr;
+    // && auditLayoutHasErr;
 
     const taxHasError =
       tax &&
       taxActualHrsHasErr &&
       taxContHrsHasErr &&
       taxBillingHasErr &&
-      taxGroupHasErr &&
-      taxLayoutHasErr;
+      taxGroupHasErr;
+    // && taxLayoutHasErr;
 
     if (accounting && accHasError) {
       workTypeAccData.push({
@@ -570,7 +570,7 @@ const ClientContent = forwardRef<
         workTypeId: 1,
         billingTypeId: accBillingType,
         groupIds: accGroup,
-        layoutId: accLayout,
+        layoutId: 1,
         internalHrs: accActualHrs,
         contractHrs: accContHrs,
       });
@@ -582,7 +582,7 @@ const ClientContent = forwardRef<
         WorkTypeId: 2,
         BillingTypeId: auditBillingType,
         GroupIds: auditGroup,
-        LayoutId: auditLayout,
+        LayoutId: 1,
         InternalHrs: auditActualHrs,
         ContractHrs: auditContHrs,
       });
@@ -594,7 +594,7 @@ const ClientContent = forwardRef<
         WorkTypeId: 3,
         BillingTypeId: taxBillingType,
         GroupIds: taxGroup,
-        LayoutId: taxLayout,
+        LayoutId: 1,
         InternalHrs: taxActualHrs,
         ContractHrs: taxContHrs,
       });
@@ -627,7 +627,7 @@ const ClientContent = forwardRef<
 
     setAccBillingErr(true);
     setAccGroupErr(true);
-    setAccLayoutErr(true);
+    // setAccLayoutErr(true);
     setAccContHrsErr(true);
     setAccActHrsErr(true);
     setAccActualHrsErrMsg("");
@@ -635,7 +635,7 @@ const ClientContent = forwardRef<
 
     setAuditBillingErr(true);
     setAuditGroupErr(true);
-    setAuditLayoutErr(true);
+    // setAuditLayoutErr(true);
     setAuditContHrsErr(true);
     setAuditActHrsErr(true);
     setAuditActualHrsErrMsg("");
@@ -643,7 +643,7 @@ const ClientContent = forwardRef<
 
     setTaxBillingErr(true);
     setTaxGroupErr(true);
-    setTaxLayoutErr(true);
+    // setTaxLayoutErr(true);
     setTaxContHrsErr(true);
     setTaxActHrsErr(true);
     setTaxActualHrsErrMsg("");
@@ -673,9 +673,9 @@ const ClientContent = forwardRef<
     setAccGroup([]);
     setAccGroupErr(false);
     setAccGroupHasErr(false);
-    setAccLayout(0);
-    setAccLayoutErr(false);
-    setAccLayoutHasErr(false);
+    // setAccLayout(0);
+    // setAccLayoutErr(false);
+    // setAccLayoutHasErr(false);
     setAccContHrs(0);
     setAccContHrsErr(false);
     setAccContHrsHasErr(false);
@@ -694,9 +694,9 @@ const ClientContent = forwardRef<
     setAuditGroup([]);
     setAuditGroupErr(false);
     setAuditGroupHasErr(false);
-    setAuditLayout(0);
-    setAuditLayoutErr(false);
-    setAuditLayoutHasErr(false);
+    // setAuditLayout(0);
+    // setAuditLayoutErr(false);
+    // setAuditLayoutHasErr(false);
     setAuditContHrs(0);
     setAuditContHrsErr(false);
     setAuditContHrsHasErr(false);
@@ -715,9 +715,9 @@ const ClientContent = forwardRef<
     setTaxGroup([]);
     setTaxGroupErr(false);
     setTaxGroupHasErr(false);
-    setTaxLayout(0);
-    setTaxLayoutErr(false);
-    setTaxLayoutHasErr(false);
+    // setTaxLayout(0);
+    // setTaxLayoutErr(false);
+    // setTaxLayoutHasErr(false);
     setTaxContHrs(0);
     setTaxContHrsErr(false);
     setTaxContHrsHasErr(false);
@@ -1072,7 +1072,7 @@ const ClientContent = forwardRef<
                   validate
                   errorClass="!-mt-[15px]"
                 />
-                <Select
+                {/* <Select
                   id="layout"
                   label="Layout"
                   defaultValue={accLayout}
@@ -1083,7 +1083,7 @@ const ClientContent = forwardRef<
                   hasError={accLayoutErr}
                   validate
                   errorClass="!-mt-[15px]"
-                />
+                /> */}
                 <Text
                   className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   type="number"
@@ -1180,7 +1180,7 @@ const ClientContent = forwardRef<
                   validate
                   errorClass="!-mt-[15px]"
                 />
-                <Select
+                {/* <Select
                   id="Layout"
                   label="Layout"
                   defaultValue={auditLayout}
@@ -1191,7 +1191,7 @@ const ClientContent = forwardRef<
                   hasError={auditLayoutErr}
                   validate
                   errorClass="!-mt-[15px]"
-                />
+                /> */}
                 <Text
                   className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   type="number"
@@ -1288,7 +1288,7 @@ const ClientContent = forwardRef<
                     validate
                     errorClass="!-mt-[15px]"
                   />
-                  <Select
+                  {/* <Select
                     id="Layout"
                     label="Layout"
                     defaultValue={taxLayout}
@@ -1299,7 +1299,7 @@ const ClientContent = forwardRef<
                     hasError={taxLayoutErr}
                     validate
                     errorClass="!-mt-[15px]"
-                  />
+                  /> */}
                   <Text
                     className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     type="number"
