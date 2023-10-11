@@ -13,6 +13,7 @@ function Group({
   onDataFetch,
   onHandleGroupData,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
   onSearchGroupData,
@@ -240,46 +241,52 @@ function Group({
 
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
-      ) : (
-        <div
-          className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
-        >
-          <Toast position="top_center" />
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div
+            className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
+          >
+            <Toast position="top_center" />
 
-          {data.length > 0 && (
-            <DataTable columns={headers} data={groupData} sticky />
-          )}
+            {data.length > 0 && (
+              <DataTable columns={headers} data={groupData} sticky />
+            )}
 
-          {groupData.length === 0 && (
-            <p className="flex justify-center items-center py-[17px] text-[14px]">
-              Currently there is no record, you may
-              <a
-                onClick={onOpen}
-                className=" text-primary underline cursor-pointer ml-1 mr-1"
+            {groupData.length === 0 && (
+              <p className="flex justify-center items-center py-[17px] text-[14px]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className=" text-primary underline cursor-pointer ml-1 mr-1"
+                >
+                  create Group
+                </a>
+                to continue
+              </p>
+            )}
+
+            {/* Delete Modal  */}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete Group"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
               >
-                create Group
-              </a>
-              to continue
-            </p>
-          )}
-
-          {/* Delete Modal  */}
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete Group"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              Are you sure you want to delete group? <br /> If you delete group,
-              you will permanently lose group and group related data.
-            </DeleteModal>
-          )}
+                Are you sure you want to delete group? <br /> If you delete
+                group, you will permanently lose group and group related data.
+              </DeleteModal>
+            )}
+          </div>
+        )
+      ) : (
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

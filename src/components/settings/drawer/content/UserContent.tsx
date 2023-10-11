@@ -624,9 +624,7 @@ const UserContent = forwardRef<
               placeholder="Enter Mobile Number"
               value={tel}
               maxLength={14}
-              getValue={(e) => 
-                setTel(e)
-              }
+              getValue={(e) => setTel(e)}
               getError={(e) => {
                 e;
               }}

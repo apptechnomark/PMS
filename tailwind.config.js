@@ -6,6 +6,9 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      proxima: ["Proxima Nova"],
+    },
     extend: {
       colors: {
         primary: "#02B89D",

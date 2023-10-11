@@ -3,11 +3,10 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 // Library Components
-import { Button, Select, Text, Toast, Tooltip } from "next-ts-lib";
+import { Button, Select, Text, Toast, Tooltip, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Icons
 import DotsIcon from "@/assets/icons/DotsIcon";
-import FilterIcon from "@/assets/icons/FilterIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -53,6 +52,7 @@ const page = () => {
   const [open, setOpen] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isLoaded, setLoaded] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasEditId, setHasEditId] = useState("");
   const [userData, setUserData] = useState([]);
   const [getUserDataFunction, setUserGetDataFunction] = useState<
@@ -62,9 +62,6 @@ const page = () => {
   const [projectData, setProjectData] = useState([]);
 
   const [statusData, setStatusData] = useState("");
-  const [getProcessDataFunction, setProcessGetDataFunction] = useState<
-    (() => void) | null
-  >(null);
   const [processData, setProcessData] = useState("");
 
   const handleGroupData = (data: any) => {
@@ -129,10 +126,6 @@ const page = () => {
   // setting getData function got from child (client) component
   const handleDataFetch = (getData: () => void) => {
     setGetDataFunction(() => getData);
-  };
-
-  const handleProcessDataFetch = (getData: () => void) => {
-    setProcessGetDataFunction(() => getData);
   };
 
   const handleOrgData = (data: any) => {
@@ -427,12 +420,7 @@ const page = () => {
     setLoaded(true);
   };
 
-  const handleModuleNames = (
-    arg1: string,
-    arg2: string,
-    arg3: string,
-    arg4: string
-  ) => {
+  const handleModuleNames = (arg1: string, arg2: string, arg3: string) => {
     const updatedTabs = tabs.map((tab) => {
       switch (tab.id.toLowerCase()) {
         case "client":
@@ -534,6 +522,7 @@ const page = () => {
     for (let i = 0; i < initialTabs.length; i++) {
       if (hasPermissionWorklog(initialTabs[i].id, "view", "settings")) {
         setTab(initialTabs[i].id);
+        setIsLoading(false);
         setSelectedTabIndex(i);
         break;
       }
@@ -902,7 +891,6 @@ const page = () => {
   // fetching Organization data according to search values
   const handleOrganizationSearch = async (searchValue: any, orgToken: any) => {
     const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -957,272 +945,279 @@ const page = () => {
         onUserDetailsFetch={handleUserDetailsFetch}
         onHandleModuleNames={handleModuleNames}
       />
+
       <div>
-        <div className="bg-whiteSmoke flex justify-between items-center">
-          <div className="flex items-center py-[6.5px]">
-            {visibleTabs.map((tab, index) => (
-              <label
-                key={tab.id}
-                onClick={() => handleTabClick(tab.id, index)}
-                className={`border-r border-r-lightSilver px-[10px] text-[14px] cursor-pointer select-none ${
-                  selectedTabIndex === index
-                    ? "text-[#0592C6] text-[16px] font-[600]"
-                    : "text-slatyGrey"
-                } ${tab.canView ? "" : "opacity-50 pointer-events-none"}`}
-              >
-                {tab.label}
-              </label>
-            ))}
-            <div ref={selectRef}>
-              <span onClick={handleToggleOpen} className="cursor-pointer">
-                <DotsIcon />
-              </span>
-              <div>
-                <ul
-                  className={`absolute w-[215px] py-2 z-10 bg-pureWhite overflow-y-auto transition-transform drop-shadow-lg 
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div className="bg-whiteSmoke flex justify-between items-center">
+            <div className="flex items-center py-[6.5px]">
+              {visibleTabs.map((tab, index) => (
+                <label
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.id, index)}
+                  className={`border-r border-r-lightSilver px-[10px] text-[14px] cursor-pointer select-none ${
+                    selectedTabIndex === index
+                      ? "text-[#0592C6] text-[16px] font-[600]"
+                      : "text-slatyGrey"
+                  } ${tab.canView ? "" : "opacity-50 pointer-events-none"}`}
+                >
+                  {tab.label}
+                </label>
+              ))}
+              <div ref={selectRef}>
+                <span onClick={handleToggleOpen} className="cursor-pointer">
+                  <DotsIcon />
+                </span>
+                <div>
+                  <ul
+                    className={`absolute w-[215px] py-2 z-10 bg-pureWhite overflow-y-auto transition-transform drop-shadow-lg 
                     ${
                       open
                         ? "max-h-full transition-opacity opacity-100 duration-500 ease-out"
                         : "max-h-0 transition-opacity opacity-0 duration-500"
                     }`}
-                >
-                  {dropdownTabs.map((tab, index) => (
-                    <li
-                      key={tab.id}
-                      onClick={() => handleTabClick(tab.id, index)}
-                      className={`p-2 hover:bg-whiteSmoke font-normal flex cursor-pointer ${
-                        tab.canView ? "" : "opacity-50 pointer-events-none"
-                      }`}
-                    >
-                      <label className="cursor-pointer">{tab.label}</label>
-                    </li>
-                  ))}
-                </ul>
+                  >
+                    {dropdownTabs.map((tab, index) => (
+                      <li
+                        key={tab.id}
+                        onClick={() => handleTabClick(tab.id, index)}
+                        className={`p-2 hover:bg-whiteSmoke font-normal flex cursor-pointer ${
+                          tab.canView ? "" : "opacity-50 pointer-events-none"
+                        }`}
+                      >
+                        <label className="cursor-pointer">{tab.label}</label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            className={`flex items-center px-[10px] ${
-              tab === "Permissions" ? "gap-[5px]" : "gap-[10px]"
-            }`}
-          >
-            {tab !== "Permission" ? (
-              <>
-                {tab === "Client" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={clientSearchValue}
-                      getValue={(e) => setClientSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+            <div
+              className={`flex items-center px-[10px] ${
+                tab === "Permissions" ? "gap-[5px]" : "gap-[10px]"
+              }`}
+            >
+              {tab !== "Permission" ? (
+                <>
+                  {tab === "Client" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={clientSearchValue}
+                        getValue={(e) => setClientSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "Project" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={projectSearchValue}
-                      getValue={(e) => setProjectSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "Project" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={projectSearchValue}
+                        getValue={(e) => setProjectSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "User" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={userSearchValue}
-                      getValue={(e) => setUserSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "User" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={userSearchValue}
+                        getValue={(e) => setUserSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "Process" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={processSearchValue}
-                      getValue={(e) => setProcessSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "Process" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={processSearchValue}
+                        getValue={(e) => setProcessSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "Group" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={groupSearchValue}
-                      getValue={(e) => setGroupSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "Group" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={groupSearchValue}
+                        getValue={(e) => setGroupSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "Status" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={statusSearchValue}
-                      getValue={(e) => setStatusSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "Status" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={statusSearchValue}
+                        getValue={(e) => setStatusSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                {tab === "Organization" && (
-                  <div className="flex items-center relative">
-                    <Text
-                      placeholder="Search"
-                      className="!bg-transparent p-1 pr-5"
-                      value={orgSearchValue}
-                      getValue={(e) => setOrgSearchValue(e)}
-                      getError={() => {}}
-                    />
-                    <span className="absolute right-1 py-1 pl-1">
-                      <SearchIcon />
-                    </span>
-                  </div>
-                )}
+                  {tab === "Organization" && (
+                    <div className="flex items-center relative">
+                      <Text
+                        placeholder="Search"
+                        className="!bg-transparent p-1 pr-5"
+                        value={orgSearchValue}
+                        getValue={(e) => setOrgSearchValue(e)}
+                        getError={() => {}}
+                      />
+                      <span className="absolute right-1 py-1 pl-1">
+                        <SearchIcon />
+                      </span>
+                    </div>
+                  )}
 
-                <div
-                  className={`${
-                    hasPermissionWorklog(tab, "import", "settings")
-                      ? ""
-                      : "opacity-50 pointer-events-none"
-                  }`}
-                >
-                  <Tooltip position={"top"} content="Import">
-                    <ImportIcon />
-                  </Tooltip>
-                </div>
-                <div
-                  className={`${
-                    hasPermissionWorklog(tab, "export", "settings")
-                      ? ""
-                      : "opacity-50 pointer-events-none"
-                  }`}
-                >
-                  <Tooltip position={"top"} content="Export">
-                    <ExportIcon />
-                  </Tooltip>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-center justify-center gap-3 mr-4">
-                <Select
-                  id="permissionName"
-                  placeholder="Select Permission"
-                  className="!w-[200px]"
-                  defaultValue={permissionValue === 0 ? "" : permissionValue}
-                  getValue={(value) => {
-                    setPermissionValue(value);
-                  }}
-                  getError={(e) => {
-                    console.error(e);
-                  }}
-                  options={permissionDropdownData}
-                  addDynamicForm_Icons_Edit={
-                    hasPermissionWorklog("permission", "save", "settings")
-                      ? true
-                      : false
-                  }
-                  addDynamicForm_Icons_Delete={
-                    hasPermissionWorklog("permission", "delete", "settings")
-                      ? true
-                      : false
-                  }
-                  addDynamicForm_Label="Project Name"
-                  addDynamicForm_Placeholder="Project Name"
-                  onChangeText={(value, label) => {
-                    setTextValue(value);
-                    setTextName(label);
-                  }}
-                  onClickButton={handleFormButtonClick}
-                  onDeleteButton={(e) => handleProjectDelete(e)}
-                />
-                <div className="w-[60px]">
-                  <Button
-                    variant="btn-secondary"
-                    className={`rounded-md ${
-                      permissionValue === 0 ||
-                      !hasPermissionWorklog(tab, "save", "settings")
-                        ? "opacity-50 pointer-events-none"
-                        : ""
+                  <div
+                    className={`${
+                      hasPermissionWorklog(tab, "import", "settings")
+                        ? ""
+                        : "opacity-50 pointer-events-none"
                     }`}
-                    disabled={
-                      permissionValue === 0 ||
-                      !hasPermissionWorklog(tab, "save", "settings")
+                  >
+                    <Tooltip position={"top"} content="Import">
+                      <ImportIcon />
+                    </Tooltip>
+                  </div>
+                  <div
+                    className={`${
+                      hasPermissionWorklog(tab, "export", "settings")
+                        ? ""
+                        : "opacity-50 pointer-events-none"
+                    }`}
+                  >
+                    <Tooltip position={"top"} content="Export">
+                      <ExportIcon />
+                    </Tooltip>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center gap-3 mr-4">
+                  <Select
+                    id="permissionName"
+                    placeholder="Select Permission"
+                    className="!w-[200px]"
+                    defaultValue={permissionValue === 0 ? "" : permissionValue}
+                    getValue={(value) => {
+                      setPermissionValue(value);
+                    }}
+                    getError={(e) => {
+                      console.error(e);
+                    }}
+                    options={permissionDropdownData}
+                    addDynamicForm_Icons_Edit={
+                      hasPermissionWorklog("permission", "save", "settings")
                         ? true
                         : false
                     }
-                    onClick={handleSavePermissionData}
-                  >
-                    Save
-                  </Button>
+                    addDynamicForm_Icons_Delete={
+                      hasPermissionWorklog("permission", "delete", "settings")
+                        ? true
+                        : false
+                    }
+                    addDynamicForm_Label="Project Name"
+                    addDynamicForm_Placeholder="Project Name"
+                    onChangeText={(value, label) => {
+                      setTextValue(value);
+                      setTextName(label);
+                    }}
+                    onClickButton={handleFormButtonClick}
+                    onDeleteButton={(e) => handleProjectDelete(e)}
+                  />
+                  <div className="w-[60px]">
+                    <Button
+                      variant="btn-secondary"
+                      className={`rounded-md ${
+                        permissionValue === 0 ||
+                        !hasPermissionWorklog(tab, "save", "settings")
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                      }`}
+                      disabled={
+                        permissionValue === 0 ||
+                        !hasPermissionWorklog(tab, "save", "settings")
+                          ? true
+                          : false
+                      }
+                      onClick={handleSavePermissionData}
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-            <Button
-              type="submit"
-              variant="btn-secondary"
-              className={`${
-                tab === "Permissions"
-                  ? "rounded-[4px] !h-[45px] "
-                  : "rounded-[4px] !h-[36px] text-sm"
-              } ${
-                isLoaded && hasPermissionWorklog(tab, "save", "settings")
-                  ? ""
-                  : "cursor-not-allowed"
-              }`}
-              onClick={
-                hasPermissionWorklog(tab, "save", "settings")
-                  ? handleDrawerOpen
-                  : undefined
-              }
-            >
-              <span
-                className={`flex items-center justify-center ${
-                  tab === "Permissions" ? "text-sm" : ""
+              )}
+              <Button
+                type="submit"
+                variant="btn-secondary"
+                className={`${
+                  tab === "Permissions"
+                    ? "rounded-[4px] !h-[45px] "
+                    : "rounded-[4px] !h-[36px] text-sm"
+                } ${
+                  isLoaded && hasPermissionWorklog(tab, "save", "settings")
+                    ? ""
+                    : "cursor-not-allowed"
                 }`}
+                onClick={
+                  hasPermissionWorklog(tab, "save", "settings")
+                    ? handleDrawerOpen
+                    : undefined
+                }
               >
-                <span className="mr-2">
-                  <AddPlusIcon />
+                <span
+                  className={`flex items-center justify-center ${
+                    tab === "Permissions" ? "text-sm" : ""
+                  }`}
+                >
+                  <span className="mr-2">
+                    <AddPlusIcon />
+                  </span>
+                  <span>Create {tab === "Permission" ? "Role" : tab}</span>
                 </span>
-                <span>Create {tab === "Permission" ? "Role" : tab}</span>
-              </span>
-            </Button>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/*  Drawer */}
         <Drawer

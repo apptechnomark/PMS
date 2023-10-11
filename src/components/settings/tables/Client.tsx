@@ -17,6 +17,7 @@ function Client({
   onEdit,
   onDataFetch,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
   canProcess,
@@ -328,68 +329,77 @@ function Client({
 
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
-      ) : (
-        <div>
-          <Toast position="top_center" />
-          {data.length > 0 && (
-            <div className="h-[81vh]">
-              <DataTable columns={headers} data={table_Data} sticky />
-            </div>
-          )}
-          {data.length <= 0 && (
-            <p className="flex justify-center items-center py-[17px] text-[14px]">
-              Currently there is no record, you may
-              <a
-                onClick={onOpen}
-                className="text-primary underline cursor-pointer ml-1 mr-1"
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div>
+            <Toast position="top_center" />
+            {data.length > 0 && (
+              <div className="h-[81vh]">
+                <DataTable columns={headers} data={table_Data} sticky />
+              </div>
+            )}
+            {data.length <= 0 && (
+              <p className="flex justify-center items-center py-[17px] text-[14px]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className="text-primary underline cursor-pointer ml-1 mr-1"
+                >
+                  Create Client
+                </a>
+                to continue
+              </p>
+            )}
+
+            {/* Delete Modal */}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete Client"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
               >
-                Create Client
-              </a>
-              to continue
-            </p>
-          )}
+                Are you sure you want to delete client? <br /> If you delete
+                client, you will permanently lose client and client related
+                data.
+              </DeleteModal>
+            )}
 
-          {/* Delete Modal */}
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete Client"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              Are you sure you want to delete client? <br /> If you delete
-              client, you will permanently lose client and client related data.
-            </DeleteModal>
-          )}
+            {isOpenSwitchModal && (
+              <SwitchModal
+                isOpen={isOpenSwitchModal}
+                onClose={closeSwitchModal}
+                title={`${
+                  switchActive === false ? "Active" : "InActive"
+                } Client`}
+                actionText="Yes"
+                onActionClick={handleToggleClient}
+              >
+                Are you sure you want to&nbsp;
+                {switchActive === false ? "Active" : "InActive"} Client?
+              </SwitchModal>
+            )}
 
-          {isOpenSwitchModal && (
-            <SwitchModal
-              isOpen={isOpenSwitchModal}
-              onClose={closeSwitchModal}
-              title={`${switchActive === false ? "Active" : "InActive"} Client`}
-              actionText="Yes"
-              onActionClick={handleToggleClient}
-            >
-              Are you sure you want to&nbsp;
-              {switchActive === false ? "Active" : "InActive"} Client?
-            </SwitchModal>
-          )}
-
-          <ClientProcessDrawer
-            onOpen={openProcessDrawer}
-            onClose={handleCloseProcessDrawer}
-            selectedRowId={selectedRowId}
-            onDataFetch={getData}
-          />
-          <DrawerOverlay
-            isOpen={openProcessDrawer}
-            onClose={handleCloseProcessDrawer}
-          />
+            <ClientProcessDrawer
+              onOpen={openProcessDrawer}
+              onClose={handleCloseProcessDrawer}
+              selectedRowId={selectedRowId}
+              onDataFetch={getData}
+            />
+            <DrawerOverlay
+              isOpen={openProcessDrawer}
+              onClose={handleCloseProcessDrawer}
+            />
+          </div>
+        )
+      ) : (
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

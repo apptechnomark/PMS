@@ -11,6 +11,7 @@ function Status({
   onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
   onSearchStatusData,
@@ -242,50 +243,57 @@ function Status({
   };
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div
+            className={`${
+              statusList.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+            }`}
+          >
+            {statusList.length > 0 ? (
+              <>
+                <DataTable columns={headers} data={StatusData} sticky />
+              </>
+            ) : (
+              ""
+            )}
+            {statusList.length === 0 && (
+              <>
+                <p className="flex justify-center items-center py-[17px] text-[14px]">
+                  Currently there is no record, you may
+                  <a
+                    onClick={onOpen}
+                    className=" text-primary underline cursor-pointer ml-1 mr-1"
+                  >
+                    Create Status
+                  </a>
+                  to continue
+                </p>
+              </>
+            )}
+            {/* Delete Modal  */}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete Status"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
+              >
+                Are you sure you want to delete status? <br /> If you delete
+                status, you will permanently lose status and status related
+                data.
+              </DeleteModal>
+            )}
+          </div>
+        )
       ) : (
-        <div
-          className={`${
-            statusList.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
-          }`}
-        >
-          {statusList.length > 0 ? (
-            <>
-              <DataTable columns={headers} data={StatusData} sticky />
-            </>
-          ) : (
-            ""
-          )}
-          {statusList.length === 0 && (
-            <>
-              <p className="flex justify-center items-center py-[17px] text-[14px]">
-                Currently there is no record, you may
-                <a
-                  onClick={onOpen}
-                  className=" text-primary underline cursor-pointer ml-1 mr-1"
-                >
-                  Create Status
-                </a>
-                to continue
-              </p>
-            </>
-          )}
-          {/* Delete Modal  */}
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete Status"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              Are you sure you want to delete status? <br /> If you delete
-              status, you will permanently lose status and status related data.
-            </DeleteModal>
-          )}
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

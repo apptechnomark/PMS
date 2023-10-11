@@ -17,6 +17,7 @@ const Permissions = ({
   expanded,
   loading,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
 }: any) => {
@@ -245,38 +246,45 @@ const Permissions = ({
 
   return (
     <>
-      {loading && (
+      {canView && loading && (
         <div className="flex items-center justify-center min-h-screen">
           <Loader />
         </div>
       )}
-      {data.length <= 0 ? (
-        <p className="flex justify-center items-center py-[17px] text-[14px]">
-          Currently there is no record, you may
-          <a
-            onClick={onOpen}
-            className={`text-primary underline ml-1 mr-1 ${
-              onOpen !== undefined ? "cursor-pointer" : "cursor-not-allowed"
+
+      {canView ? (
+        data.length <= 0 ? (
+          <p className="flex justify-center items-center py-[17px] text-[14px]">
+            Currently there is no record, you may
+            <a
+              onClick={onOpen}
+              className={`text-primary underline ml-1 mr-1 ${
+                onOpen !== undefined ? "cursor-pointer" : "cursor-not-allowed"
+              }`}
+            >
+              Create Role
+            </a>
+            to continue
+          </p>
+        ) : (
+          <div
+            className={`${
+              tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
             }`}
           >
-            Create Role
-          </a>
-          to continue
-        </p>
+            {data.length > 0 && (
+              <DataTable
+                expandable
+                columns={generateColumns(data)}
+                data={tableData}
+                isExpanded={expanded}
+              />
+            )}
+          </div>
+        )
       ) : (
-        <div
-          className={`${
-            tableData.length === 0 ? "!h-full" : "!h-[80vh] !w-full"
-          }`}
-        >
-          {data.length > 0 && (
-            <DataTable
-              expandable
-              columns={generateColumns(data)}
-              data={tableData}
-              isExpanded={expanded}
-            />
-          )}
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

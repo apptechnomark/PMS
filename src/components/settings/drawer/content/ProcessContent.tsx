@@ -276,7 +276,8 @@ const ProcessContent = forwardRef<
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             Toast.success(
-              `${editing ? "" : "New"} Process ${editing ? "Updated" : "added"
+              `${editing ? "" : "New"} Process ${
+                editing ? "Updated" : "added"
               }  successfully.`
             );
             await onDataFetch();
@@ -316,7 +317,8 @@ const ProcessContent = forwardRef<
             // ProcessDataValue();
             // onDataFetch();
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -423,7 +425,8 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -491,7 +494,8 @@ const ProcessContent = forwardRef<
             onDataFetch();
             setLoader(false);
             Toast.success(
-              `${onEdit ? "" : "New"} Process ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Process ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -562,7 +566,6 @@ const ProcessContent = forwardRef<
       fetchEditData();
     }
   }, [onEdit]);
-
   const closeDrawer = () => {
     setActivity([]);
     setProductive(true);
@@ -590,6 +593,15 @@ const ProcessContent = forwardRef<
       setProductive(false);
       setBillable(false);
     }
+
+    // if (e.target.checked && e.target.id === "p1" && productive) {
+    //   setProductive(true);
+    //   setBillable(false);
+    // }
+    // if (e.target.checked && e.target.id === "non_p1") {
+    //   setProductive(false);
+    //   setBillable(false);
+    // }
   };
 
   const handleSubProcesChange = (value: any) => {

@@ -161,7 +161,7 @@ const Drawer = ({
             ref={clientRef}
           />
         )}
-        {tab === "Permissions" && (
+        {tab === "Permission" && (
           <PermissionsContent
             tab={tab}
             onClose={onClose}

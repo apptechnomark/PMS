@@ -24,7 +24,7 @@ const StatusContent = forwardRef<
   }
 >(({ tab, onClose, onEdit, statusData, onDataFetch }, ref) => {
   const [statusName, setStatusName] = useState("");
-  const [type, setType] = useState('');
+  const [type, setType] = useState("");
   const [colorName, setColorName] = useState("");
   const [statusNameHasError, setStatusNameHasError] = useState(false);
   const [statusNameError, setStatusNameError] = useState(false);
@@ -54,10 +54,10 @@ const StatusContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             const data = await response.data.ResponseData;
             setStatusName(data.Name);
-            setType(data.Type)
-            setIsDefualt(data.IsDefault)
+            setType(data.Type);
+            setIsDefualt(data.IsDefault);
             setColorName(data.ColorCode);
-            setStatusNameHasError(true)
+            setStatusNameHasError(true);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -146,7 +146,8 @@ const StatusContent = forwardRef<
             setLoader(false);
             onClose();
             Toast.success(
-              `${onEdit ? "" : "New"} Status ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Status ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -201,7 +202,8 @@ const StatusContent = forwardRef<
             onDataFetch();
             clearStatusData();
             Toast.success(
-              `${onEdit ? "" : "New"} Status ${onEdit ? "Updated" : "added"
+              `${onEdit ? "" : "New"} Status ${
+                onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
@@ -246,7 +248,7 @@ const StatusContent = forwardRef<
           placeholder="Enter Type"
           value={type}
           getValue={(e: any) => setType(e)}
-          getError={() => { }}
+          getError={() => {}}
           disabled={isDefualt}
         />
 

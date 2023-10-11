@@ -2,11 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import NotificationIcon from "@/assets/icons/NotificationIcon";
-import { Avatar, Button, Toast } from "next-ts-lib";
+import { Avatar, Button } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
   const router = useRouter();
@@ -42,17 +43,17 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -85,7 +86,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
         );
         localStorage.setItem("roleId", response.data.ResponseData.RoleId);
         localStorage.setItem(
-          "isAdmin",
+          "isClient",
           response.data.ResponseData.IsClientUser
         );
         localStorage.setItem("UserId", response.data.ResponseData.UserId);

@@ -241,6 +241,13 @@ const OrganizationContent = forwardRef<
       }
     };
 
+    useEffect(() => {
+      setClientName("Client");
+      setProjectName("Project");
+      setProcessName("Process");
+      setSubProcessName("SubProcess");
+    }, []);
+
     return (
       <form className="max-h-[78vh] overflow-y-auto">
         <div className="flex gap-[20px] flex-col p-[20px]">

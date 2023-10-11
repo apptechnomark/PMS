@@ -1,10 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
 import {
   Button,
-  CheckBox,
-  Typography,
   Password,
   Toast,
   Loader,

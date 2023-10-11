@@ -1,6 +1,6 @@
 "use client";
 
-import Wrapper from "@/components/common/Wrapper";
+import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -14,7 +14,11 @@ const Home = () => {
     }
   }, [router]);
 
-  return <Wrapper>PMS</Wrapper>;
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <CircularProgress />
+    </div>
+  );
 };
 
 export default Home;

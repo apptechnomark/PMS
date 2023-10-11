@@ -6,7 +6,7 @@ interface ColumnFilterDropdownProps {
   headers: any[];
   visibleHeaders: any[];
   isOpen?: boolean;
-  setOpen: (arg1: boolean) => void;
+  setOpen: (arg1: boolean) => void; 
   handleHeaderToggle: (header: string) => void;
 }
 

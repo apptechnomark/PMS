@@ -14,6 +14,7 @@ function Process({
   onDataFetch,
   onHandleProcessData,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
   onSearchProcessData,
@@ -288,43 +289,49 @@ function Process({
 
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
-      ) : (
-        <div
-          className={`${
-            tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
-          }`}
-        >
-          <DataTable columns={headers} data={tableData} sticky expandable />
-          {data.length === 0 && (
-            <p className="flex justify-center items-center py-[17px] text-[14px]">
-              Currently there is no record, you may
-              <a
-                onClick={onOpen}
-                className=" text-primary underline cursor-pointer ml-1 mr-1"
-              >
-                Create Process
-              </a>
-              to continue
-            </p>
-          )}
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div
+            className={`${
+              tableData.length === 0 ? "!h-full" : "!h-[81vh] !w-full"
+            }`}
+          >
+            <DataTable columns={headers} data={tableData} sticky expandable />
+            {data.length === 0 && (
+              <p className="flex justify-center items-center py-[17px] text-[14px]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className=" text-primary underline cursor-pointer ml-1 mr-1"
+                >
+                  Create Process
+                </a>
+                to continue
+              </p>
+            )}
 
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete Process"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              Are you sure you want to delete Process? <br /> If you delete
-              Process, you will permanently lose Process and Process related
-              data.
-            </DeleteModal>
-          )}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete Process"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
+              >
+                Are you sure you want to delete Process? <br /> If you delete
+                Process, you will permanently lose Process and Process related
+                data.
+              </DeleteModal>
+            )}
+          </div>
+        )
+      ) : (
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

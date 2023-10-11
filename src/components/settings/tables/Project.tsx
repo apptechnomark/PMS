@@ -16,6 +16,7 @@ const Project = ({
   onEdit,
   onDataFetch,
   getOrgDetailsFunction,
+  canView,
   canEdit,
   canDelete,
   onSearchProjectData,
@@ -379,64 +380,70 @@ const Project = ({
 
   return (
     <>
-      {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
-      ) : (
-        <div
-          className={`${
-            tableData.length === 0 ? "!h-full" : "!h-[440px] !w-full"
-          }`}
-        >
-          {data.length > 0 && (
-            <DataTable columns={columns} data={tableData} sticky expandable />
-          )}
+      {canView ? (
+        loader ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <Loader />
+          </div>
+        ) : (
+          <div
+            className={`${
+              tableData.length === 0 ? "!h-full" : "!h-[440px] !w-full"
+            }`}
+          >
+            {data.length > 0 && (
+              <DataTable columns={columns} data={tableData} sticky expandable />
+            )}
 
-          {tableData.length === 0 && (
-            <p className="flex justify-center items-center py-[17px] text-[14px]">
-              Currently there is no record, you may
-              <a
-                onClick={onOpen}
-                className=" text-primary underline cursor-pointer ml-1 mr-1"
-              >
-                Create Project
-              </a>
-              to continue
-            </p>
-          )}
-
-          {/* Delete Modal */}
-          {isDeleteOpen && (
-            <DeleteModal
-              isOpen={isDeleteOpen}
-              onClose={closeModal}
-              title="Delete Project"
-              actionText="Yes"
-              onActionClick={handleDeleteRow}
-            >
-              <p>
-                Are you sure you want to delete Project?
-                <br /> If you delete the project, you will permanently lose
-                project and project related data.
+            {tableData.length === 0 && (
+              <p className="flex justify-center items-center py-[17px] text-[14px]">
+                Currently there is no record, you may
+                <a
+                  onClick={onOpen}
+                  className=" text-primary underline cursor-pointer ml-1 mr-1"
+                >
+                  Create Project
+                </a>
+                to continue
               </p>
-            </DeleteModal>
-          )}
+            )}
 
-          {isOpenSwitchModal && (
-            <SwitchModal
-              isOpen={isOpenSwitchModal}
-              onClose={closeSwitchModal}
-              title={`${
-                switchActive === false ? "Active" : "InActive"
-              } Project`}
-              actionText="Yes"
-              onActionClick={handleOutsideClick}
-            >
-              Are you sure you want to&nbsp;
-              {switchActive === false ? "Active" : "InActive"} Project?
-            </SwitchModal>
-          )}
+            {/* Delete Modal */}
+            {isDeleteOpen && (
+              <DeleteModal
+                isOpen={isDeleteOpen}
+                onClose={closeModal}
+                title="Delete Project"
+                actionText="Yes"
+                onActionClick={handleDeleteRow}
+              >
+                <p>
+                  Are you sure you want to delete Project?
+                  <br /> If you delete the project, you will permanently lose
+                  project and project related data.
+                </p>
+              </DeleteModal>
+            )}
+
+            {isOpenSwitchModal && (
+              <SwitchModal
+                isOpen={isOpenSwitchModal}
+                onClose={closeSwitchModal}
+                title={`${
+                  switchActive === false ? "Active" : "InActive"
+                } Project`}
+                actionText="Yes"
+                onActionClick={handleOutsideClick}
+              >
+                Are you sure you want to&nbsp;
+                {switchActive === false ? "Active" : "InActive"} Project?
+              </SwitchModal>
+            )}
+          </div>
+        )
+      ) : (
+        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
+          You don&apos;t have the privilege to view data.
         </div>
       )}
     </>

@@ -39,10 +39,10 @@ const Wrapper = ({ children }: WrapperProps): JSX.Element => {
   }, []);
 
   return (
-    <div className="lg:flex">
+    <div className="lg:flex !h-[200px]">
       <Toast position="top_center" />
       <Sidebar setOpen={isOpen} setSetting={isCollapsed} toggleDrawer={drawer} />
-      <main className={`${windowSize <= 1023 ? "w-[100vw]" : Collapsed ? "w-[94vw]" : "w-[85vw] h-[100vh] overflow-y-auto"}`}>
+      <main className={`${windowSize <= 1023 ? "w-[100vw]" : Collapsed ? "w-[94vw]" : "w-[85vw]"}`}>
         <DrawerOverlay
           className="!top-[70px]"
           isOpen={drawer}

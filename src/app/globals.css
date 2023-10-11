@@ -2,16 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar {
-  width: 0px;
+@font-face {
+  font-family: "Proxima Nova";
+  src: url("/fonts/proximanova-regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
 }
+
+/* ::-webkit-scrollbar {
+  width: 0px;
+} */
 
 /* For time logo hide */
-input[type="time"]::-webkit-calendar-picker-indicator {
+/* input[type="time"]::-webkit-calendar-picker-indicator {
   background: none;
-}
+} */
 
-.css-11mde6h-MuiPaper-root {
+.MuiPaper-root.css-11mde6h-MuiPaper-root {
   box-shadow: none !important;
 }
 
@@ -25,6 +32,69 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .tss-ylo811-MUIDataTableSelectCell-headerCell {
   background-color: #f6f6f6 !important;
+}
+
+.tss-1fz4yw6-MUIDataTableSelectCell-fixedLeft {
+  background-color: #f6f6f6;
+}
+
+/* for remove number arrow */
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  @apply appearance-none m-0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* For Datepicker */
+.muiDatepickerCustomizer .MuiTextField-root {
+  width: 100%;
+}
+
+.muiDatepickerCustomizer label {
+  top: 8px;
+  left: -15px;
+}
+
+.muiDatepickerCustomizer .MuiIconButton-root {
+  margin-top: 20px;
+}
+
+.muiDatepickerCustomizer fieldset {
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid #8a8a8a;
+}
+
+.muiDatepickerCustomizer input {
+  padding: 8px 0 6px;
+  margin-top: 15px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.MuiInputBase-input {
+  font-size: 14px !important;
+}
+.datepickerError .MuiFormHelperText-root {
+  color: #dc3545;
+  margin-left: 0;
+}
+.datepickerError.muiDatepickerCustomizer label {
+  color: #dc3545;
+}
+.muiDatepickerCustomizer.datepickerError fieldset {
+  border-color: #dc3545;
+}
+
+.textareaOutlineNone textarea {
+  outline: none;
+}
+
+.textareaOutlineNoneEdit textarea {
+  outline: none;
+  border-bottom: 1px solid #6e6d7a;
 }
 
 /* Hide the AM/PM indicator for input[type="time"] */

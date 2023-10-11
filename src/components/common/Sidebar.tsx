@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
 import React, { useEffect, useState } from "react";
@@ -13,6 +14,10 @@ import Pabs from "../../assets/icons/Pabs";
 import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import Image from "next/image";
+import { hasPermissionWorklog } from "@/utils/commonFunction";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface SidebarItem {
   name: string;
@@ -20,74 +25,157 @@ interface SidebarItem {
   icon: JSX.Element;
 }
 
-const sidebarItems: SidebarItem[] = [
-  // {
-  //   name: "Dashboard",
-  //   href: "/",
-  //   icon: <DashboardIcon />,
-  // },
-  // {
-  //   name: "Workload",
-  //   href: "/workload",
-  //   icon: <WorkloadIcon />,
-  // },
-  // {
-  //   name: "Work Logs",
-  //   href: "/worklogs",
-  //   icon: <Worklogs />,
-  // },
-  // {
-  //   name: "Approvals",
-  //   href: "/approvals",
-  //   icon: <Approvals />,
-  // },
-  {
-    name: "Settings",
-    href: "/settings",
-    icon: <Settings />,
-  },
-  // {
-  //   name: "Reports",
-  //   href: "/reports",
-  //   icon: <Reports />,
-  // },
-];
+let sidebarItems: SidebarItem[];
 
 const DashboardItems = ({ pathname, isCollapsed }: any) => {
-  // useEffect(() => {
-  //   getHeaderOptions();
-  // },[]);
   return (
     <>
-      {sidebarItems.map((item, index) => (
-        <Link
-          key={index}
-          href={item.href}
-          className={`mb-[15px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
-            pathname === `${item.href}`
-              ? "border-[#0592C6] bg-[#F6F6F6]"
-              : "border-pureWhite"
-          }`}
-        >
-          {isCollapsed ? (
-            <span className="py-[19.65px]">{item.icon}</span>
-          ) : (
-            <>
-              <span className="py-[10px]">{item.icon}</span>
-              <span className="pl-[10px] py-[17.5px]">{item.name}</span>
-            </>
-          )}
-        </Link>
-      ))}
+      {sidebarItems?.length > 0 &&
+        sidebarItems.map((item: any, index: number) => {
+          if (item && item.href) {
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                className={`mb-[15px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
+                  pathname === `${item.href}`
+                    ? "border-[#0592C6] bg-[#F6F6F6]"
+                    : "border-pureWhite"
+                }`}
+              >
+                {isCollapsed ? (
+                  <span className="py-[19.65px]">{item.icon}</span>
+                ) : (
+                  <>
+                    <span className="py-[10px]">{item.icon}</span>
+                    <span className="pl-[10px] py-[17.5px]">{item.name}</span>
+                  </>
+                )}
+              </Link>
+            );
+          } else {
+            return null;
+          }
+        })}
     </>
   );
 };
 
 const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
+  const router = useRouter();
   const pathname = usePathname();
   const [isCollapsed, setCollapse] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState(0);
+
+  useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        };
+        const response = await axios.get(
+          `${process.env.api_url}/auth/getuserdetails`,
+          { headers: headers }
+        );
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            localStorage.setItem(
+              "IsHaveManageAssignee",
+              response.data.ResponseData.IsHaveManageAssignee
+            );
+
+            localStorage.setItem(
+              "permission",
+              JSON.stringify(response.data.ResponseData.Menu)
+            );
+            localStorage.setItem("roleId", response.data.ResponseData.RoleId);
+            localStorage.setItem(
+              "isClient",
+              response.data.ResponseData.IsClientUser
+            );
+            localStorage.setItem("UserId", response.data.ResponseData.UserId);
+            if (localStorage.getItem("Org_Token") === null) {
+              localStorage.setItem(
+                "Org_Token",
+                response.data.ResponseData.Organizations[0].Token
+              );
+            }
+            if (localStorage.getItem("Org_Id") === null) {
+              localStorage.setItem(
+                "Org_Id",
+                response.data.ResponseData.Organizations[0].OrganizationId
+              );
+            }
+            if (localStorage.getItem("Org_Name") === null) {
+              localStorage.setItem(
+                "Org_Name",
+                response.data.ResponseData.Organizations[0].OrganizationName
+              );
+            }
+            getSidebarData();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
+        }
+      }
+    };
+
+    const getSidebarData = async () => {
+      const isClient = await localStorage.getItem("isClient");
+      const permission: any = await localStorage.getItem("permission");
+      if (permission.length > 0) {
+        sidebarItems = [
+          // {
+          //   name: "Dashboard",
+          //   href: "/",
+          //   icon: <DashboardIcon />,
+          // },
+          // {
+          //   name: "Workload",
+          //   href: "/workload",
+          //   icon: <WorkloadIcon />,
+          // },
+          hasPermissionWorklog("", "View", "WorkLogs") &&
+            hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") &&
+            isClient === "false" && {
+              name: "Work Logs",
+              href: "/worklogs",
+              icon: <Worklogs />,
+            },
+          hasPermissionWorklog("", "View", "Approvals") &&
+            isClient === "false" && {
+              name: "Approvals",
+              href: "/approvals",
+              icon: <Approvals />,
+            },
+          isClient === "false" && {
+            name: "Settings",
+            href: "/settings",
+            icon: <Settings />,
+          },
+          // {
+          //   name: "Reports",
+          //   href: "/reports",
+          //   icon: <Reports />,
+          // },
+        ];
+      }
+    };
+
+    getUserDetails();
+  }, []);
 
   const handleResize = () => {
     setWindowSize(window.innerWidth);
@@ -122,7 +210,11 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
                 isCollapsed ? "pr-[5vw] pl-[1vw]" : "pr-[15vw] pl-[2.13vw]"
               } text-[#0592C6] font-medium text-[24px] lg:border-b border-[#E6E6E6]`}
             >
-              {isCollapsed ? <PabsCollapse width="50" height="36" /> : <Pabs height="36" />}
+              {isCollapsed ? (
+                <PabsCollapse width="50" height="36" />
+              ) : (
+                <Pabs height="36" />
+              )}
             </span>
             <span className="lg:hidden">
               <button
@@ -168,7 +260,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
         </div>
         {windowSize >= 1024 && (
           <span
-            className={`py-[32px] pl-[29px] ${
+            className={`py-[20.5px] pl-[29px] ${
               isCollapsed ? "pr-[50px]" : "pr-[174px]"
             } border-t border-[#E6E6E6]`}
             onClick={() => {
