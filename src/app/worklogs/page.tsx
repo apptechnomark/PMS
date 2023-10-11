@@ -346,7 +346,7 @@ const page = () => {
     <Wrapper>
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
-        <div className="bg-whiteSmoke flex justify-between items-center px-[20px]">
+        <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
             <label className="px-[20px] py-[11px] font-bold text-[16px] cursor-pointer select-none text-slatyGrey">
               TASK

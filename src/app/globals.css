@@ -18,6 +18,10 @@
   background: none;
 } */
 
+* {
+  font-family: "Proxima Nova";
+}
+
 .MuiPaper-root.css-11mde6h-MuiPaper-root {
   box-shadow: none !important;
 }

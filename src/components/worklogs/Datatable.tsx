@@ -344,7 +344,14 @@ const Datatable = ({
       selectedRowStatusId.includes(1) || selectedRowStatusId.includes(2);
 
     if (selectedRowStatusId.length === 1) {
-      if (isInProgressOrNotStarted) {
+      if (
+        workItemData
+          .map((i: any) => i.WorkitemId === selectedRowId && i.IsHasErrorlog)
+          .filter((i: any) => i === true)
+          .includes(true)
+      ) {
+        toast.warning("After resolving the error log, users can delete it.");
+      } else if (isInProgressOrNotStarted) {
         setIsDeleteOpen(true);
       } else {
         toast.warning(
@@ -675,6 +682,14 @@ const Datatable = ({
       .filter((id: number) => id !== undefined);
 
     if (selectedRowIds.length > 0) {
+      if (
+        workItemData.some(
+          (item: any) =>
+            selectedRowIds.includes(item.WorkitemId) && item.IsHasErrorlog
+        )
+      ) {
+        toast.warning("After resolving the error log, users can delete it.");
+      }
       if (
         (shouldWarn.includes(1) && selectedRowIds.length > 1) ||
         (shouldWarn.includes(2) && selectedRowIds.length > 1)

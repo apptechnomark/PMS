@@ -952,7 +952,7 @@ const page = () => {
             <Loader />
           </div>
         ) : (
-          <div className="bg-whiteSmoke flex justify-between items-center">
+          <div className="bg-white flex justify-between items-center">
             <div className="flex items-center py-[6.5px]">
               {visibleTabs.map((tab, index) => (
                 <label
