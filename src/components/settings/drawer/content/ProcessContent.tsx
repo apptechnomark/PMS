@@ -1,6 +1,14 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, CheckBox, Loader, Radio, Select, Text, Toast } from "next-ts-lib";
+import {
+  Button,
+  CheckBox,
+  Loader,
+  Radio,
+  Select,
+  Text,
+  Toast,
+} from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -42,7 +50,7 @@ const ProcessContent = forwardRef<
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
-  const [estTime, setEstTime] = useState<any>("00:00:00");
+  const [estTime, setEstTime] = useState<any>("");
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
   const [productive, setProductive] = useState<boolean>(true);
@@ -338,35 +346,22 @@ const ProcessContent = forwardRef<
   };
 
   const setHasTrue = () => {
-    // For process Dropdown
     setSelectValueErr(true);
-
-    // For sub-process
     setSubProcessNameError(true);
-
     setEstTimeError(true);
-
     setActivityError(true);
   };
   const clearData = () => {
     setSubProcessName("");
-    setEstTime("00:00:00");
+    setEstTime("");
     setSelectValue(0);
-
     setInputList([]);
-
-    // For processDropdown
     setSelectValueErr(false);
     setSelectValueHasErr(false);
-
-    // For sub-process
     setSubProcessNameError(false);
     setSubProcessNameHasError(false);
-
-    // for Est Time
     setEstTimeError(false);
     setEstTimeHasError(false);
-
     setActivityError(false);
     setActivityHasError(false);
   };
@@ -382,17 +377,19 @@ const ProcessContent = forwardRef<
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    console.log(estTime.length);
     selectValue <= 0 && setSelectValueErr(true);
     const [hours, minutes, seconds] = estTime.split(":");
     const estTimeTotalSeconds =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-    estTimeTotalSeconds === 0 && setEstTimeError(true);
+    estTime.length < 8 && setEstTimeError(true);
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
+      !(estTime.length < 8) &&
       !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);
@@ -447,6 +444,9 @@ const ProcessContent = forwardRef<
     if (estTime === "00:00:00") {
       setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
+    if (estTime.length < 8) {
+      setEstErrMsg("Estimated Time must be in HH:MM:SS");
+    }
   };
 
   const addMoreSubmit = async (e: { preventDefault: () => void }) => {
@@ -463,6 +463,7 @@ const ProcessContent = forwardRef<
       !(subProcessName.length <= 0) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
+      !(estTime.length < 8) &&
       !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);
@@ -516,6 +517,9 @@ const ProcessContent = forwardRef<
     if (estTime === "00:00:00") {
       setEstErrMsg("Estimated Time cannot be 00:00:00");
     }
+    if (estTime.length < 8) {
+      setEstErrMsg("Estimated Time must be in HH:MM:SS");
+    }
   };
 
   if (inputList.length === 0) {
@@ -566,6 +570,7 @@ const ProcessContent = forwardRef<
       fetchEditData();
     }
   }, [onEdit]);
+
   const closeDrawer = () => {
     setActivity([]);
     setProductive(true);
@@ -573,7 +578,7 @@ const ProcessContent = forwardRef<
     setEstTimeError(false);
     setEstTimeHasError(false);
     setEstErrMsg("");
-    setEstTime("00:00:00");
+    setEstTime("");
     onClose();
   };
 
@@ -593,15 +598,6 @@ const ProcessContent = forwardRef<
       setProductive(false);
       setBillable(false);
     }
-
-    // if (e.target.checked && e.target.id === "p1" && productive) {
-    //   setProductive(true);
-    //   setBillable(false);
-    // }
-    // if (e.target.checked && e.target.id === "non_p1") {
-    //   setProductive(false);
-    //   setBillable(false);
-    // }
   };
 
   const handleSubProcesChange = (value: any) => {
@@ -668,7 +664,7 @@ const ProcessContent = forwardRef<
             min={0}
             max={23}
             label="Estimated Time (HH:MM:SS)"
-            placeholder="Enter Estimated Time (HH:MM:SS)"
+            placeholder="00:00:00"
             className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none &::-moz-time-text: { display: none; }"
           />
         </div>

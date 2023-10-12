@@ -1579,6 +1579,7 @@ const EditDrawer = ({
 
   useEffect(() => {
     onEdit > 0 && assigneeDropdownData.length > 0 && getErrorLogData();
+    onEdit > 0 && assigneeDropdownData.length > 0 && getReminderData();
   }, [assigneeDropdownData]);
 
   // Edit Update Button Click
@@ -3446,7 +3447,7 @@ const EditDrawer = ({
                               textField: {
                                 helperText:
                                   dueDateErr && dueDate < receiverDate
-                                    ? "Due Date must be grater than Receiver Date"
+                                    ? "Due Date must be grater than Received Date"
                                     : dueDateErr
                                     ? "This is a required field."
                                     : "",
@@ -3689,7 +3690,7 @@ const EditDrawer = ({
                             error={countYearErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
-                              Count Year
+                              Current Year
                               <span className="text-defaultRed">&nbsp;*</span>
                             </InputLabel>
                             <Select
@@ -5035,11 +5036,7 @@ const EditDrawer = ({
                             ? assigneeDropdownData
                             : []
                         }
-                        value={
-                          Array.isArray(reminderNotification)
-                            ? reminderNotification
-                            : []
-                        }
+                        value={reminderNotification}
                         getOptionLabel={(option) => option.label}
                         disableCloseOnSelect
                         onChange={handleMultiSelect}

@@ -1887,7 +1887,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                           <DatePicker
                             label={
                               <span>
-                                Receiver Date
+                                Received Date
                                 <span className="!text-defaultRed">
                                   &nbsp;*
                                 </span>
@@ -2083,7 +2083,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                             sx={{ mx: 0.75, minWidth: 300 }}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
-                              Count Year
+                              Current Year
                               <span className="text-defaultRed">&nbsp;*</span>
                             </InputLabel>
                             <Select

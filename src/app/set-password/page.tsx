@@ -54,21 +54,11 @@ const page = () => {
             router.push(`/login`);
           } else {
             setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again.");
-            } else {
-              Toast.error(data);
-            }
+            Toast.error("Please try again.");
           }
         } else {
           setClicked(false);
-          const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Please try again after sometime.");
-          } else {
-            Toast.error(data);
-          }
+          Toast.error("Please try again after sometime.");
         }
       } catch (error) {
         setClicked(false);
