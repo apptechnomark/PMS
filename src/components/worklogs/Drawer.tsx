@@ -5036,7 +5036,11 @@ const EditDrawer = ({
                             ? assigneeDropdownData
                             : []
                         }
-                        value={reminderNotification}
+                        value={
+                          Array.isArray(reminderNotification)
+                            ? reminderNotification
+                            : []
+                        }
                         getOptionLabel={(option) => option.label}
                         disableCloseOnSelect
                         onChange={handleMultiSelect}
