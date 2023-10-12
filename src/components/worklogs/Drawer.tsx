@@ -883,6 +883,7 @@ const EditDrawer = ({
             onEdit === 0 && handleClose();
           } else {
             const data = response.data.Message;
+            onEdit > 0 && getEditData();
             if (data === null) {
               toast.error("Please try again later.");
             } else {
