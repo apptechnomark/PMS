@@ -5320,6 +5320,7 @@ const EditDrawer = ({
                                           )
                                         }
                                         disabled={
+                                          status === 4 ||
                                           status === 7 ||
                                           status === 9 ||
                                           status === 8
