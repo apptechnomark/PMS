@@ -691,45 +691,54 @@ const Datatable = ({
         toast.warning("After resolving the error log, users can delete it.");
       }
       if (
-        (shouldWarn.includes(1) && selectedRowIds.length > 1) ||
-        (shouldWarn.includes(2) && selectedRowIds.length > 1)
+        (selectedRowStatusId.includes(3) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(4) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(5) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(6) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(7) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(11) && selectedRowIds.length > 1)
       ) {
         toast.warning(
           "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
         );
       }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
+      if (shouldWarn.length > 0) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
 
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/deleteworkitem`,
-          {
-            workitemIds: selectedRowIds,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/deleteworkitem`,
+            {
+              workitemIds: selectedRowIds,
             },
-          }
-        );
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
 
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          toast.success("Task has been deleted successfully.");
-          handleClearSelection();
-          getWorkItemList();
-          shouldWarn = [];
-        } else {
-          const data = response.data.Message || "An error occurred.";
-          toast.error(data);
+          if (
+            response.status === 200 &&
+            response.data.ResponseStatus === "Success"
+          ) {
+            toast.success("Task has been deleted successfully.");
+            handleClearSelection();
+            getWorkItemList();
+            shouldWarn = [];
+          } else {
+            const data = response.data.Message || "An error occurred.";
+            toast.error(data);
+          }
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occurred while deleting the task.");
         }
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred while deleting the task.");
       }
     } else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
       toast.warning(

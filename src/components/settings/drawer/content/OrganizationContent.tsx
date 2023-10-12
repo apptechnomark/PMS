@@ -51,9 +51,13 @@ const OrganizationContent = forwardRef<
 
     useEffect(() => {
       setClientName("Client");
+      setClientNameError(true);
       setProjectName("Project");
+      setProjectNameError(true);
       setProcessName("Process");
+      setProcessNameError(true);
       setSubProcessName("SubProcess");
+      setSubProcessNameError(true);
     }, []);
 
     useEffect(() => {
@@ -128,10 +132,10 @@ const OrganizationContent = forwardRef<
 
       if (
         organizationNameError &&
-        subProcessNameError &&
-        processNameError &&
         clientNameError &&
-        projectNameError
+        projectNameError &&
+        processNameError &&
+        subProcessNameError
       ) {
         setLoader(true);
         try {
