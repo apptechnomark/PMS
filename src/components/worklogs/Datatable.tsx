@@ -1439,7 +1439,7 @@ const Datatable = ({
                               // setRowId(tableMeta.rowIndex);
                               setStopTimerDialog(true);
                               value >
-                              estimatedTimeInSeconds * tableMeta.rowData[11]
+                              estimatedTimeInSeconds
                                 ? setIsTimeExceed(true)
                                 : setIsTimeExceed(false);
                             }

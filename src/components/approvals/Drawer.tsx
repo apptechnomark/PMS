@@ -2834,12 +2834,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                ))||field.isSolved
                               }
                               value={
                                 field.ErrorType === 0 ? "" : field.ErrorType
@@ -2880,12 +2879,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                ))||field.isSolved
                               }
                               value={
                                 field.RootCause === 0 ? "" : field.RootCause
@@ -2926,12 +2924,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                ))||field.isSolved
                               }
                               value={
                                 field.NatureOfError === 0
@@ -3001,12 +2998,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                ))||field.isSolved
                               }
                               value={field.Priority === 0 ? "" : field.Priority}
                               onChange={(e) => handlePriorityChange(e, index)}
@@ -3045,12 +3041,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                 "Save",
                                 "WorkLogs"
                               ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                )) ||
-                              field.isSolved
+                              hasPermissionWorklog(
+                                "ErrorLog",
+                                "Delete",
+                                "WorkLogs"
+                              ))||field.isSolved
                             }
                             value={
                               field.ErrorCount === 0 ? "" : field.ErrorCount
@@ -3094,12 +3089,11 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                  hasPermissionWorklog(
-                                    "ErrorLog",
-                                    "Delete",
-                                    "WorkLogs"
-                                  )) ||
-                                field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                ))||field.isSolved
                               }
                               value={field.CC}
                               onChange={(e, newValue) =>

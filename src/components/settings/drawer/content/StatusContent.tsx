@@ -182,7 +182,7 @@ const StatusContent = forwardRef<
     statusName.trim().length > 50 && setStatusNameError(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
-    if (!(statusName.length <= 0)) {
+    if (statusNameHasError) {
       try {
         const response = await axios.post(
           `${process.env.pms_api_url}/status/Save`,
