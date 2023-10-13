@@ -400,9 +400,20 @@ const EditDrawer = ({
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
   const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
+  const [manualDataLength, setManualDataLength] = useState(0);
 
-  const addManulaField = () => {
-    setManualFields([
+  const setManualDisableData = (manualField: any) => {
+    setManualSubmitDisable(
+      manualField
+        .map((i: any) => (i.IsApproved === false ? false : true))
+        .includes(false)
+        ? false
+        : true
+    );
+  };
+
+  const addManulaField = async () => {
+    await setManualFields([
       ...manualFields,
       {
         AssigneeId: 0,
@@ -422,7 +433,19 @@ const EditDrawer = ({
     setInputTypeDate([...inputTypeDate, "text"]);
     setInputTypeStartTime([...inputTypeStartTime, "text"]);
     setInputTypeEndTime([...inputTypeEndTime, "text"]);
-    setManualSubmitDisable(false);
+    setManualDisableData([
+      ...manualFields,
+      {
+        AssigneeId: 0,
+        Id: 0,
+        inputDate: "",
+        startTime: "",
+        endTime: "",
+        totalTime: "",
+        manualDesc: "",
+        IsApproved: false,
+      },
+    ]);
   };
 
   const removePhoneField = (index: number) => {
@@ -452,7 +475,7 @@ const EditDrawer = ({
     newManualDate.splice(index, 1);
     setInputTypeDate(newManualDate);
 
-    setManualSubmitDisable(true);
+    setManualDisableData(newManualFields);
   };
 
   const handleInputDateChange = (e: any, index: number) => {
@@ -1195,7 +1218,15 @@ const EditDrawer = ({
               d % 60
             ).padStart(2, "0")}`;
           };
+          setManualDataLength(data.length);
           setManualSwitch(data.length <= 0 ? false : true);
+          setManualSubmitDisable(
+            data
+              .map((i: any) => i.IsApproved === false && i.assignee !== userId)
+              .includes(true)
+              ? false
+              : true
+          );
           setManualFields(
             data.length <= 0
               ? [
@@ -4756,7 +4787,18 @@ const EditDrawer = ({
                         setEndTimeErrors([false]);
                         setManualDescErrors([false]);
                         setInputTypeDate(["text"]);
-                        setManualSubmitDisable(true);
+                        setManualDisableData([
+                          {
+                            AssigneeId: 0,
+                            Id: 0,
+                            inputDate: "",
+                            startTime: "",
+                            endTime: "",
+                            totalTime: "",
+                            manualDesc: "",
+                            IsApproved: false,
+                          },
+                        ]);
                         e.target.checked === true
                           ? setStatus(
                               statusDropdownData
@@ -4806,7 +4848,12 @@ const EditDrawer = ({
                                 }
                                 minDate={dayjs(recurringStartDate)}
                                 maxDate={dayjs(new Date())}
-                                disabled={!manualSwitch || field.IsApproved}
+                                disabled={
+                                  !manualSwitch ||
+                                  field.IsApproved ||
+                                  (field.AssigneeId !== 0 &&
+                                    field.AssigneeId !== userId)
+                                }
                                 onError={() => {
                                   if (
                                     field.inputDate[index]?.trim().length > 0
@@ -4847,7 +4894,12 @@ const EditDrawer = ({
                               </span>
                             }
                             placeholder="00:00:00"
-                            disabled={!manualSwitch || field.IsApproved}
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
                             fullWidth
                             value={field.startTime}
                             onChange={(e) => handleStartTimeChange(e, index)}
@@ -4878,7 +4930,12 @@ const EditDrawer = ({
                               </span>
                             }
                             placeholder="00:00:00"
-                            disabled={!manualSwitch || field.IsApproved}
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
                             fullWidth
                             value={field.endTime}
                             onChange={(e) => handleEndTimeChange(e, index)}
@@ -4924,7 +4981,12 @@ const EditDrawer = ({
                               </span>
                             }
                             className="mt-4"
-                            disabled={!manualSwitch || field.IsApproved}
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
                             fullWidth
                             value={field.manualDesc}
                             onChange={(e) => handleManualDescChange(e, index)}
