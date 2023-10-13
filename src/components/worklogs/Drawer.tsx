@@ -101,7 +101,7 @@ const EditDrawer = ({
   const [dueDate, setDueDate] = useState<any>("");
   const [dueDateErr, setDueDateErr] = useState(false);
   const [allInfoDate, setAllInfoDate] = useState<any>("");
-  const [allInfoDateErr, setAllInfoDateErr] = useState(false);
+  // const [allInfoDateErr, setAllInfoDateErr] = useState(false);
   const [assignee, setAssignee] = useState<any>([]);
   const [assigneeErr, setAssigneeErr] = useState(false);
   const [reviewer, setReviewer] = useState<any>([]);
@@ -626,7 +626,7 @@ const EditDrawer = ({
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
-      allInfoDate: validateField(allInfoDate),
+      // allInfoDate: validateField(allInfoDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
@@ -661,7 +661,7 @@ const EditDrawer = ({
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
     setDueDateErr(fieldValidations.dueDate);
-    setAllInfoDateErr(fieldValidations.allInfoDate);
+    // setAllInfoDateErr(fieldValidations.allInfoDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
     typeOfWork === 3 && setTypeOfReturnErr(fieldValidations.typeOfReturn);
@@ -731,7 +731,7 @@ const EditDrawer = ({
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
-      allInfoDate: validateField(allInfoDate),
+      // allInfoDate: validateField(allInfoDate),
       assignee: validateField(assignee),
       reviewer: validateField(reviewer),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
@@ -808,7 +808,7 @@ const EditDrawer = ({
       Description: description.trim(),
       ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDate,
+      allInfoDate: allInfoDate === "" ? null : allInfoDate,
       AssignedId: assignee,
       ReviewerId: reviewer,
       TypeOfReturnId: typeOfReturn === 0 ? null : typeOfReturn,
@@ -1517,7 +1517,7 @@ const EditDrawer = ({
           setSubProcess(data.SubProcessId);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setStatus(data.StatusId);
-          setAllInfoDate(data.AllInfoDate);
+          setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
           data.StatusId === 2 && data.IsManual === true
             ? setStatusDropdownDataUse(
                 statusDropdownData
@@ -2786,7 +2786,7 @@ const EditDrawer = ({
     setDueDate("");
     setDueDateErr(false);
     setAllInfoDate("");
-    setAllInfoDateErr(false);
+    // setAllInfoDateErr(false);
     setAssignee(0);
     setAssigneeErr(false);
     setAssigneeDisable(true);
@@ -3590,30 +3590,23 @@ const EditDrawer = ({
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
-                            label={
-                              <span>
-                                All Info Date
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            onError={() => setAllInfoDateErr(false)}
+                            label={<span>All Info Date</span>}
+                            // onError={() => setAllInfoDateErr(false)}
                             value={
                               allInfoDate === "" ? null : dayjs(allInfoDate)
                             }
                             onChange={(newDate: any) => {
                               setAllInfoDate(newDate.$d);
-                              setAllInfoDateErr(false);
+                              // setAllInfoDateErr(false);
                             }}
-                            slotProps={{
-                              textField: {
-                                helperText: allInfoDateErr
-                                  ? "This is a required field."
-                                  : "",
-                                readOnly: true,
-                              } as Record<string, any>,
-                            }}
+                            // slotProps={{
+                            //   textField: {
+                            //     helperText: allInfoDateErr
+                            //       ? "This is a required field."
+                            //       : "",
+                            //     readOnly: true,
+                            //   } as Record<string, any>,
+                            // }}
                           />
                         </LocalizationProvider>
                       </div>

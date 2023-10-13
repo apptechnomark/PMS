@@ -124,7 +124,8 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
           ClientModuleName,
           ProjectModuleName,
           ProcessModuleName,
-          SubProcessModuleName
+          SubProcessModuleName,
+          response.data.ResponseData.RoleId
         );
       }
     } catch (error: any) {

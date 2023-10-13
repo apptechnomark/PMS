@@ -15,7 +15,6 @@ function Organization({
   onHandleOrgData,
   onDataFetch,
   getOrgDetailsFunction,
-  canView,
   onSearchOrgData,
 }: any) {
   const [userList, setUserList] = useState([]);
@@ -264,51 +263,43 @@ function Organization({
 
   return (
     <>
-      {canView ? (
-        loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
-        ) : (
-          <div
-            className={`${
-              userList.length === 0 ? "h-full" : "h-[81vh] !w-full"
-            }`}
-          >
-            <Toast position="top_center" />
-            {tableData.length > 0 ? (
-              <DataTable columns={columns} data={tableData} sticky />
-            ) : (
-              <p className="flex justify-center items-center py-[17px] text-[14px]">
-                Currently there is no record, you may
-                <a
-                  onClick={onOpen}
-                  className=" text-primary underline cursor-pointer ml-1 mr-1"
-                >
-                  Create Organization
-                </a>
-                to continue
-              </p>
-            )}
-            {isOpenSwitchModal && (
-              <SwitchModal
-                isOpen={isOpenSwitchModal}
-                onClose={closeSwitchModal}
-                title={`${
-                  switchActive === false ? "Active" : "InActive"
-                } Organization`}
-                actionText="Yes"
-                onActionClick={handleToggleUser}
-              >
-                Are you sure you want to&nbsp;
-                {switchActive === false ? "Active" : "InActive"} Organization?
-              </SwitchModal>
-            )}
-          </div>
-        )
+      {loader ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader />
+        </div>
       ) : (
-        <div className="flex justify-center items-center py-[17px] text-[14px] text-red-500">
-          You don&apos;t have the privilege to view data.
+        <div
+          className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}
+        >
+          <Toast position="top_center" />
+          {tableData.length > 0 ? (
+            <DataTable columns={columns} data={tableData} sticky />
+          ) : (
+            <p className="flex justify-center items-center py-[17px] text-[14px]">
+              Currently there is no record, you may
+              <a
+                onClick={onOpen}
+                className=" text-primary underline cursor-pointer ml-1 mr-1"
+              >
+                Create Organization
+              </a>
+              to continue
+            </p>
+          )}
+          {isOpenSwitchModal && (
+            <SwitchModal
+              isOpen={isOpenSwitchModal}
+              onClose={closeSwitchModal}
+              title={`${
+                switchActive === false ? "Active" : "InActive"
+              } Organization`}
+              actionText="Yes"
+              onActionClick={handleToggleUser}
+            >
+              Are you sure you want to&nbsp;
+              {switchActive === false ? "Active" : "InActive"} Organization?
+            </SwitchModal>
+          )}
         </div>
       )}
     </>

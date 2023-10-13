@@ -38,13 +38,13 @@ const initialTabs = [
   { id: "Group", label: "Group", canView: false },
   { id: "Status", label: "Status", canView: false },
   { id: "Permission", label: "Permissions", canView: false },
-  { id: "Organization", label: "Organization", canView: false },
+  { id: "Organization", label: "Organization", canView: true },
 ];
 
 const page = () => {
   const router = useRouter();
   const [tabs, setTabs] = useState<Tabs[]>(initialTabs);
-  const [tab, setTab] = useState<string>("");
+  const [tab, setTab] = useState<string>("Client");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(-1);
   const [visibleTabs, setVisibleTabs] = useState(tabs.slice(0, 6));
   const [dropdownTabs, setDropdownTabs] = useState(tabs.slice(6));
@@ -420,7 +420,13 @@ const page = () => {
     setLoaded(true);
   };
 
-  const handleModuleNames = (arg1: string, arg2: string, arg3: string) => {
+  const handleModuleNames = (
+    arg1: string,
+    arg2: string,
+    arg3: string,
+    arg4: string,
+    arg5: any
+  ) => {
     const updatedTabs = tabs.map((tab) => {
       switch (tab.id.toLowerCase()) {
         case "client":
@@ -499,11 +505,7 @@ const page = () => {
         case "organization":
           return {
             ...tab,
-            canView: hasPermissionWorklog(
-              tab.id.toLowerCase(),
-              "view",
-              "settings"
-            ),
+            canView: parseInt(arg5) === 1 ? true : false,
           };
           break;
         default:
@@ -980,17 +982,19 @@ const page = () => {
                         : "max-h-0 transition-opacity opacity-0 duration-500"
                     }`}
                   >
-                    {dropdownTabs.map((tab, index) => (
-                      <li
-                        key={tab.id}
-                        onClick={() => handleTabClick(tab.id, index)}
-                        className={`p-2 hover:bg-whiteSmoke font-normal flex cursor-pointer ${
-                          tab.canView ? "" : "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        <label className="cursor-pointer">{tab.label}</label>
-                      </li>
-                    ))}
+                    {dropdownTabs
+                      .filter((i: any) => i.canView === true)
+                      .map((tab, index) => (
+                        <li
+                          key={tab.id}
+                          onClick={() => handleTabClick(tab.id, index)}
+                          className={`p-2 hover:bg-whiteSmoke font-normal flex cursor-pointer ${
+                            tab.canView ? "" : "opacity-50 pointer-events-none"
+                          }`}
+                        >
+                          <label className="cursor-pointer">{tab.label}</label>
+                        </li>
+                      ))}
                   </ul>
                 </div>
               </div>
@@ -1194,12 +1198,19 @@ const page = () => {
                     ? "rounded-[4px] !h-[45px] "
                     : "rounded-[4px] !h-[36px] text-sm"
                 } ${
-                  isLoaded && hasPermissionWorklog(tab, "save", "settings")
+                  isLoaded &&
+                  (hasPermissionWorklog(tab, "save", "settings") ||
+                    tabs.filter(
+                      (i: any) => i.label.toLowerCase() === "organization"
+                    )[0].canView)
                     ? ""
                     : "cursor-not-allowed"
                 }`}
                 onClick={
-                  hasPermissionWorklog(tab, "save", "settings")
+                  hasPermissionWorklog(tab, "save", "settings") ||
+                  tabs.filter(
+                    (i: any) => i.label.toLowerCase() === "organization"
+                  )[0].canView
                     ? handleDrawerOpen
                     : undefined
                 }
@@ -1377,7 +1388,6 @@ const page = () => {
             onHandleOrgData={handleOrgData}
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
-            canView={hasPermissionWorklog("organization", "view", "settings")}
             onSearchOrgData={orgSearchData}
           />
         )}
