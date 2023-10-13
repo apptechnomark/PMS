@@ -61,7 +61,6 @@ const page = () => {
               Toast.error("Link has been Expired.");
               router.push("/login");
             } else {
-              Toast.error(data);
               router.push("/login");
             }
             setShowPass(true);
@@ -69,12 +68,7 @@ const page = () => {
         } else {
           setShowPass(true);
           setMessage(true);
-          const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Please try again.");
-          } else {
-            Toast.error(data);
-          }
+          Toast.error("Please try again.");
         }
       } catch (error) {
         setMessage(true);
@@ -126,21 +120,11 @@ const page = () => {
             setPasswordHasError(false);
             setCPasswordHasError(false);
             setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.success("Password set successfully.");
-            } else {
-              Toast.success(data);
-            }
+            Toast.success("Password set successfully.");
             router.push(`/login`);
           } else {
             setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again.");
-            } else {
-              Toast.error(data);
-            }
+            Toast.error("Please try again.");
           }
         } else {
           setClicked(false);

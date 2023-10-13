@@ -78,6 +78,8 @@ const EditDrawer = ({
   const [typeOfWorkErr, setTypeOfWorkErr] = useState(false);
   const [projectName, setProjectName] = useState<any>(0);
   const [projectNameErr, setProjectNameErr] = useState(false);
+  const [clientTaskName, setClientTaskName] = useState<string>("");
+  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
   const [processName, setProcessName] = useState<any>(0);
   const [processNameErr, setProcessNameErr] = useState(false);
   const [subProcess, setSubProcess] = useState<any>(0);
@@ -98,6 +100,8 @@ const EditDrawer = ({
   const [receiverDateErr, setReceiverDateErr] = useState(false);
   const [dueDate, setDueDate] = useState<any>("");
   const [dueDateErr, setDueDateErr] = useState(false);
+  const [allInfoDate, setAllInfoDate] = useState<any>("");
+  const [allInfoDateErr, setAllInfoDateErr] = useState(false);
   const [assignee, setAssignee] = useState<any>([]);
   const [assigneeErr, setAssigneeErr] = useState(false);
   const [reviewer, setReviewer] = useState<any>([]);
@@ -236,6 +240,9 @@ const EditDrawer = ({
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
+    []
+  );
 
   const [selectedDays, setSelectedDays] = useState<any>([]);
 
@@ -382,6 +389,7 @@ const EditDrawer = ({
       endTime: "",
       totalTime: "",
       manualDesc: "",
+      IsApproved: false,
     },
   ]);
   const [inputDateErrors, setInputDateErrors] = useState([false]);
@@ -391,6 +399,7 @@ const EditDrawer = ({
   const [inputTypeDate, setInputTypeDate] = useState(["text"]);
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
+  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
 
   const addManulaField = () => {
     setManualFields([
@@ -403,6 +412,7 @@ const EditDrawer = ({
         endTime: "",
         totalTime: "",
         manualDesc: "",
+        IsApproved: false,
       },
     ]);
     setInputDateErrors([...inputDateErrors, false]),
@@ -412,6 +422,7 @@ const EditDrawer = ({
     setInputTypeDate([...inputTypeDate, "text"]);
     setInputTypeStartTime([...inputTypeStartTime, "text"]);
     setInputTypeEndTime([...inputTypeEndTime, "text"]);
+    setManualSubmitDisable(false);
   };
 
   const removePhoneField = (index: number) => {
@@ -440,6 +451,8 @@ const EditDrawer = ({
     const newManualDate = [...inputTypeDate];
     newManualDate.splice(index, 1);
     setInputTypeDate(newManualDate);
+
+    setManualSubmitDisable(true);
   };
 
   const handleInputDateChange = (e: any, index: number) => {
@@ -607,11 +620,13 @@ const EditDrawer = ({
       processName: validateField(processName),
       subProcess: validateField(subProcess),
       // status: validateField(status),
+      clientTaskName: validateField(clientTaskName),
       description: validateField(description),
       priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
+      allInfoDate: validateField(allInfoDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
@@ -639,12 +654,14 @@ const EditDrawer = ({
     setProjectNameErr(fieldValidations.projectName);
     setProcessNameErr(fieldValidations.processName);
     setSubProcessErr(fieldValidations.subProcess);
+    setClientTaskNameErr(fieldValidations.subProcess);
     // setStatusErr(fieldValidations.status);
     setDescriptionErr(fieldValidations.description);
     setPriorityErr(fieldValidations.priority);
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
     setDueDateErr(fieldValidations.dueDate);
+    setAllInfoDateErr(fieldValidations.allInfoDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
     typeOfWork === 3 && setTypeOfReturnErr(fieldValidations.typeOfReturn);
@@ -681,6 +698,9 @@ const EditDrawer = ({
       receiverDate.length > 0 &&
       dueDate.length > 0 &&
       setDueDateErr(dayjs(receiverDate) > dayjs(dueDate));
+    setClientTaskNameErr(
+      clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
+    );
     setDescriptionErr(
       description.trim().length < 5 || description.trim().length > 500
     );
@@ -704,12 +724,14 @@ const EditDrawer = ({
       projectName: validateField(projectName),
       processName: validateField(processName),
       subProcess: validateField(subProcess),
+      clientTaskName: validateField(clientTaskName),
       status: validateField(status),
       description: validateField(description),
       priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
+      allInfoDate: validateField(allInfoDate),
       assignee: validateField(assignee),
       reviewer: validateField(reviewer),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
@@ -776,6 +798,7 @@ const EditDrawer = ({
       WorkItemId: onEdit > 0 ? onEdit : 0,
       ClientId: clientName,
       WorkTypeId: typeOfWork,
+      taskName: clientTaskName,
       ProjectId: projectName,
       ProcessId: processName,
       SubProcessId: subProcess,
@@ -785,6 +808,7 @@ const EditDrawer = ({
       Description: description.trim(),
       ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
+      allInfoDate: allInfoDate,
       AssignedId: assignee,
       ReviewerId: reviewer,
       TypeOfReturnId: typeOfReturn === 0 ? null : typeOfReturn,
@@ -913,6 +937,8 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       !dueDateErr &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
       description.trim().length > 4 &&
       description.trim().length < 500 &&
       !descriptionErr &&
@@ -931,6 +957,8 @@ const EditDrawer = ({
       !hasSubErrors &&
       !hasManualErrors &&
       !dueDateErr &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
       description.trim().length > 4 &&
       description.trim().length < 500 &&
       !descriptionErr &&
@@ -962,6 +990,8 @@ const EditDrawer = ({
       typeOfWork !== 3 &&
       !hasEditErrors &&
       !descriptionErr &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
       description.trim().length > 4 &&
       description.trim().length < 500 &&
       !dueDateErr &&
@@ -979,6 +1009,8 @@ const EditDrawer = ({
       typeOfWork === 3 &&
       !hasEditErrors &&
       !descriptionErr &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
       description.trim().length > 4 &&
       description.trim().length < 500 &&
       !dueDateErr &&
@@ -1175,6 +1207,7 @@ const EditDrawer = ({
                     endTime: "",
                     totalTime: "",
                     manualDesc: "",
+                    IsApproved: false,
                   },
                 ]
               : data.map(
@@ -1187,6 +1220,7 @@ const EditDrawer = ({
                       endTime: i.EndTime,
                       totalTime: getTimeDifference(i.StartTime, i.EndTime),
                       manualDesc: i.Comment,
+                      IsApproved: i.IsApproved,
                     })
                 )
           );
@@ -1481,7 +1515,9 @@ const EditDrawer = ({
           setProjectName(data.ProjectId);
           setProcessName(data.ProcessId);
           setSubProcess(data.SubProcessId);
+          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setStatus(data.StatusId);
+          setAllInfoDate(data.AllInfoDate);
           data.StatusId === 2 && data.IsManual === true
             ? setStatusDropdownDataUse(
                 statusDropdownData
@@ -1572,7 +1608,6 @@ const EditDrawer = ({
       getManualData();
       getCheckListData();
       getCommentData(1);
-      getReminderData();
       getReviewerNoteData();
     }
   };
@@ -2026,6 +2061,7 @@ const EditDrawer = ({
           }
           if (api === "/WorkType/GetDropdown") {
             setWorkTypeDropdownData(response.data.ResponseData);
+            getTypeOfReturn();
             getData("/project/getdropdown");
           }
           if (api === "/project/getdropdown") {
@@ -2083,6 +2119,44 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setCCDropdownData(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getTypeOfReturn = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      let response = await axios.get(
+        `${process.env.worklog_api_url}/workitem/getformtypelist`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setTypeOfReturnDropdownData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -2689,6 +2763,8 @@ const EditDrawer = ({
     setTypeOfWorkErr(false);
     setProjectName(0);
     setProjectNameErr(false);
+    setClientTaskName("");
+    setClientTaskNameErr(false);
     setProcessName(0);
     setProcessNameErr(false);
     setSubProcess(0);
@@ -2709,6 +2785,8 @@ const EditDrawer = ({
     setReceiverDateErr(false);
     setDueDate("");
     setDueDateErr(false);
+    setAllInfoDate("");
+    setAllInfoDateErr(false);
     setAssignee(0);
     setAssigneeErr(false);
     setAssigneeDisable(true);
@@ -2765,6 +2843,7 @@ const EditDrawer = ({
         endTime: "",
         totalTime: "",
         manualDesc: "",
+        IsApproved: false,
       },
     ]);
     setInputDateErrors([false]);
@@ -2772,6 +2851,7 @@ const EditDrawer = ({
     setEndTimeErrors([false]);
     setManualDescErrors([false]);
     setDeletedManualTime([]);
+    setManualSubmitDisable(true);
 
     // Reminder
     setReminderSwitch(false);
@@ -3045,6 +3125,54 @@ const EditDrawer = ({
                           />
                         )}
                       />
+                      <TextField
+                        label={
+                          <span>
+                            Task Name
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        fullWidth
+                        className="pt-1"
+                        value={
+                          clientTaskName?.trim().length <= 0
+                            ? ""
+                            : clientTaskName
+                        }
+                        onChange={(e) => {
+                          setClientTaskName(e.target.value);
+                          setClientTaskNameErr(false);
+                        }}
+                        onBlur={(e: any) => {
+                          if (e.target.value.trim().length > 4) {
+                            setClientTaskNameErr(false);
+                          }
+                          if (
+                            e.target.value.trim().length > 4 &&
+                            e.target.value.trim().length < 50
+                          ) {
+                            setClientTaskNameErr(false);
+                          }
+                        }}
+                        error={clientTaskNameErr}
+                        helperText={
+                          clientTaskNameErr &&
+                          clientTaskName?.trim().length > 0 &&
+                          clientTaskName?.trim().length < 4
+                            ? "Minimum 4 characters required."
+                            : clientTaskNameErr &&
+                              clientTaskName?.trim().length > 50
+                            ? "Maximum 50 characters allowed."
+                            : clientTaskNameErr
+                            ? "This is a required field."
+                            : ""
+                        }
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1.5 }}
+                      />
+                    </div>
+                    <div className="mt-[10px] pl-6 flex">
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3057,7 +3185,7 @@ const EditDrawer = ({
                         onChange={(e, value: any) => {
                           value && setProcessName(value.value);
                         }}
-                        sx={{ width: 300, mt: 0.4, ml: 1.5 }}
+                        sx={{ width: 300, mt: 0.4, ml: 1 }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -3080,8 +3208,6 @@ const EditDrawer = ({
                           />
                         )}
                       />
-                    </div>
-                    <div className="mt-[10px] pl-6 flex">
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3212,9 +3338,11 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1.5 }}
                       />
+                    </div>
+                    <div className="mt-[-12px] pl-6">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{ mx: 0.75, minWidth: 300, mt: 1.75 }}
                         error={priorityErr}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -3242,8 +3370,6 @@ const EditDrawer = ({
                           </FormHelperText>
                         )}
                       </FormControl>
-                    </div>
-                    <div className="mt-[-12px] pl-6">
                       <TextField
                         label="Estimated Time"
                         disabled
@@ -3368,8 +3494,10 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, maxWidth: 300 }}
                       />
+                    </div>
+                    <div className="mt-[2px] pl-6 flex items-center">
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
                           receiverDateErr ? "datepickerError" : ""
                         }`}
                       >
@@ -3377,7 +3505,7 @@ const EditDrawer = ({
                           <DatePicker
                             label={
                               <span>
-                                Receiver Date
+                                Received Date
                                 <span className="!text-defaultRed">
                                   &nbsp;*
                                 </span>
@@ -3419,10 +3547,8 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
-                    </div>
-                    <div className="mt-[2px] pl-6 flex items-center">
                       <div
-                        className={`inline-flex mt-[-1px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
                           dueDateErr ? "datepickerError" : ""
                         }`}
                       >
@@ -3457,7 +3583,40 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
-                      {/* {assigneeDisable && ( */}
+                      <div
+                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          receiverDateErr ? "datepickerError" : ""
+                        }`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label={
+                              <span>
+                                All Info Date
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            onError={() => setAllInfoDateErr(false)}
+                            value={
+                              allInfoDate === "" ? null : dayjs(allInfoDate)
+                            }
+                            onChange={(newDate: any) => {
+                              setAllInfoDate(newDate.$d);
+                              setAllInfoDateErr(false);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText: allInfoDateErr
+                                  ? "This is a required field."
+                                  : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3494,7 +3653,8 @@ const EditDrawer = ({
                           />
                         )}
                       />
-                      {/* )} */}
+                    </div>
+                    <div className="mt-[10px] pl-6 flex items-center">
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
@@ -3507,7 +3667,7 @@ const EditDrawer = ({
                         onChange={(e, value: any) => {
                           value && setReviewer(value.value);
                         }}
-                        sx={{ width: 300, mt: -0.5, ml: 1.5 }}
+                        sx={{ width: 300, mt: -0.5, ml: 0.8 }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -3533,98 +3693,102 @@ const EditDrawer = ({
                       {typeOfWork !== 3 ? (
                         <>
                           {onEdit > 0 && (
-                            <TextField
-                              label={
-                                <span>
-                                  Date of Preperation
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
+                            <>
+                              <TextField
+                                label={
+                                  <span>
+                                    Date of Preperation
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
                                   </span>
-                                </span>
-                              }
-                              type={inputTypePreperation}
-                              disabled
-                              fullWidth
-                              value={dateOfPreperation}
-                              onChange={(e) =>
-                                setDateOfPreperation(e.target.value)
-                              }
-                              onFocus={() => setInputTypePreperation("date")}
-                              onBlur={(e: any) => {
-                                setInputTypePreperation("text");
-                              }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 300, mt: 0.3, ml: 1.5 }}
-                            />
-                          )}
-                        </>
-                      ) : (
-                        <FormControl
-                          variant="standard"
-                          sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
-                          error={typeOfReturnErr}
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Type of Return
-                            <span className="text-defaultRed">&nbsp;*</span>
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={typeOfReturn === 0 ? "" : typeOfReturn}
-                            onChange={(e) => setTypeOfReturn(e.target.value)}
-                            onBlur={(e: any) => {
-                              if (e.target.value > 0) {
-                                setTypeOfReturnErr(false);
-                              }
-                            }}
-                          >
-                            <MenuItem value={1}>Form 1040</MenuItem>
-                            <MenuItem value={2}>Form 1065</MenuItem>
-                            <MenuItem value={3}>Form 1120S</MenuItem>
-                          </Select>
-                          {typeOfReturnErr && (
-                            <FormHelperText>
-                              This is a required field.
-                            </FormHelperText>
-                          )}
-                        </FormControl>
-                      )}
-                    </div>
-                    <div className="mt-[10px] pl-6">
-                      {typeOfWork !== 3 ? (
-                        <>
-                          {onEdit > 0 && (
-                            <TextField
-                              label={
-                                <span>
-                                  Date of Review
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
+                                }
+                                type={inputTypePreperation}
+                                disabled
+                                fullWidth
+                                value={dateOfPreperation}
+                                onChange={(e) =>
+                                  setDateOfPreperation(e.target.value)
+                                }
+                                onFocus={() => setInputTypePreperation("date")}
+                                onBlur={(e: any) => {
+                                  setInputTypePreperation("text");
+                                }}
+                                margin="normal"
+                                variant="standard"
+                                sx={{
+                                  mx: 0.75,
+                                  maxWidth: 300,
+                                  mt: 0.3,
+                                  ml: 1.5,
+                                }}
+                              />
+                              <TextField
+                                label={
+                                  <span>
+                                    Date of Review
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
                                   </span>
-                                </span>
-                              }
-                              disabled
-                              type={inputTypeReview}
-                              fullWidth
-                              value={dateOfReview}
-                              onChange={(e) => setDateOfReview(e.target.value)}
-                              onFocus={() => setInputTypeReview("date")}
-                              onBlur={(e: any) => {
-                                setInputTypeReview("text");
-                              }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 300, mt: -0.4 }}
-                            />
+                                }
+                                disabled
+                                type={inputTypeReview}
+                                fullWidth
+                                value={dateOfReview}
+                                onChange={(e) =>
+                                  setDateOfReview(e.target.value)
+                                }
+                                onFocus={() => setInputTypeReview("date")}
+                                onBlur={(e: any) => {
+                                  setInputTypeReview("text");
+                                }}
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 300, mt: -0.4 }}
+                              />
+                            </>
                           )}
                         </>
                       ) : (
                         <>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.28 }}
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
+                            error={typeOfReturnErr}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Type of Return
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={typeOfReturn === 0 ? "" : typeOfReturn}
+                              onChange={(e) => setTypeOfReturn(e.target.value)}
+                              onBlur={(e: any) => {
+                                if (e.target.value > 0) {
+                                  setTypeOfReturnErr(false);
+                                }
+                              }}
+                            >
+                              {typeOfReturnDropdownData.map(
+                                (i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
+                            </Select>
+                            {typeOfReturnErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.85 }}
                             error={returnYearErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -3656,7 +3820,7 @@ const EditDrawer = ({
                           </FormControl>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.28 }}
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.85 }}
                             error={complexityErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -3684,6 +3848,12 @@ const EditDrawer = ({
                               </FormHelperText>
                             )}
                           </FormControl>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-[10px] pl-6 flex items-center">
+                      {typeOfWork === 3 && (
+                        <>
                           <FormControl
                             variant="standard"
                             sx={{ mx: 0.75, minWidth: 300, mt: -0.28 }}
@@ -4561,8 +4731,13 @@ const EditDrawer = ({
                     {onEdit > 0 && manualSwitch && (
                       <Button
                         variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitManual}
+                        className={`rounded-[4px] !h-[36px] mr-6 ${
+                          manualSubmitDisable ? "" : "!bg-secondary"
+                        }`}
+                        disabled={manualSubmitDisable}
+                        onClick={
+                          manualSubmitDisable ? undefined : handleSubmitManual
+                        }
                       >
                         Update
                       </Button>
@@ -4580,6 +4755,7 @@ const EditDrawer = ({
                             endTime: "",
                             totalTime: "",
                             manualDesc: "",
+                            IsApproved: false,
                           },
                         ]);
                         setInputDateErrors([false]);
@@ -4587,6 +4763,7 @@ const EditDrawer = ({
                         setEndTimeErrors([false]);
                         setManualDescErrors([false]);
                         setInputTypeDate(["text"]);
+                        setManualSubmitDisable(true);
                         e.target.checked === true
                           ? setStatus(
                               statusDropdownData
@@ -4636,7 +4813,7 @@ const EditDrawer = ({
                                 }
                                 minDate={dayjs(recurringStartDate)}
                                 maxDate={dayjs(new Date())}
-                                disabled={!manualSwitch}
+                                disabled={!manualSwitch || field.IsApproved}
                                 onError={() => {
                                   if (
                                     field.inputDate[index]?.trim().length > 0
@@ -4677,7 +4854,7 @@ const EditDrawer = ({
                               </span>
                             }
                             placeholder="00:00:00"
-                            disabled={!manualSwitch}
+                            disabled={!manualSwitch || field.IsApproved}
                             fullWidth
                             value={field.startTime}
                             onChange={(e) => handleStartTimeChange(e, index)}
@@ -4708,7 +4885,7 @@ const EditDrawer = ({
                               </span>
                             }
                             placeholder="00:00:00"
-                            disabled={!manualSwitch}
+                            disabled={!manualSwitch || field.IsApproved}
                             fullWidth
                             value={field.endTime}
                             onChange={(e) => handleEndTimeChange(e, index)}
@@ -4724,11 +4901,11 @@ const EditDrawer = ({
                             }}
                             error={endTimeErrors[index]}
                             helperText={
-                              endTimeErrors[index] &&
-                              field.endTime <= field.startTime
-                                ? "End time must be grater than start time"
-                                : endTimeErrors[index] && field.endTime === ""
+                              endTimeErrors[index] && field.endTime === ""
                                 ? "This is a required field"
+                                : endTimeErrors[index] &&
+                                  field.endTime <= field.startTime
+                                ? "End time must be grater than start time"
                                 : ""
                             }
                             margin="normal"
@@ -4754,7 +4931,7 @@ const EditDrawer = ({
                               </span>
                             }
                             className="mt-4"
-                            disabled={!manualSwitch}
+                            disabled={!manualSwitch || field.IsApproved}
                             fullWidth
                             value={field.manualDesc}
                             onChange={(e) => handleManualDescChange(e, index)}
@@ -4801,7 +4978,8 @@ const EditDrawer = ({
                                   </svg>
                                 </span>
                               )
-                            : manualSwitch && (
+                            : manualSwitch &&
+                              !field.IsApproved && (
                                 <span
                                   className="cursor-pointer"
                                   onClick={() => removePhoneField(index)}
@@ -5464,8 +5642,7 @@ const EditDrawer = ({
               </div>
             )} */}
 
-            <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-between items-center">
-              <div></div>
+            <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
               <div>
                 <Button
                   variant="outlined"

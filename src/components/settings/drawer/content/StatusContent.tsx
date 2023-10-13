@@ -179,6 +179,7 @@ const StatusContent = forwardRef<
   const addMoreSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     statusName.trim().length <= 0 && setStatusNameError(true);
+    statusName.trim().length > 50 && setStatusNameError(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     if (!(statusName.length <= 0)) {
@@ -194,7 +195,7 @@ const StatusContent = forwardRef<
           {
             headers: {
               Authorization: `${token}`,
-              org_token: org_token,
+              org_token: Org_Token,
             },
           }
         );
