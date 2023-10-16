@@ -812,7 +812,13 @@ const EditDrawer = ({
               acc + parseInt(timePart) * [3600, 60, 1][index],
             0
           ) +
-          25199 <=
+          "07:59:59"
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            ) <
           field.endTime
             .split(":")
             .reduce(
@@ -1873,7 +1879,13 @@ const EditDrawer = ({
                 acc + parseInt(timePart) * [3600, 60, 1][index],
               0
             ) +
-            25199 <=
+            "07:59:59"
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              ) <
             field.endTime
               .split(":")
               .reduce(
@@ -4978,10 +4990,7 @@ const EditDrawer = ({
                             }
                             fullWidth
                             value={field.endTime}
-                            onChange={(e) => {
-                              handleEndTimeChange(e, index);
-                              console.log(e.target.value);
-                            }}
+                            onChange={(e) => handleEndTimeChange(e, index)}
                             onBlur={(e: any) => {
                               if (
                                 e.target.value.trim().length > 7 &&
@@ -4994,7 +5003,15 @@ const EditDrawer = ({
                                       parseInt(timePart) * [3600, 60, 1][index],
                                     0
                                   ) +
-                                  25199 <=
+                                  "07:59:59"
+                                    .split(":")
+                                    .reduce(
+                                      (acc, timePart, index) =>
+                                        acc +
+                                        parseInt(timePart) *
+                                          [3600, 60, 1][index],
+                                      0
+                                    ) <
                                   field.endTime
                                     .split(":")
                                     .reduce(
@@ -5020,7 +5037,14 @@ const EditDrawer = ({
                                     parseInt(timePart) * [3600, 60, 1][index],
                                   0
                                 ) +
-                                25199 <=
+                                "07:59:59"
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  ) <
                               field.endTime
                                 .split(":")
                                 .reduce(
