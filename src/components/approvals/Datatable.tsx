@@ -341,6 +341,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Employees</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -351,6 +356,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Designation</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -363,7 +373,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">
+              {value ? formatTime(value) : "00:00:00"}
+            </div>
+          );
         },
       },
     },
@@ -377,7 +391,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">
+              {value ? formatTime(value) : "00:00:00"}
+            </div>
+          );
         },
       },
     },
@@ -421,7 +439,7 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
           return (
-            <div className="w-40 h-7 flex items-center">
+            <div className="w-40 h-7 flex items-center ml-5 lg:ml-0">
               <ColorToolTip
                 title={`Estimated Time: ${toHoursAndMinutes(
                   tableMeta.rowData[3]
@@ -533,6 +551,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Client</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -543,6 +566,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Project</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -556,7 +584,7 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
-            <div className="font-semibold">
+            <div className="font-semibold ml-5 lg:ml-0">
               <ColorToolTip title={value} placement="top">
                 {shortProcessName[0]}
               </ColorToolTip>
@@ -573,6 +601,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Sub Process</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -585,10 +618,10 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           if (value === null || value === undefined || value === "") {
-            return <div>-</div>;
+            return <div className="ml-5 lg:ml-0">-</div>;
           } else {
             const startDate = value?.split("T");
-            return <div>{startDate[0]}</div>;
+            return <div className="ml-5 lg:ml-0">{startDate[0]}</div>;
           }
         },
       },
@@ -603,10 +636,10 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           if (value === null || value === undefined || value === "") {
-            return <div>-</div>; // Handle null/undefined value here
+            return <div className="ml-5 lg:ml-0">-</div>;
           } else {
             const endDate = value?.split("T");
-            return <div>{endDate[0]}</div>;
+            return <div className="ml-5 lg:ml-0">{endDate[0]}</div>;
           }
         },
       },
@@ -619,6 +652,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Qty.</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -630,7 +668,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
           <span className="font-bold text-sm uppercase">Edited Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">
+              {value ? formatTime(value) : "00:00:00"}
+            </div>
+          );
         },
       },
     },
@@ -643,7 +685,9 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
           <span className="font-bold text-sm uppercase">Is Manual</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div>{value === true ? "Yes" : "No"}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">{value === true ? "Yes" : "No"}</div>
+          );
         },
       },
     },
@@ -658,9 +702,9 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         ),
         customBodyRender: (value: any) => {
           if (value === null || value === undefined || value === "") {
-            return <div>-</div>;
+            return <div className="ml-5 lg:ml-0">-</div>;
           } else {
-            return <div>{value}</div>;
+            return <div className="ml-5 lg:ml-0">{value}</div>;
           }
         },
       },

@@ -796,13 +796,30 @@ const EditDrawer = ({
     manualSwitch && setInputDateErrors(newInputDateErrors);
     const newStartTimeErrors = manualFields.map(
       (field) =>
-        onEdit === 0 && manualSwitch && field.startTime.trim().length === 0
+        (onEdit === 0 && manualSwitch && field.startTime.trim().length === 0) ||
+        (onEdit === 0 && manualSwitch && field.startTime.trim().length < 8)
     );
     manualSwitch && setStartTimeErrors(newStartTimeErrors);
     const newEndTimeErrors = manualFields.map(
       (field) =>
         (onEdit === 0 && manualSwitch && field.endTime.trim().length === 0) ||
-        (onEdit === 0 && manualSwitch && field.endTime <= field.startTime)
+        (onEdit === 0 && manualSwitch && field.endTime.trim().length < 8) ||
+        (onEdit === 0 && manualSwitch && field.endTime <= field.startTime) ||
+        field.startTime
+          .split(":")
+          .reduce(
+            (acc, timePart, index) =>
+              acc + parseInt(timePart) * [3600, 60, 1][index],
+            0
+          ) +
+          25199 <=
+          field.endTime
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            )
     );
     manualSwitch && setEndTimeErrors(newEndTimeErrors);
     const newManualDescErrors = manualFields.map(
@@ -1839,13 +1856,31 @@ const EditDrawer = ({
       );
       manualSwitch && setInputDateErrors(newInputDateErrors);
       const newStartTimeErrors = manualFields.map(
-        (field) => manualSwitch && field.startTime.trim().length === 0
+        (field) =>
+          (manualSwitch && field.startTime.trim().length === 0) ||
+          (manualSwitch && field.startTime.trim().length < 8)
       );
       manualSwitch && setStartTimeErrors(newStartTimeErrors);
       const newEndTimeErrors = manualFields.map(
         (field) =>
           (manualSwitch && field.endTime.trim().length === 0) ||
-          (manualSwitch && field.endTime <= field.startTime)
+          (manualSwitch && field.endTime.trim().length < 8) ||
+          (manualSwitch && field.endTime <= field.startTime) ||
+          field.startTime
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            ) +
+            25199 <=
+            field.endTime
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              )
       );
       manualSwitch && setEndTimeErrors(newEndTimeErrors);
       const newManualDescErrors = manualFields.map(
@@ -4904,7 +4939,7 @@ const EditDrawer = ({
                             value={field.startTime}
                             onChange={(e) => handleStartTimeChange(e, index)}
                             onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 0) {
+                              if (e.target.value.trim().length > 7) {
                                 const newStartTimeErrors = [...startTimeErrors];
                                 newStartTimeErrors[index] = false;
                                 setStartTimeErrors(newStartTimeErrors);
@@ -4912,7 +4947,12 @@ const EditDrawer = ({
                             }}
                             error={startTimeErrors[index]}
                             helperText={
+                              field.startTime.trim().length > 0 &&
+                              field.startTime.trim().length < 8 &&
                               startTimeErrors[index]
+                                ? "Start time must be in HH:MM:SS"
+                                : field.startTime.trim().length <= 0 &&
+                                  startTimeErrors[index]
                                 ? "This is a required field"
                                 : ""
                             }
@@ -4938,11 +4978,32 @@ const EditDrawer = ({
                             }
                             fullWidth
                             value={field.endTime}
-                            onChange={(e) => handleEndTimeChange(e, index)}
+                            onChange={(e) => {
+                              handleEndTimeChange(e, index);
+                              console.log(e.target.value);
+                            }}
                             onBlur={(e: any) => {
                               if (
-                                e.target.value.trim().length > 0 &&
-                                field.endTime > field.startTime
+                                e.target.value.trim().length > 7 &&
+                                field.endTime > field.startTime &&
+                                field.startTime
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  ) +
+                                  25199 <=
+                                  field.endTime
+                                    .split(":")
+                                    .reduce(
+                                      (acc, timePart, index) =>
+                                        acc +
+                                        parseInt(timePart) *
+                                          [3600, 60, 1][index],
+                                      0
+                                    )
                               ) {
                                 const newEndTimeErrors = [...endTimeErrors];
                                 newEndTimeErrors[index] = false;
@@ -4951,7 +5012,30 @@ const EditDrawer = ({
                             }}
                             error={endTimeErrors[index]}
                             helperText={
-                              endTimeErrors[index] && field.endTime === ""
+                              field.startTime
+                                .split(":")
+                                .reduce(
+                                  (acc, timePart, index) =>
+                                    acc +
+                                    parseInt(timePart) * [3600, 60, 1][index],
+                                  0
+                                ) +
+                                25199 <=
+                              field.endTime
+                                .split(":")
+                                .reduce(
+                                  (acc, timePart, index) =>
+                                    acc +
+                                    parseInt(timePart) * [3600, 60, 1][index],
+                                  0
+                                )
+                                ? "Time must be less than 07:59:59"
+                                : field.endTime.trim().length > 0 &&
+                                  field.endTime.trim().length < 8 &&
+                                  endTimeErrors[index]
+                                ? "Start time must be in HH:MM:SS"
+                                : field.endTime.trim().length <= 0 &&
+                                  endTimeErrors[index]
                                 ? "This is a required field"
                                 : endTimeErrors[index] &&
                                   field.endTime <= field.startTime

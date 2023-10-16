@@ -1222,9 +1222,9 @@ const Datatable = ({
           <span className="font-bold text-sm">CLIENT</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[17];
+          const IsHasErrorlog = tableMeta.rowData[18];
           return (
-            <div>
+            <div className="ml-5 lg:ml-0">
               {IsHasErrorlog && (
                 <div
                   className={
@@ -1232,6 +1232,23 @@ const Datatable = ({
                   }
                 ></div>
               )}
+              {value}
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: "WorkitemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">TaskID</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">
               {value}
             </div>
           );
@@ -1247,9 +1264,9 @@ const Datatable = ({
           <span className="font-bold text-sm">PROJECT</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[18];
+          const IsRecurring = tableMeta.rowData[19];
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 ml-5 lg:ml-0">
               {value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
@@ -1283,7 +1300,7 @@ const Datatable = ({
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
-            <div className="font-semibold">
+            <div className="font-semibold ml-5 lg:ml-0">
               <ColorToolTip title={value} placement="top">
                 {shortProcessName[0]}
               </ColorToolTip>
@@ -1300,6 +1317,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">SUB PROCESS</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1317,9 +1339,9 @@ const Datatable = ({
           <span className="font-bold text-sm">TIMER</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const isManual = tableMeta.rowData[4];
+          const isManual = tableMeta.rowData[5];
 
-          const estimatedTime = tableMeta.rowData[13].split(":");
+          const estimatedTime = tableMeta.rowData[14].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +
@@ -1329,7 +1351,7 @@ const Datatable = ({
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
           return (
-            <div className="w-40 h-7 flex items-center">
+            <div className="w-40 h-7 flex items-center ml-5 lg:ml-0">
               <ColorToolTip
                 title={`Estimated Time: ${estimatedTime[0]}:${estimatedTime[1]}:${estimatedTime[2]}`}
                 placement="top"
@@ -1438,8 +1460,7 @@ const Datatable = ({
                               );
                               // setRowId(tableMeta.rowIndex);
                               setStopTimerDialog(true);
-                              value >
-                              estimatedTimeInSeconds
+                              value > estimatedTimeInSeconds
                                 ? setIsTimeExceed(true)
                                 : setIsTimeExceed(false);
                             }
@@ -1475,6 +1496,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">ASSIGNED TO</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1497,7 +1523,7 @@ const Datatable = ({
           }
 
           return (
-            <div>
+            <div className="ml-5 lg:ml-0">
               <div className="inline-block mr-1">
                 <div
                   className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
@@ -1534,9 +1560,9 @@ const Datatable = ({
           <span className="font-bold text-sm">STATUS</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
+          const statusColorCode = tableMeta.rowData[9];
           return (
-            <div>
+            <div className="ml-5 lg:ml-0">
               <div className="inline-block mr-1">
                 <div
                   className="w-[10px] h-[10px] rounded-full inline-block mr-2"
@@ -1558,6 +1584,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">EST. TIME</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1568,6 +1599,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">QTY.</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1578,6 +1614,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">ACTUAL TIME</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1588,6 +1629,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">TOTAL EST. TIME</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1600,7 +1646,11 @@ const Datatable = ({
         ),
         customBodyRender: (value: any) => {
           const startDate = value?.split("T");
-          return <div>{value === null ? "-" : startDate[0]}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">
+              {value === null ? "-" : startDate[0]}
+            </div>
+          );
         },
       },
     },
@@ -1614,7 +1664,11 @@ const Datatable = ({
         ),
         customBodyRender: (value: any) => {
           const endDate = value?.split("T");
-          return <div>{value === null ? "-" : endDate[0]}</div>;
+          return (
+            <div className="ml-5 lg:ml-0">
+              {value === null ? "-" : endDate[0]}
+            </div>
+          );
         },
       },
     },
@@ -1626,6 +1680,11 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">ASSIGNED BY</span>
         ),
+        customBodyRender: (value: any) => {
+          return (
+            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+          );
+        },
       },
     },
     {
@@ -1659,16 +1718,6 @@ const Datatable = ({
       },
     },
   ];
-
-  // Function to check conditions for disabling checkboxes
-  // const isRowSelectable = (rowId: any) => {
-  //   const matchingDataRow = workItemData[rowId];
-
-  //   if (matchingDataRow) {
-  //     return matchingDataRow.StatusId !== 6;
-  //   }
-  //   return true;
-  // };
 
   // Table Customization Options
   const options: any = {
@@ -1778,23 +1827,6 @@ const Datatable = ({
               </span>
             </div>
           </DialogContentText>
-          {/* {console.log(
-            (runningTimerData.length > 0
-              ? (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
-                runningTimerData[0]?.Quantity
-              : "00:00:00") <
-              (runningTimerData.length > 0
-                ? runningTimerData[0].Timer
-                : "00:00:00")
-          )} */}
-          {/* {const condition =
-    (runningTimerData.length > 0
-      ? (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
-        runningTimerData[0]?.Quantity
-      : "00:00:00") <
-    (runningTimerData.length > 0
-      ? runningTimerData[0].Timer
-      : "00:00:00")} */}
           {isTimeExceed && (
             <>
               <TextField
