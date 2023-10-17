@@ -498,7 +498,7 @@ const EditDrawer = ({
   const handleStartTimeChange = (e: any, index: number) => {
     const newManualFields: any = [...reviewermanualFields];
     newManualFields[index].startTime = handleEstTimeChange(e);
-    setManualFields(newManualFields);
+    setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
     const endDate = newManualFields[index].endTime;
@@ -532,7 +532,7 @@ const EditDrawer = ({
             .padStart(2, "0")}`;
 
           newManualFields[index].totalTime = formattedTotalTime;
-          setManualFields(newManualFields);
+          setReviewerManualFields(newManualFields);
         }
       }
     }
@@ -541,7 +541,7 @@ const EditDrawer = ({
   const handleEndTimeChange = (e: any, index: number) => {
     const newManualFields: any = [...reviewermanualFields];
     newManualFields[index].endTime = handleEstTimeChange(e);
-    setManualFields(newManualFields);
+    setReviewerManualFields(newManualFields);
 
     const startDate = newManualFields[index].startTime;
     const endDate = newManualFields[index].endTime;
@@ -575,16 +575,16 @@ const EditDrawer = ({
             .padStart(2, "0")}`;
 
           newManualFields[index].totalTime = formattedTotalTime;
-          setManualFields(newManualFields);
+          setReviewerManualFields(newManualFields);
         }
       }
     }
   };
 
   const handleManualDescChange = (e: any, index: number) => {
-    const newManualFields = [...manualFields];
+    const newManualFields = [...reviewermanualFields];
     newManualFields[index].manualDesc = e.target.value;
-    setManualFields(newManualFields);
+    setReviewerManualFields(newManualFields);
 
     const newManualDescErrors = [...manualDescErrors];
     newManualDescErrors[index] = e.target.value.trim().length === 0;
@@ -594,7 +594,7 @@ const EditDrawer = ({
   const handleInputDateChange = (e: any, index: number) => {
     const newManualFields = [...reviewermanualFields];
     newManualFields[index].inputDate = e;
-    setManualFields(newManualFields);
+    setReviewerManualFields(newManualFields);
 
     const newInputDateErrors = [...inputDateErrors];
     newInputDateErrors[index] = e.length === 0;
