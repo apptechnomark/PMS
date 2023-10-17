@@ -32,6 +32,7 @@ const page = () => {
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState("");
+  const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState("");
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
@@ -76,7 +77,8 @@ const page = () => {
   };
 
   // To Toggle Drawer for Edit
-  const handleEdit = (rowId: any, Id: any) => {
+  const handleEdit = (rowId: any, Id: any, iconIndex?: number) => {
+    setIconIndex(iconIndex !== undefined ? iconIndex : 0);
     setHasEditId(rowId);
     setOpenDrawer(true);
     setHasId(Id);
@@ -198,6 +200,7 @@ const page = () => {
           onOpen={openDrawer}
           onClose={handleDrawerClose}
           onEdit={hasEditId}
+          hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
         />
 

@@ -34,6 +34,7 @@ import PlayPause from "@/assets/icons/worklogs/PlayPause";
 import PauseButton from "@/assets/icons/worklogs/PauseButton";
 import StopButton from "@/assets/icons/worklogs/StopButton";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
+import ClockIcon from "@/assets/icons/ClockIcon";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -174,6 +175,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
 
   const settingSelectedId = () => {
     onEdit(workitemId, id);
+    handleClearSelection();
+  };
+
+  const handleReviewerManualTime = () => {
+    onEdit(workitemId, id, 2);
     handleClearSelection();
   };
 
@@ -400,32 +406,6 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
       },
     },
 
-    // {
-    //   name: "Timer",
-    //   options: {
-    //     filter: true,
-    //     sort: true,
-    //     customHeadLabelRender: () => (
-    //       <span className="font-extrabold uppercase">Review Timer</span>
-    //     ),
-    //     customBodyRender: (value: any, tableMeta: any) => {
-    //       const timerValue: any = "00:00:00";
-    //       // value === 0 ? "00:00:00" : toHoursAndMinutes(value);
-    //       return (
-    //         <div className="flex items-center">
-    //           <ColorToolTip title={`Estimated Time: min`} placement="top" arrow>
-    //             {timerValue}
-    //           </ColorToolTip>
-    //           <ColorToolTip title="Start" placement="top" arrow>
-    //             <span className="ml-2 cursor-pointer">
-    //               <PlayButton />
-    //             </span>
-    //           </ColorToolTip>
-    //         </div>
-    //       );
-    //     },
-    //   },
-    // },
     {
       name: "Timer",
       options: {
@@ -457,7 +437,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
                   {timerValue}
                 </span>
               </ColorToolTip>
-              {tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
+              {reviewList.length > 0 &&
+                (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
+                  reviewList[tableMeta.rowIndex].ReviewerIsManual === false) &&
+                reviewList[tableMeta.rowIndex].IsFinalSubmited &&
+                tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                 tableMeta.rowData[tableMeta.rowData.length - 1] !== isRunning &&
                 (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
                   <ColorToolTip title="Start" placement="top" arrow>
@@ -1015,6 +999,24 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
                       </span>
                     </ColorToolTip>
                   )}
+
+                {
+                  // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+
+                  reviewList.filter(
+                    (list: any) => list.WorkitemId === workitemId
+                  )[0].ReviewerIsManual !== false &&
+                    selectedRowsCount === 1 && (
+                      <ColorToolTip title="Reviewer Manual Time" arrow>
+                        <span
+                          onClick={handleReviewerManualTime}
+                          className="pl-2 pr-2 pt-[6px] cursor-pointer border-l-[1.5px] border-gray-300"
+                        >
+                          <ClockIcon />
+                        </span>
+                      </ColorToolTip>
+                    )
+                }
 
                 {selectedRowsCount === 1 && (
                   <ColorToolTip title="Edit" arrow>

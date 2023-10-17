@@ -42,7 +42,14 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 
-const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
+const EditDrawer = ({
+  onOpen,
+  onClose,
+  onEdit,
+  onDataFetch,
+  onHasId,
+  hasIconIndex,
+}: any) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
   const [inputTypeReview, setInputTypeReview] = useState("text");
@@ -130,6 +137,19 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
       manualDesc: "",
     },
   ]);
+  const [deletedManualTime, setDeletedManualTime] = useState<any>([]);
+  const [reviewermanualFields, setReviewerManualFields] = useState([
+    {
+      AssigneeId: 0,
+      Id: 0,
+      inputDate: "",
+      startTime: "",
+      endTime: "",
+      totalTime: "",
+      manualDesc: "",
+      IsApproved: false,
+    },
+  ]);
 
   // Comments
   const [commentData, setCommentData] = useState([]);
@@ -144,9 +164,452 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
+    []
+  );
 
   const [selectedDays, setSelectedDays] = useState<any>([]);
   const [isManual, setIsManual] = useState(null);
+  const [manualSwitch, setManualSwitch] = useState(false);
+  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
+  const [isPartiallySubmitted, setIsPartiallySubmitted] =
+    useState<boolean>(false);
+  const [inputDateErrors, setInputDateErrors] = useState([false]);
+  const [startTimeErrors, setStartTimeErrors] = useState([false]);
+  const [endTimeErrors, setEndTimeErrors] = useState([false]);
+  const [manualDescErrors, setManualDescErrors] = useState([false]);
+  const [inputTypeDate, setInputTypeDate] = useState(["text"]);
+  const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
+  const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
+  const [userId, setUserId] = useState(0);
+
+  const saveReviewerManualTimelog = async () => {
+    const local: any = await localStorage.getItem("UserId");
+    if (assignee === parseInt(local)) {
+      let hasManualErrors = false;
+      const newInputDateErrors = reviewermanualFields.map(
+        (field) => manualSwitch && field.inputDate === ""
+      );
+      manualSwitch && setInputDateErrors(newInputDateErrors);
+      const newStartTimeErrors = reviewermanualFields.map(
+        (field) =>
+          (manualSwitch && field.startTime.trim().length === 0) ||
+          (manualSwitch && field.startTime.trim().length < 8)
+      );
+      manualSwitch && setStartTimeErrors(newStartTimeErrors);
+      const newEndTimeErrors = reviewermanualFields.map(
+        (field) =>
+          (manualSwitch && field.endTime.trim().length === 0) ||
+          (manualSwitch && field.endTime.trim().length < 8) ||
+          (manualSwitch && field.endTime <= field.startTime) ||
+          field.startTime
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            ) +
+            "07:59:59"
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              ) <
+            field.endTime
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              )
+      );
+      manualSwitch && setEndTimeErrors(newEndTimeErrors);
+      const newManualDescErrors = reviewermanualFields.map(
+        (field) =>
+          (manualSwitch && field.manualDesc.trim().length < 5) ||
+          (manualSwitch && field.manualDesc.trim().length > 500)
+      );
+      manualSwitch && setManualDescErrors(newManualDescErrors);
+      hasManualErrors =
+        newInputDateErrors.some((error) => error) ||
+        newStartTimeErrors.some((error) => error) ||
+        newEndTimeErrors.some((error) => error) ||
+        newManualDescErrors.some((error) => error);
+
+      if (!hasManualErrors) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`,
+            {
+              submissionId: onHasId,
+              timelogs: reviewermanualFields.map(
+                (i: any) =>
+                  new Object({
+                    id: i.Id,
+                    startTime:
+                      dayjs(i.inputDate).format("YYYY/MM/DD") +
+                      " " +
+                      i.startTime,
+                    endTime:
+                      dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                    assigneeId: i.AssigneeId === 0 ? assignee : i.AssigneeId,
+                    comment: i.manualDesc,
+                  })
+              ),
+              deletedTimelogIds: deletedManualTime,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Manual Time Updated successfully.`);
+              setDeletedManualTime([]);
+              getManualTimeLogForReviewer(onEdit);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      }
+    } else {
+      toast.warning("Only Assingnee can Edit Manual time.");
+      getManualData();
+    }
+  };
+
+  const getManualTimeLogForReviewer = async (workItemId: any) => {
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/approval/getmanuallogbyworkitem`,
+        { workItemId: workItemId },
+        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const data = await response.data.ResponseData;
+          const getTimeDifference = (startTime: any, endTime: any) => {
+            const [s, e, s_sec] = startTime.split(":").map(Number);
+            const [t, r, e_sec] = endTime.split(":").map(Number);
+            const d = t * 60 + r - s * 60 - e;
+
+            return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
+              d % 60
+            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
+          };
+          // setManualDataLength(data.length);
+          setManualSwitch(data.length <= 0 ? false : true);
+          setManualSubmitDisable(
+            data
+              .map((i: any) => i.IsApproved === false && i.assignee !== userId)
+              .includes(true)
+              ? false
+              : true
+          );
+          setReviewerManualFields(
+            data.length <= 0
+              ? [
+                  {
+                    AssigneeId: 0,
+                    Id: 0,
+                    inputDate: "",
+                    startTime: "",
+                    endTime: "",
+                    totalTime: "",
+                    manualDesc: "",
+                    IsApproved: false,
+                  },
+                ]
+              : data.map(
+                  (i: any) =>
+                    new Object({
+                      AssigneeId: i.AssigneeId,
+                      Id: i.TimeId,
+                      inputDate: i.Date,
+                      startTime: i.StartTime,
+                      endTime: i.EndTime,
+                      totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                      manualDesc: i.Comment,
+                      IsApproved: i.IsApproved !== undefined ? 0 : i.IsApproved,
+                    })
+                )
+          );
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (onEdit > 0) {
+      getManualTimeLogForReviewer(onEdit);
+    }
+  }, [onEdit]);
+
+  const removePhoneField = (index: number) => {
+    setDeletedManualTime([
+      ...deletedManualTime,
+      reviewermanualFields[index].Id,
+    ]);
+
+    const newManualFields = [...reviewermanualFields];
+    newManualFields.splice(index, 1);
+    setReviewerManualFields(newManualFields);
+
+    const newInputDateErrors = [...inputDateErrors];
+    newInputDateErrors.splice(index, 1);
+    setInputDateErrors(newInputDateErrors);
+
+    const newStartTimeErrors = [...startTimeErrors];
+    newStartTimeErrors.splice(index, 1);
+    setStartTimeErrors(newStartTimeErrors);
+
+    const newEndTimeErrors = [...endTimeErrors];
+    newEndTimeErrors.splice(index, 1);
+    setEndTimeErrors(newEndTimeErrors);
+
+    const newManualDescErrors = [...manualDescErrors];
+    newManualDescErrors.splice(index, 1);
+    setManualDescErrors(newManualDescErrors);
+
+    const newManualDate = [...inputTypeDate];
+    newManualDate.splice(index, 1);
+    setInputTypeDate(newManualDate);
+
+    setManualDisableData(newManualFields);
+  };
+
+  const addManualField = async () => {
+    await setReviewerManualFields([
+      ...reviewermanualFields,
+      {
+        AssigneeId: 0,
+        Id: 0,
+        inputDate: "",
+        startTime: "",
+        endTime: "",
+        totalTime: "",
+        manualDesc: "",
+        IsApproved: false,
+      },
+    ]);
+    setInputDateErrors([...inputDateErrors, false]),
+      setStartTimeErrors([...startTimeErrors, false]);
+    setEndTimeErrors([...endTimeErrors, false]);
+    setManualDescErrors([...manualDescErrors, false]);
+    setInputTypeDate([...inputTypeDate, "text"]);
+    setInputTypeStartTime([...inputTypeStartTime, "text"]);
+    setInputTypeEndTime([...inputTypeEndTime, "text"]);
+    setManualDisableData([
+      ...reviewermanualFields,
+      {
+        AssigneeId: 0,
+        Id: 0,
+        inputDate: "",
+        startTime: "",
+        endTime: "",
+        totalTime: "",
+        manualDesc: "",
+        IsApproved: false,
+      },
+    ]);
+  };
+
+  const handleEstTimeChange = (e: any) => {
+    let newValue = e.target.value;
+    newValue = newValue.replace(/[^0-9]/g, "");
+    if (newValue.length > 8) {
+      return;
+    }
+
+    let formattedValue = "";
+    if (newValue.length >= 1) {
+      const hours = parseInt(newValue.slice(0, 2));
+      if (hours >= 0 && hours <= 23) {
+        formattedValue = newValue.slice(0, 2);
+      } else {
+        formattedValue = "23";
+      }
+    }
+
+    if (newValue.length >= 3) {
+      const minutes = parseInt(newValue.slice(2, 4));
+      if (minutes >= 0 && minutes <= 59) {
+        formattedValue += ":" + newValue.slice(2, 4);
+      } else {
+        formattedValue += ":59";
+      }
+    }
+
+    if (newValue.length >= 5) {
+      const seconds = parseInt(newValue.slice(4, 6));
+      if (seconds >= 0 && seconds <= 59) {
+        formattedValue += ":" + newValue.slice(4, 6);
+      } else {
+        formattedValue += ":59";
+      }
+    }
+    return formattedValue;
+  };
+
+  const handleStartTimeChange = (e: any, index: number) => {
+    const newManualFields: any = [...reviewermanualFields];
+    newManualFields[index].startTime = handleEstTimeChange(e);
+    setManualFields(newManualFields);
+
+    const startDate = newManualFields[index].startTime;
+    const endDate = newManualFields[index].endTime;
+    if (startDate && endDate) {
+      const startTime = newManualFields[index].startTime;
+      const endTime = newManualFields[index].endTime;
+      if (startTime && endTime) {
+        const startTimeArray = startTime.split(":");
+        const endTimeArray = endTime.split(":");
+
+        const startSeconds =
+          parseInt(startTimeArray[0]) * 3600 +
+          parseInt(startTimeArray[1]) * 60 +
+          parseInt(startTimeArray[2]);
+        const endSeconds =
+          parseInt(endTimeArray[0]) * 3600 +
+          parseInt(endTimeArray[1]) * 60 +
+          parseInt(endTimeArray[2]);
+        const totalSeconds = endSeconds - startSeconds;
+
+        if (totalSeconds >= 0) {
+          const totalHours = Math.floor(totalSeconds / 3600);
+          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+          const totalSecondsRemaining = totalSeconds % 60;
+          const formattedTotalTime = `${totalHours
+            .toString()
+            .padStart(2, "0")}:${totalMinutes
+            .toString()
+            .padStart(2, "0")}:${totalSecondsRemaining
+            .toString()
+            .padStart(2, "0")}`;
+
+          newManualFields[index].totalTime = formattedTotalTime;
+          setManualFields(newManualFields);
+        }
+      }
+    }
+  };
+
+  const handleEndTimeChange = (e: any, index: number) => {
+    const newManualFields: any = [...reviewermanualFields];
+    newManualFields[index].endTime = handleEstTimeChange(e);
+    setManualFields(newManualFields);
+
+    const startDate = newManualFields[index].startTime;
+    const endDate = newManualFields[index].endTime;
+    if (startDate && endDate) {
+      const startTime = newManualFields[index].startTime;
+      const endTime = newManualFields[index].endTime;
+      if (startTime && endTime) {
+        const startTimeArray = startTime.split(":");
+        const endTimeArray = endTime.split(":");
+
+        const startSeconds =
+          parseInt(startTimeArray[0]) * 3600 +
+          parseInt(startTimeArray[1]) * 60 +
+          parseInt(startTimeArray[2]);
+        const endSeconds =
+          parseInt(endTimeArray[0]) * 3600 +
+          parseInt(endTimeArray[1]) * 60 +
+          parseInt(endTimeArray[2]);
+        const totalSeconds = endSeconds - startSeconds;
+
+        if (totalSeconds >= 0) {
+          const totalHours = Math.floor(totalSeconds / 3600);
+          const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
+          const totalSecondsRemaining = totalSeconds % 60;
+          const formattedTotalTime = `${totalHours
+            .toString()
+            .padStart(2, "0")}:${totalMinutes
+            .toString()
+            .padStart(2, "0")}:${totalSecondsRemaining
+            .toString()
+            .padStart(2, "0")}`;
+
+          newManualFields[index].totalTime = formattedTotalTime;
+          setManualFields(newManualFields);
+        }
+      }
+    }
+  };
+
+  const handleManualDescChange = (e: any, index: number) => {
+    const newManualFields = [...manualFields];
+    newManualFields[index].manualDesc = e.target.value;
+    setManualFields(newManualFields);
+
+    const newManualDescErrors = [...manualDescErrors];
+    newManualDescErrors[index] = e.target.value.trim().length === 0;
+    setManualDescErrors(newManualDescErrors);
+  };
+
+  const handleInputDateChange = (e: any, index: number) => {
+    const newManualFields = [...reviewermanualFields];
+    newManualFields[index].inputDate = e;
+    setManualFields(newManualFields);
+
+    const newInputDateErrors = [...inputDateErrors];
+    newInputDateErrors[index] = e.length === 0;
+    setInputDateErrors(newInputDateErrors);
+  };
+
+  const setManualDisableData = (manualField: any) => {
+    setManualSubmitDisable(
+      manualField
+        .map((i: any) => (i.IsApproved === false ? false : true))
+        .includes(false)
+        ? false
+        : true
+    );
+  };
 
   const toggleColor = (index: any) => {
     if (selectedDays.includes(index)) {
@@ -235,6 +698,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
     hasPermissionWorklog("Comment", "View", "WorkLogs") && "COMMENTS",
     hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "RECURRING",
     (isManual === true || isManual === null) && "MANUAL TIME",
+    isPartiallySubmitted && "REVIEWER MANUAL TIME",
     hasPermissionWorklog("Reminder", "View", "WorkLogs") && "REMINDER",
     hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "ERROR LOGS",
     "REVIEWER'S NOTE",
@@ -242,7 +706,19 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
   ];
 
   useEffect(() => {
-    scrollToPanel(7);
+    scrollToPanel(
+      (isManual === null || isManual === true) && isPartiallySubmitted
+        ? 8
+        : isManual === null || isManual === true
+        ? 7
+        : isPartiallySubmitted
+        ? 7
+        : 6
+    );
+    if (hasIconIndex > 0) {
+      setIsPartiallySubmitted(true);
+      scrollToPanel(isManual === null || isManual === true ? 6 : 5);
+    }
   }, [onEdit]);
 
   const handleTabClick = (index: number) => {
@@ -849,7 +1325,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
   }, [onEdit]);
 
   useEffect(() => {
-    assigneeDropdownData.length > 0 && getErrorLogData();
+    onEdit > 0 && assigneeDropdownData.length > 0 && getErrorLogData();
   }, [assigneeDropdownData]);
 
   // Error Logs
@@ -1121,6 +1597,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                   // ],
                 })
             ),
+            IsClientWorklog: false,
             SubmissionId: onHasId,
             DeletedErrorlogIds: deletedErrorLog,
           },
@@ -1232,6 +1709,7 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
           }
           if (api === "/WorkType/GetDropdown") {
             setWorkTypeDropdownData(response.data.ResponseData);
+            getTypeOfReturn();
             getData("/project/getdropdown");
           }
           if (api === "/project/getdropdown") {
@@ -1314,6 +1792,44 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setCCDropdownData(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getTypeOfReturn = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      let response = await axios.get(
+        `${process.env.worklog_api_url}/workitem/getformtypelist`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setTypeOfReturnDropdownData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -1499,6 +2015,25 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
         manualDesc: "",
       },
     ]);
+
+    //Reviewer Manual Time
+    setReviewerManualFields([
+      {
+        AssigneeId: 0,
+        Id: 0,
+        inputDate: "",
+        startTime: "",
+        endTime: "",
+        totalTime: "",
+        manualDesc: "",
+        IsApproved: false,
+      },
+    ]);
+    setInputDateErrors([false]);
+    setStartTimeErrors([false]);
+    setEndTimeErrors([false]);
+    setManualDescErrors([false]);
+    setDeletedManualTime([]);
 
     // Reminder
     setReminderCheckboxValue(1);
@@ -2006,9 +2541,13 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                             value={typeOfReturn === 0 ? "" : typeOfReturn}
                             readOnly
                           >
-                            <MenuItem value={1}>Form1060</MenuItem>
-                            <MenuItem value={2}>Form1040</MenuItem>
-                            <MenuItem value={3}>Form1040B</MenuItem>
+                            {typeOfReturnDropdownData.map(
+                              (i: any, index: number) => (
+                                <MenuItem value={i.value} key={index}>
+                                  {i.label}
+                                </MenuItem>
+                              )
+                            )}
                           </Select>
                         </FormControl>
                       )}
@@ -2490,7 +3029,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
             )}
 
             {(isManual === true || isManual === null) && (
-              <div className="mt-14" id="tabpanel-5">
+              <div
+                className="mt-14"
+                id={`${
+                  isManual === true || isManual === null ? "tabpanel-5" : ""
+                }`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <ClockIcon />
@@ -2616,8 +3160,400 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
               </div>
             )}
 
+            {isPartiallySubmitted && (
+              <div
+                className="mt-14"
+                id={`${
+                  isManual === true || isManual === null
+                    ? "tabpanel-6"
+                    : "tabpanel-5"
+                }`}
+              >
+                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                  <span className="flex items-center">
+                    <ClockIcon />
+                    <span className="ml-[21px]">Reviewer Manual Time</span>
+                  </span>
+                  <span className="flex items-center">
+                    {onEdit > 0 && manualSwitch && (
+                      <Button
+                        variant="contained"
+                        className={`rounded-[4px] !h-[36px] mr-6 ${
+                          manualSubmitDisable ? "" : "!bg-secondary"
+                        }`}
+                        disabled={manualSubmitDisable}
+                        onClick={
+                          manualSubmitDisable
+                            ? undefined
+                            : saveReviewerManualTimelog
+                        }
+                      >
+                        Update
+                      </Button>
+                    )}
+                    <Switch
+                      checked={manualSwitch}
+                      onChange={(e) => {
+                        setManualSwitch(e.target.checked);
+                        setReviewerManualFields([
+                          {
+                            AssigneeId: 0,
+                            Id: 0,
+                            inputDate: "",
+                            startTime: "",
+                            endTime: "",
+                            totalTime: "",
+                            manualDesc: "",
+                            IsApproved: false,
+                          },
+                        ]);
+                        setInputDateErrors([false]);
+                        setStartTimeErrors([false]);
+                        setEndTimeErrors([false]);
+                        setManualDescErrors([false]);
+                        setInputTypeDate(["text"]);
+                        setManualDisableData([
+                          {
+                            AssigneeId: 0,
+                            Id: 0,
+                            inputDate: "",
+                            startTime: "",
+                            endTime: "",
+                            totalTime: "",
+                            manualDesc: "",
+                            IsApproved: false,
+                          },
+                        ]);
+                        e.target.checked === true
+                          ? setStatus(
+                              statusDropdownData
+                                .map((i: any) =>
+                                  i.Type === "InProgress" ? i.value : undefined
+                                )
+                                .filter((i: any) => i !== undefined)[0]
+                            )
+                          : setStatus(
+                              statusDropdownData
+                                .map((i: any) =>
+                                  i.Type === "NotStarted" ? i.value : undefined
+                                )
+                                .filter((i: any) => i !== undefined)[0]
+                            );
+                      }}
+                    />
+                    <span
+                      className={`cursor-pointer ${
+                        manualTimeDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  </span>
+                </div>
+                {manualTimeDrawer && (
+                  <>
+                    <div className="-mt-2 pl-6">
+                      {reviewermanualFields.map((field, index) => (
+                        <div key={index} className="flex items-center">
+                          <div
+                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                              inputDateErrors[index] ? "datepickerError" : ""
+                            }`}
+                          >
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label={
+                                  <span>
+                                    Date
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                minDate={dayjs(recurringStartDate)}
+                                maxDate={dayjs(new Date())}
+                                disabled={
+                                  !manualSwitch ||
+                                  field.IsApproved ||
+                                  (field.AssigneeId !== 0 &&
+                                    field.AssigneeId !== userId)
+                                }
+                                onError={() => {
+                                  if (
+                                    field.inputDate[index]?.trim().length > 0
+                                  ) {
+                                    const newInputDateErrors = [
+                                      ...inputDateErrors,
+                                    ];
+                                    newInputDateErrors[index] = false;
+                                    setInputDateErrors(newInputDateErrors);
+                                  }
+                                }}
+                                value={
+                                  field.inputDate === ""
+                                    ? null
+                                    : dayjs(field.inputDate)
+                                }
+                                onChange={(newDate: any) => {
+                                  handleInputDateChange(newDate.$d, index);
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    helperText: inputDateErrors[index]
+                                      ? "This is a required field."
+                                      : "",
+                                    readOnly: true,
+                                  } as Record<string, any>,
+                                }}
+                              />
+                            </LocalizationProvider>
+                          </div>
+                          <TextField
+                            label={
+                              <span>
+                                Start Time
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            placeholder="00:00:00"
+                            // disabled={
+                            //   !manualSwitch ||
+                            //   field.IsApproved ||
+                            //   (field.AssigneeId !== 0 &&
+                            //     field.AssigneeId !== userId)
+                            // }
+                            fullWidth
+                            value={field.startTime}
+                            onChange={(e) => handleStartTimeChange(e, index)}
+                            onBlur={(e: any) => {
+                              if (e.target.value.trim().length > 7) {
+                                const newStartTimeErrors = [...startTimeErrors];
+                                newStartTimeErrors[index] = false;
+                                setStartTimeErrors(newStartTimeErrors);
+                              }
+                            }}
+                            error={startTimeErrors[index]}
+                            helperText={
+                              field.startTime.trim().length > 0 &&
+                              field.startTime.trim().length < 8 &&
+                              startTimeErrors[index]
+                                ? "Start time must be in HH:MM:SS"
+                                : field.startTime.trim().length <= 0 &&
+                                  startTimeErrors[index]
+                                ? "This is a required field"
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                          />
+                          <TextField
+                            label={
+                              <span>
+                                End Time
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            placeholder="00:00:00"
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
+                            fullWidth
+                            value={field.endTime}
+                            onChange={(e) => handleEndTimeChange(e, index)}
+                            onBlur={(e: any) => {
+                              if (
+                                e.target.value.trim().length > 7 &&
+                                field.endTime > field.startTime &&
+                                field.startTime
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  ) +
+                                  "07:59:59"
+                                    .split(":")
+                                    .reduce(
+                                      (acc, timePart, index) =>
+                                        acc +
+                                        parseInt(timePart) *
+                                          [3600, 60, 1][index],
+                                      0
+                                    ) <
+                                  field.endTime
+                                    .split(":")
+                                    .reduce(
+                                      (acc, timePart, index) =>
+                                        acc +
+                                        parseInt(timePart) *
+                                          [3600, 60, 1][index],
+                                      0
+                                    )
+                              ) {
+                                const newEndTimeErrors = [...endTimeErrors];
+                                newEndTimeErrors[index] = false;
+                                setEndTimeErrors(newEndTimeErrors);
+                              }
+                            }}
+                            error={endTimeErrors[index]}
+                            helperText={
+                              field.startTime
+                                .split(":")
+                                .reduce(
+                                  (acc, timePart, index) =>
+                                    acc +
+                                    parseInt(timePart) * [3600, 60, 1][index],
+                                  0
+                                ) +
+                                "07:59:59"
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  ) <
+                              field.endTime
+                                .split(":")
+                                .reduce(
+                                  (acc, timePart, index) =>
+                                    acc +
+                                    parseInt(timePart) * [3600, 60, 1][index],
+                                  0
+                                )
+                                ? "Time must be less than 07:59:59"
+                                : field.endTime.trim().length > 0 &&
+                                  field.endTime.trim().length < 8 &&
+                                  endTimeErrors[index]
+                                ? "Start time must be in HH:MM:SS"
+                                : field.endTime.trim().length <= 0 &&
+                                  endTimeErrors[index]
+                                ? "This is a required field"
+                                : endTimeErrors[index] &&
+                                  field.endTime <= field.startTime
+                                ? "End time must be grater than start time"
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                          />
+                          <TextField
+                            label="Total Time"
+                            disabled
+                            fullWidth
+                            value={field.totalTime}
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                          />
+                          <TextField
+                            label={
+                              <span>
+                                Description
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            className="mt-4"
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
+                            fullWidth
+                            value={field.manualDesc}
+                            onChange={(e) => handleManualDescChange(e, index)}
+                            onBlur={(e: any) => {
+                              if (e.target.value.trim().length > 0) {
+                                const newManualDescErrors = [
+                                  ...manualDescErrors,
+                                ];
+                                newManualDescErrors[index] = false;
+                                setManualDescErrors(newManualDescErrors);
+                              }
+                            }}
+                            error={manualDescErrors[index]}
+                            helperText={
+                              manualDescErrors[index] &&
+                              field.manualDesc.length > 0 &&
+                              field.manualDesc.length < 5
+                                ? "Minumum 5 characters required."
+                                : manualDescErrors[index] &&
+                                  field.manualDesc.length > 500
+                                ? "Maximum 500 characters allowed."
+                                : manualDescErrors[index]
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                          />
+                          {index === 0
+                            ? manualSwitch && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={addManualField}
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="AddIcon"
+                                  >
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                  </svg>
+                                </span>
+                              )
+                            : manualSwitch &&
+                              !field.IsApproved && (
+                                <span
+                                  className="cursor-pointer"
+                                  onClick={() => removePhoneField(index)}
+                                >
+                                  <svg
+                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    focusable="false"
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    data-testid="RemoveIcon"
+                                  >
+                                    <path d="M19 13H5v-2h14v2z"></path>
+                                  </svg>
+                                </span>
+                              )}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
-              <div className="my-14" id="tabpanel-6">
+              <div
+                className="my-14"
+                id={`${
+                  (isManual === true || isManual === null) &&
+                  isPartiallySubmitted
+                    ? "tabpanel-7"
+                    : "tabpanel-6"
+                }`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <BellIcon />
@@ -2774,7 +3710,15 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
             )}
 
             {hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
-              <div className="mt-14" id="tabpanel-7">
+              <div
+                className="mt-14"
+                id={`${
+                  (isManual === true || isManual === null) &&
+                  isPartiallySubmitted
+                    ? "tabpanel-8"
+                    : "tabpanel-7"
+                }`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <TaskIcon />
@@ -2834,11 +3778,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                ))||field.isSolved
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
                               }
                               value={
                                 field.ErrorType === 0 ? "" : field.ErrorType
@@ -2879,11 +3824,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                ))||field.isSolved
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
                               }
                               value={
                                 field.RootCause === 0 ? "" : field.RootCause
@@ -2924,11 +3870,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                ))||field.isSolved
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
                               }
                               value={
                                 field.NatureOfError === 0
@@ -2998,11 +3945,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                ))||field.isSolved
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
                               }
                               value={field.Priority === 0 ? "" : field.Priority}
                               onChange={(e) => handlePriorityChange(e, index)}
@@ -3041,11 +3989,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                 "Save",
                                 "WorkLogs"
                               ) &&
-                              hasPermissionWorklog(
-                                "ErrorLog",
-                                "Delete",
-                                "WorkLogs"
-                              ))||field.isSolved
+                                hasPermissionWorklog(
+                                  "ErrorLog",
+                                  "Delete",
+                                  "WorkLogs"
+                                )) ||
+                              field.isSolved
                             }
                             value={
                               field.ErrorCount === 0 ? "" : field.ErrorCount
@@ -3089,11 +4038,12 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
                                   "Save",
                                   "WorkLogs"
                                 ) &&
-                                hasPermissionWorklog(
-                                  "ErrorLog",
-                                  "Delete",
-                                  "WorkLogs"
-                                ))||field.isSolved
+                                  hasPermissionWorklog(
+                                    "ErrorLog",
+                                    "Delete",
+                                    "WorkLogs"
+                                  )) ||
+                                field.isSolved
                               }
                               value={field.CC}
                               onChange={(e, newValue) =>
@@ -3296,7 +4246,14 @@ const EditDrawer = ({ onOpen, onClose, onEdit, onDataFetch, onHasId }: any) => {
               </div>
             )}
 
-            <div className="my-14" id="tabpanel-8">
+            <div
+              className="my-14"
+              id={`${
+                (isManual === true || isManual === null) && isPartiallySubmitted
+                  ? "tabpanel-9"
+                  : "tabpanel-8"
+              }`}
+            >
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                 <span className="flex items-center">
                   <HistoryIcon />

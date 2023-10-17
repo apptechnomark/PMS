@@ -113,6 +113,8 @@ const EditDrawer = ({
   const [userId, setUserId] = useState(0);
 
   // Selected Taxation
+  const [returnType, setReturnType] = useState<string | number>(0);
+  const [returnTypeErr, setReturnTypeErr] = useState(false);
   const [typeOfReturn, setTypeOfReturn] = useState<string | number>(0);
   const [typeOfReturnErr, setTypeOfReturnErr] = useState(false);
   const [returnYear, setReturnYear] = useState<string | number>(0);
@@ -642,16 +644,15 @@ const EditDrawer = ({
       projectName: validateField(projectName),
       processName: validateField(processName),
       subProcess: validateField(subProcess),
-      // status: validateField(status),
       clientTaskName: validateField(clientTaskName),
       description: validateField(description),
       priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
-      // allInfoDate: validateField(allInfoDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
+      returnType: typeOfWork === 3 && validateField(returnType),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
       complexity: typeOfWork === 3 && validateField(complexity),
@@ -678,20 +679,18 @@ const EditDrawer = ({
     setProcessNameErr(fieldValidations.processName);
     setSubProcessErr(fieldValidations.subProcess);
     setClientTaskNameErr(fieldValidations.subProcess);
-    // setStatusErr(fieldValidations.status);
     setDescriptionErr(fieldValidations.description);
     setPriorityErr(fieldValidations.priority);
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
     setDueDateErr(fieldValidations.dueDate);
-    // setAllInfoDateErr(fieldValidations.allInfoDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
+    typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
     typeOfWork === 3 && setTypeOfReturnErr(fieldValidations.typeOfReturn);
     typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
     typeOfWork === 3 && setComplexityErr(fieldValidations.complexity);
     typeOfWork === 3 && setCountYearErr(fieldValidations.countYear);
-    // typeOfWork === 3 && setNoOfPagesErr(fieldValidations.noOfPages);
     onEdit === 0 &&
       recurringSwitch &&
       setRecurringStartDateErr(fieldValidations.recurringStartDate);
@@ -754,9 +753,9 @@ const EditDrawer = ({
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
-      // allInfoDate: validateField(allInfoDate),
       assignee: validateField(assignee),
       reviewer: validateField(reviewer),
+      returnType: typeOfWork === 3 && validateField(returnType),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
       complexity: typeOfWork === 3 && validateField(complexity),
@@ -857,6 +856,7 @@ const EditDrawer = ({
       allInfoDate: allInfoDate === "" ? null : allInfoDate,
       AssignedId: assignee,
       ReviewerId: reviewer,
+      TaxReturnType: returnType === 0 ? null : returnType,
       TypeOfReturnId: typeOfReturn === 0 ? null : typeOfReturn,
       TaxCustomFields:
         typeOfReturn === 0
@@ -1617,6 +1617,7 @@ const EditDrawer = ({
           setDateOfPreperation(data.PreparationDate);
           setAssignee(data.AssignedId);
           setReviewer(data.ReviewerId);
+          setReturnType(data.TaxReturnType);
           setTypeOfReturn(data.TypeOfReturnId);
           setReturnYear(
             data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.ReturnYear
@@ -2876,6 +2877,8 @@ const EditDrawer = ({
     setEstTimeData([]);
 
     // Taxation selected
+    setReturnType(0);
+    setReturnTypeErr(false);
     setTypeOfReturn(0);
     setTypeOfReturnErr(false);
     setReturnYear(0);
@@ -3144,6 +3147,7 @@ const EditDrawer = ({
                             setTypeOfWork(e.target.value);
                             setDateOfReview("");
                             setDateOfPreperation("");
+                            setReturnType(0);
                             setTypeOfReturn(0);
                             setReturnYear(0);
                             setComplexity(0);
@@ -3826,6 +3830,35 @@ const EditDrawer = ({
                           <FormControl
                             variant="standard"
                             sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
+                            error={returnTypeErr}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Return Type
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={returnType === 0 ? "" : returnType}
+                              onChange={(e) => setReturnType(e.target.value)}
+                              onBlur={(e: any) => {
+                                if (e.target.value > 0) {
+                                  setReturnTypeErr(false);
+                                }
+                              }}
+                            >
+                              <MenuItem value={1}>Individual Return</MenuItem>
+                              <MenuItem value={2}>Business Return</MenuItem>
+                            </Select>
+                            {returnTypeErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9 }}
                             error={typeOfReturnErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -3889,9 +3922,15 @@ const EditDrawer = ({
                               </FormHelperText>
                             )}
                           </FormControl>
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-[10px] pl-6 flex items-center">
+                      {typeOfWork === 3 && (
+                        <>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.85 }}
+                            sx={{ mx: 0.75, minWidth: 300 }}
                             error={complexityErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -3919,15 +3958,9 @@ const EditDrawer = ({
                               </FormHelperText>
                             )}
                           </FormControl>
-                        </>
-                      )}
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
-                      {typeOfWork === 3 && (
-                        <>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.28 }}
+                            sx={{ mx: 0.75, minWidth: 300 }}
                             error={countYearErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
