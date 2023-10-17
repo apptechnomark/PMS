@@ -1003,90 +1003,90 @@ const ClientContent = forwardRef<
 
           WorkTypes: workTypes.length > 0 ? workTypes : null,
 
-          ownerAndCPAName:
+          OwnerAndCPAName:
             isAdditionalFieldsClicked && cpaName !== "" ? cpaName : null,
-          ownerEmail:
+          OwnerEmail:
             isAdditionalFieldsClicked && cpaEmail !== "" ? cpaEmail : null,
-          ownerPhone:
+          OwnerPhone:
             isAdditionalFieldsClicked && cpaMobileNo !== ""
               ? cpaMobileNo
               : null,
-          city: isAdditionalFieldsClicked && city !== "" ? city : null,
-          stateId: isAdditionalFieldsClicked && state !== 0 ? state : 0,
-          zip: isAdditionalFieldsClicked && zip !== "" ? zip : null,
+          City: isAdditionalFieldsClicked && city !== "" ? city : null,
+          StateId: isAdditionalFieldsClicked && state !== 0 ? state : 0,
+          Zip: isAdditionalFieldsClicked && zip !== "" ? zip : null,
 
-          clientPOCInformation: isAdditionalFieldsClicked ? pocFields : [],
+          ClientPOCInformation: isAdditionalFieldsClicked ? pocFields : [],
 
-          clientITPOCName:
+          ClientITPOCName:
             isAdditionalFieldsClicked && clientItPOCName !== ""
               ? clientItPOCName
               : null,
-          clientITPOCEmail:
+          ClientITPOCEmail:
             isAdditionalFieldsClicked && clientItPOCEmail !== ""
               ? clientItPOCEmail
               : null,
-          pabspocName:
+          PABSPOCName:
             isAdditionalFieldsClicked && pabsPOCName !== ""
               ? pabsPOCName
               : null,
-          pabsbdm: isAdditionalFieldsClicked && pabsBDM !== "" ? pabsBDM : null,
-          pabsManagerAssigned:
+          Pabsbdm: isAdditionalFieldsClicked && pabsBDM !== "" ? pabsBDM : null,
+          PabsManagerAssigned:
             isAdditionalFieldsClicked && pabsManagerAssigned !== ""
               ? pabsManagerAssigned
               : null,
-          groupMail:
+          GroupMail:
             isAdditionalFieldsClicked && groupEmail !== "" ? groupEmail : null,
-          sopStatus:
+          SopStatus:
             isAdditionalFieldsClicked && sopStatus !== "" ? sopStatus : null,
-          dateOfImplementation:
+          DateOfImplementation:
             isAdditionalFieldsClicked && dateOfImplementation !== ""
               ? dateOfImplementation
               : null,
-          agreementStartDate:
+          AgreementStartDate:
             isAdditionalFieldsClicked && agreementStartDate !== ""
               ? agreementStartDate
               : null,
-          fteAgreementTax:
+          FteAgreementTax:
             isAdditionalFieldsClicked && fteAgreement !== ""
               ? fteAgreement
               : null,
-          estimatedWorkflow:
+          EstimatedWorkflow:
             isAdditionalFieldsClicked && estimationWorkflow !== ""
               ? estimationWorkflow
               : null,
-          vpnRequirement:
+          VpnRequirement:
             isAdditionalFieldsClicked && vpnRequirement !== ""
               ? vpnRequirement
               : null,
-          remoteSystemAccess:
+          RemoteSystemAccess:
             isAdditionalFieldsClicked && remoteSystemAccess !== ""
               ? remoteSystemAccess
               : null,
-          taxPreparationSoftware:
+          TaxPreparationSoftware:
             isAdditionalFieldsClicked && taxPreparationSoftware !== ""
               ? taxPreparationSoftware
               : null,
-          documentPortal:
+          DocumentPortal:
             isAdditionalFieldsClicked && documentPortal !== ""
               ? documentPortal
               : null,
-          workflowTracker:
+          WorkflowTracker:
             isAdditionalFieldsClicked && workflowTracker !== ""
               ? workflowTracker
               : null,
-          communicationChannel:
+          CommunicationChannel:
             isAdditionalFieldsClicked && communicationChannel !== ""
               ? communicationChannel
               : null,
-          recurringCall:
+          RecurringCall:
             isAdditionalFieldsClicked && recurringCall !== ""
               ? recurringCall
               : null,
-          specificAdditionalProcessSteps:
+          SpecificAdditionalProcessSteps:
             isAdditionalFieldsClicked && specificProcessStep !== ""
               ? specificProcessStep
               : null,
-          clientTimeZone:
+          ClientTimeZone:
             isAdditionalFieldsClicked && clientTimeZone !== ""
               ? clientTimeZone
               : null,

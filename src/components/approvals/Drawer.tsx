@@ -276,6 +276,7 @@ const EditDrawer = ({
               getManualTimeLogForReviewer(onEdit);
             } else {
               const data = response.data.Message;
+              setDeletedManualTime([]);
               if (data === null) {
                 toast.error("Please try again later.");
               } else {
@@ -284,6 +285,7 @@ const EditDrawer = ({
             }
           } else {
             const data = response.data.Message;
+            setDeletedManualTime([]);
             if (data === null) {
               toast.error("Failed Please try again.");
             } else {
@@ -3181,11 +3183,12 @@ const EditDrawer = ({
                         className={`rounded-[4px] !h-[36px] mr-6 ${
                           manualSubmitDisable ? "" : "!bg-secondary"
                         }`}
-                        disabled={manualSubmitDisable}
+                        // disabled={manualSubmitDisable}
                         onClick={
-                          manualSubmitDisable
-                            ? undefined
-                            : saveReviewerManualTimelog
+                          // manualSubmitDisable
+                          //   ? undefined
+                          //   :
+                          saveReviewerManualTimelog
                         }
                       >
                         Update
