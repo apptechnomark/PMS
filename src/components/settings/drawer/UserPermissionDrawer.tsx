@@ -145,7 +145,13 @@ const UserPermissionDrawer = ({
                   ActionList: child.ActionList.map(
                     (action: any, actionIdx: number) => {
                       if (actionIdx === actionIndex) {
-                        handleSubmit(action);
+                        const actionData: any = {
+                          ActionId: parent.Id,
+                          PermisisonActionId: action.PermisisonActionId,
+                          ActionName: action.ActionName,
+                          IsChecked: action.IsChecked,
+                        };
+                        handleSubmit(actionData);
                         return {
                           ...action,
                           IsChecked: !action.IsChecked,
@@ -165,7 +171,13 @@ const UserPermissionDrawer = ({
             ActionList: parent.ActionList.map(
               (action: any, actionIdx: number) => {
                 if (actionIdx === actionIndex) {
-                  handleSubmit(action);
+                  const actionData: any = {
+                    ActionId: parent.Id,
+                    PermisisonActionId: action.PermisisonActionId,
+                    ActionName: action.ActionName,
+                    IsChecked: action.IsChecked,
+                  };
+                  handleSubmit(actionData);
                   return {
                     ...action,
                     IsChecked: !action.IsChecked,

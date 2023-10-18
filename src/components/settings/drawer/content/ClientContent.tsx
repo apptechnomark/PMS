@@ -1012,7 +1012,7 @@ const ClientContent = forwardRef<
               ? cpaMobileNo
               : null,
           City: isAdditionalFieldsClicked && city !== "" ? city : null,
-          StateId: isAdditionalFieldsClicked && state !== 0 ? state : 0,
+          StateId: isAdditionalFieldsClicked && state !== 0 ? state : null,
           Zip: isAdditionalFieldsClicked && zip !== "" ? zip : null,
 
           ClientPOCInformation: isAdditionalFieldsClicked ? pocFields : [],
