@@ -276,7 +276,6 @@ const EditDrawer = ({
               getManualTimeLogForReviewer(onEdit);
             } else {
               const data = response.data.Message;
-              setDeletedManualTime([]);
               if (data === null) {
                 toast.error("Please try again later.");
               } else {
@@ -285,7 +284,6 @@ const EditDrawer = ({
             }
           } else {
             const data = response.data.Message;
-            setDeletedManualTime([]);
             if (data === null) {
               toast.error("Failed Please try again.");
             } else {
@@ -360,7 +358,7 @@ const EditDrawer = ({
                       endTime: i.EndTime,
                       totalTime: getTimeDifference(i.StartTime, i.EndTime),
                       manualDesc: i.Comment,
-                      IsApproved: i.IsApproved !== undefined ? 0 : i.IsApproved,
+                      IsApproved: i.IsApproved,
                     })
                 )
           );
@@ -1761,6 +1759,7 @@ const EditDrawer = ({
       );
       if (response.status === 200) {
         setAssigneeDisable(response.data.ResponseData.IsHaveManageAssignee);
+        setUserId(response.data.ResponseData.UserId);
       }
     } catch (error: any) {
       if (error.response.status === 401) {
@@ -3183,12 +3182,11 @@ const EditDrawer = ({
                         className={`rounded-[4px] !h-[36px] mr-6 ${
                           manualSubmitDisable ? "" : "!bg-secondary"
                         }`}
-                        // disabled={manualSubmitDisable}
+                        disabled={manualSubmitDisable}
                         onClick={
-                          // manualSubmitDisable
-                          //   ? undefined
-                          //   :
-                          saveReviewerManualTimelog
+                          manualSubmitDisable
+                            ? undefined
+                            : saveReviewerManualTimelog
                         }
                       >
                         Update
@@ -3322,12 +3320,12 @@ const EditDrawer = ({
                               </span>
                             }
                             placeholder="00:00:00"
-                            // disabled={
-                            //   !manualSwitch ||
-                            //   field.IsApproved ||
-                            //   (field.AssigneeId !== 0 &&
-                            //     field.AssigneeId !== userId)
-                            // }
+                            disabled={
+                              !manualSwitch ||
+                              field.IsApproved ||
+                              (field.AssigneeId !== 0 &&
+                                field.AssigneeId !== userId)
+                            }
                             fullWidth
                             value={field.startTime}
                             onChange={(e) => handleStartTimeChange(e, index)}
