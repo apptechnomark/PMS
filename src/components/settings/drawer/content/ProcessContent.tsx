@@ -377,7 +377,6 @@ const ProcessContent = forwardRef<
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    console.log(estTime.length);
     selectValue <= 0 && setSelectValueErr(true);
     const [hours, minutes, seconds] = estTime.split(":");
     const estTimeTotalSeconds =
