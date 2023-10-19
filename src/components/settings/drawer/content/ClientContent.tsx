@@ -1360,7 +1360,7 @@ const ClientContent = forwardRef<
             Additional Fields
           </label> */}
         </span>
-        <div className="flex gap-[20px] flex-col px-[20px] pb-[20px] max-h-[73.5vh] overflow-y-auto">
+        <div className="flex gap-[20px] flex-col px-[20px] pb-[40px] max-h-[73.5vh] overflow-y-auto">
           {isAddClientClicked && (
             <>
               <Text
