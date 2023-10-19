@@ -1345,7 +1345,7 @@ const ClientContent = forwardRef<
           >
             Add Client
           </label>
-          <span className="text-lightSilver">|</span>
+          {/* <span className="text-lightSilver">|</span>
           <label
             onClick={() => {
               setIsAdditionalFieldsClicked(true);
@@ -1358,7 +1358,7 @@ const ClientContent = forwardRef<
             }`}
           >
             Additional Fields
-          </label>
+          </label> */}
         </span>
         <div className="flex gap-[20px] flex-col px-[20px] pb-[20px] max-h-[73.5vh] overflow-y-auto">
           {isAddClientClicked && (
