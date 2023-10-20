@@ -54,7 +54,9 @@ const UserPermissionDrawer = ({
   };
 
   useEffect(() => {
-    getData();
+    if (roleId > 0) {
+      getData();
+    }
   }, [roleId]);
 
   const getLargestArray = (arr: any) => {
@@ -146,7 +148,7 @@ const UserPermissionDrawer = ({
                     (action: any, actionIdx: number) => {
                       if (actionIdx === actionIndex) {
                         const actionData: any = {
-                          ActionId: parent.Id,
+                          ActionId: child.Id,
                           PermisisonActionId: action.PermisisonActionId,
                           ActionName: action.ActionName,
                           IsChecked: action.IsChecked,
