@@ -25,12 +25,37 @@ function Client({
   onSearchClientData,
 }: any) {
   const headers = [
-    { header: "Client Name", accessor: "Name", sortable: true },
-    { header: "Email ID", accessor: "Email", sortable: true },
+    {
+      header: "Client Name",
+      accessor: "Name",
+      sortable: true,
+      colStyle: "w-[15%]",
+    },
+    {
+      header: "Email ID",
+      accessor: "Email",
+      sortable: true,
+      colStyle: "w-[22%]",
+    },
     { header: "Address", accessor: "Address", sortable: true },
-    { header: "Mobile", accessor: "ContactNo", sortable: true },
-    { header: "Status", accessor: "IsActive", sortable: false },
-    { header: "Actions", accessor: "actions", sortable: false },
+    {
+      header: "Mobile",
+      accessor: "ContactNo",
+      sortable: true,
+      colStyle: "w-[15%]",
+    },
+    {
+      header: "Status",
+      accessor: "IsActive",
+      sortable: false,
+      colStyle: "w-[10%]",
+    },
+    {
+      header: "Actions",
+      accessor: "actions",
+      sortable: false,
+      colStyle: "w-[8%]",
+    },
   ];
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);

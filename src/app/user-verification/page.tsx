@@ -177,7 +177,7 @@ const page = () => {
                     hasError={passwordError}
                     validate
                     errorMessage={passwordErrorMsg}
-                    minChar={12}
+                    minChar={8}
                     maxChar={28}
                   />
                 </div>
@@ -190,7 +190,7 @@ const page = () => {
                     name="ConfirmpPassword"
                     validate
                     errorMessage={cPasswordErrorMsg}
-                    minChar={12}
+                    minChar={8}
                     maxChar={28}
                   />
                 </div>

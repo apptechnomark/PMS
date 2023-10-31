@@ -35,8 +35,13 @@ const User = ({
 }: any) => {
   const headers = [
     { header: "User Name", accessor: "FullName", sortable: true },
-    { header: "User Type", accessor: "UserType", sortable: true },
-    { header: "Email", accessor: "Email", sortable: true },
+    {
+      header: "User Type",
+      accessor: "UserType",
+      sortable: true,
+      colStyle: "w-[10%]",
+    },
+    { header: "Email", accessor: "Email", sortable: true, colStyle: "w-[22%]" },
     { header: "Mobile No", accessor: "ContactNo", sortable: true },
     { header: "Department", accessor: "DepartmentName", sortable: false },
     { header: "Reporting Manager", accessor: "RMUserName", sortable: false },
