@@ -585,7 +585,6 @@ const UserContent = forwardRef<
               label="First Name"
               placeholder="Enter First Name"
               noNumeric
-              noSpecialChar
               validate
               value={firstName}
               minChar={3}
@@ -598,7 +597,6 @@ const UserContent = forwardRef<
               label="Last Name"
               placeholder="Enter Last Name"
               noNumeric
-              noSpecialChar
               validate
               value={lastName}
               maxChar={50}
@@ -709,7 +707,6 @@ const UserContent = forwardRef<
               label="First Name"
               placeholder="Enter First Name"
               noNumeric
-              noSpecialChar
               value={clientFirstName}
               validate
               maxChar={50}
@@ -720,7 +717,6 @@ const UserContent = forwardRef<
             <Text
               label="Last Name"
               placeholder="Enter Last Name"
-              noSpecialChar
               noNumeric
               value={clientLastName}
               validate

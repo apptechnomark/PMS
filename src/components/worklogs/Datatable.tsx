@@ -109,6 +109,7 @@ const Datatable = ({
   onEdit,
   onRecurring,
   onDrawerOpen,
+  onDrawerClose,
   onDataFetch,
   onCurrentFilterId,
   currentFilterData,
@@ -338,6 +339,11 @@ const Datatable = ({
     };
   }, []);
 
+  useEffect(() => {
+    handleClearSelection();
+    setRowsPerPage(10);
+  }, [onDrawerClose]);
+
   // Function for handling conditionally delete task
   const handleDeleteClick = (selectedRowStatusId: any) => {
     const isInProgressOrNotStarted =
@@ -484,7 +490,7 @@ const Datatable = ({
               if (data.WorkitemId === selectedRowId) {
                 return new Object({
                   ...data,
-                  Timer: response.data.ResponseData.SyncTime,
+                  Timer: response.data.ResponseData?.SyncTime,
                 });
               } else {
                 return data;
@@ -672,7 +678,21 @@ const Datatable = ({
     const warningStatusIds = [3, 4, 5, 6, 7, 8, 9, 10, 11];
     let shouldWarn;
 
-    shouldWarn = selectedRowStatusId
+    const deletedId = workItemData
+      .map((item: any) =>
+        selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
+          ? item.WorkitemId
+          : undefined
+      )
+      .filter((i: any) => i !== undefined);
+
+    shouldWarn = workItemData
+      .map((item: any) =>
+        selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
+          ? item.StatusId
+          : undefined
+      )
+      .filter((item: any) => item !== undefined)
       .map((id: number) => {
         if (!warningStatusIds.includes(id)) {
           return id;
@@ -705,7 +725,15 @@ const Datatable = ({
           "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
         );
       }
-      if (shouldWarn.length > 0) {
+      if (
+        workItemData.some(
+          (item: any) =>
+            selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
+        )
+      ) {
+        toast.warning("You can not delete task which is created by Client.");
+      }
+      if (shouldWarn.length > 0 && deletedId.length > 0) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -713,7 +741,7 @@ const Datatable = ({
           const response = await axios.post(
             `${process.env.worklog_api_url}/workitem/deleteworkitem`,
             {
-              workitemIds: selectedRowIds,
+              workitemIds: deletedId,
             },
             {
               headers: {
@@ -892,27 +920,55 @@ const Datatable = ({
 
   // Duplicate Task API
   const duplicateWorkItem = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/copyworkitem`,
-        {
-          workitemIds: selectedRowIds,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+    const dontDuplicateId = workItemData
+      .map((item: any) =>
+        selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
+          ? item.WorkitemId
+          : undefined
+      )
+      .filter((i: any) => i !== undefined);
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Task has been duplicated successfully");
-          handleClearSelection();
-          getWorkItemList();
+    const duplicateId = workItemData
+      .map((item: any) =>
+        selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
+          ? item.WorkitemId
+          : undefined
+      )
+      .filter((i: any) => i !== undefined);
+
+    if (dontDuplicateId.length > 0) {
+      toast.warning("You can not duplicate task which is created by PABS.");
+    }
+    if (duplicateId.length > 0) {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/copyworkitem`,
+          {
+            workitemIds: duplicateId,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Task has been duplicated successfully");
+            handleClearSelection();
+            getWorkItemList();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -921,16 +977,9 @@ const Datatable = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -983,29 +1032,70 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change status for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
       );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
-        );
-      }
+    }
+    if (
+      workItemData
+        .map((item: any) =>
+          id.includes(item.WorkitemId)
+            ? item.TimelogId !== null
+              ? item.WorkitemId
+              : false
+            : undefined
+        )
+        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== false).length > 0
+    ) {
+      toast.warning("Cannot change status for running task.");
+    }
+    if (
+      selectedRowsCount > 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
+    ) {
+      toast.warning(
+        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+      );
+    }
+    if (
+      workItemData
+        .map((item: any) =>
+          id.includes(item.WorkitemId)
+            ? item.TimelogId === null
+              ? item.WorkitemId
+              : false
+            : undefined
+        )
+        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== false).length > 0
+    ) {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,
           {
-            workitemIds: id,
+            workitemIds: workItemData
+              .map((item: any) =>
+                id.includes(item.WorkitemId)
+                  ? item.TimelogId === null &&
+                    item.StatusId !== 7 &&
+                    item.StatusId !== 8 &&
+                    item.StatusId !== 9 &&
+                    item.StatusId !== 13
+                    ? item.WorkitemId
+                    : false
+                  : undefined
+              )
+              .filter((i: any) => i !== undefined)
+              .filter((i: any) => i !== false),
             statusId: statusId,
           },
           {
@@ -1218,11 +1308,28 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        // setCellProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 46,
+        //     background: "white",
+        //     zIndex: 100,
+        //   },
+        // }),
+        // setCellHeaderProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 46,
+        //     zIndex: 101,
+        //   },
+        // }),
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">CLIENT</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[18];
+          const IsHasErrorlog = tableMeta.rowData[17];
           return (
             <div className="ml-5 lg:ml-0">
               {IsHasErrorlog && (
@@ -1239,32 +1346,32 @@ const Datatable = ({
       },
     },
     {
-      name: "WorkitemId",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">TaskID</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">
-              {value}
-            </div>
-          );
-        },
-      },
-    },
-    {
       name: "ProjectName",
       options: {
         filter: true,
         sort: true,
+        // setCellProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 198,
+        //     background: "white",
+        //     zIndex: 100,
+        //   },
+        // }),
+        // setCellHeaderProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 198,
+        //     zIndex: 101,
+        //   },
+        // }),
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">PROJECT</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[19];
+          const IsRecurring = tableMeta.rowData[18];
           return (
             <div className="flex items-center gap-2 ml-5 lg:ml-0">
               {value}
@@ -1339,9 +1446,7 @@ const Datatable = ({
           <span className="font-bold text-sm">TIMER</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const isManual = tableMeta.rowData[5];
-
-          const estimatedTime = tableMeta.rowData[14].split(":");
+          const estimatedTime = tableMeta.rowData[13].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +
@@ -1349,7 +1454,6 @@ const Datatable = ({
 
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
-
           return (
             <div className="w-40 h-7 flex items-center ml-5 lg:ml-0">
               <ColorToolTip
@@ -1367,10 +1471,10 @@ const Datatable = ({
                   {timerValue}
                 </span>
               </ColorToolTip>
-              {(tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 ||
-                isManual === false ||
-                !isManual ||
-                isManual === null) &&
+              {tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
+                (workItemData[tableMeta.rowIndex].IsManual === false ||
+                  !workItemData[tableMeta.rowIndex].IsManual ||
+                  workItemData[tableMeta.rowIndex].IsManual === null) &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
@@ -1383,30 +1487,33 @@ const Datatable = ({
                   <ColorToolTip title="Start" placement="top" arrow>
                     <span
                       className="cursor-pointer"
-                      onClick={() =>
+                      onClick={() => {
                         handleTimer(
                           1,
                           tableMeta.rowData[tableMeta.rowData.length - 1],
                           0
-                        )
-                      }
+                        );
+                        handleClearSelection();
+                      }}
                     >
                       <PlayButton />
                     </span>
                   </ColorToolTip>
                 ) : (
-                  (isManual === false || !isManual) &&
+                  (workItemData[tableMeta.rowIndex].IsManual === false ||
+                    !workItemData[tableMeta.rowIndex].IsManual) &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
                     <ColorToolTip title="Resume" placement="top" arrow>
                       <span
                         className="cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleTimer(
                             1,
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             0
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <PlayPause />
                       </span>
@@ -1429,6 +1536,7 @@ const Datatable = ({
                           tableMeta.rowData[tableMeta.rowData.length - 1],
                           workitemTimeId
                         );
+                        handleClearSelection();
                       }}
                     >
                       <PauseButton />
@@ -1438,32 +1546,36 @@ const Datatable = ({
                     <span
                       className="cursor-pointer mt-[2px]"
                       onClick={
-                        workItemData[tableMeta.rowIndex].AssignedToName !==
-                        workItemData[tableMeta.rowIndex].AssignedByName
-                          ? () => {
-                              handleSync(
-                                tableMeta.rowData[tableMeta.rowData.length - 1]
-                              );
-                              handleTimer(
-                                3,
-                                tableMeta.rowData[tableMeta.rowData.length - 1],
-                                workitemTimeId
-                              );
-                              // setRowId(tableMeta.rowIndex);
-                            }
-                          : () => {
-                              handleSync(
-                                tableMeta.rowData[tableMeta.rowData.length - 1]
-                              );
-                              setRunning(
-                                tableMeta.rowData[tableMeta.rowData.length - 1]
-                              );
-                              // setRowId(tableMeta.rowIndex);
-                              setStopTimerDialog(true);
-                              value > estimatedTimeInSeconds
-                                ? setIsTimeExceed(true)
-                                : setIsTimeExceed(false);
-                            }
+                        // workItemData[tableMeta.rowIndex].AssignedToName !==
+                        // workItemData[tableMeta.rowIndex].AssignedByName
+                        //   ? () => {
+                        //       handleSync(
+                        //         tableMeta.rowData[tableMeta.rowData.length - 1]
+                        //       );
+                        //       handleTimer(
+                        //         3,
+                        //         tableMeta.rowData[tableMeta.rowData.length - 1],
+                        //         workitemTimeId
+                        //       );
+                        //       // setRowId(tableMeta.rowIndex);
+                        //       handleClearSelection();
+                        //     }
+                        //   :
+                        () => {
+                          handleSync(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          setRunning(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          // setRowId(tableMeta.rowIndex);
+                          setStopTimerDialog(true);
+                          value > estimatedTimeInSeconds
+                            ? setIsTimeExceed(true)
+                            : setIsTimeExceed(false);
+
+                          handleClearSelection();
+                        }
                       }
                     >
                       <StopButton />
@@ -1472,11 +1584,12 @@ const Datatable = ({
                   <ColorToolTip title="Sync" placement="top" arrow>
                     <span
                       className="cursor-pointer"
-                      onClick={() =>
+                      onClick={() => {
                         handleSync(
                           tableMeta.rowData[tableMeta.rowData.length - 1]
-                        )
-                      }
+                        );
+                        handleClearSelection();
+                      }}
                     >
                       <RestartButton />
                     </span>
@@ -1560,7 +1673,7 @@ const Datatable = ({
           <span className="font-bold text-sm">STATUS</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[9];
+          const statusColorCode = tableMeta.rowData[8];
           return (
             <div className="ml-5 lg:ml-0">
               <div className="inline-block mr-1">
@@ -1645,12 +1758,19 @@ const Datatable = ({
           <span className="font-bold text-sm">START DATE</span>
         ),
         customBodyRender: (value: any) => {
-          const startDate = value?.split("T");
-          return (
-            <div className="ml-5 lg:ml-0">
-              {value === null ? "-" : startDate[0]}
-            </div>
-          );
+          if (value === null) {
+            return "-";
+          }
+
+          const startDate = new Date(value);
+          const month = startDate.getMonth() + 1;
+          const formattedMonth = month < 10 ? `0${month}` : month;
+          const day = startDate.getDate();
+          const formattedDay = day < 10 ? `0${day}` : day;
+          const formattedYear = startDate.getFullYear();
+          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
+
+          return <div>{formattedDate}</div>;
         },
       },
     },
@@ -1663,12 +1783,19 @@ const Datatable = ({
           <span className="font-bold text-sm">END DATE</span>
         ),
         customBodyRender: (value: any) => {
-          const endDate = value?.split("T");
-          return (
-            <div className="ml-5 lg:ml-0">
-              {value === null ? "-" : endDate[0]}
-            </div>
-          );
+          if (value === null) {
+            return "-";
+          }
+
+          const startDate = new Date(value);
+          const month = startDate.getMonth() + 1;
+          const formattedMonth = month < 10 ? `0${month}` : month;
+          const day = startDate.getDate();
+          const formattedDay = day < 10 ? `0${day}` : day;
+          const formattedYear = startDate.getFullYear();
+          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
+
+          return <div>{formattedDate}</div>;
         },
       },
     },
@@ -1719,7 +1846,6 @@ const Datatable = ({
     },
   ];
 
-  // Table Customization Options
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
@@ -1735,6 +1861,7 @@ const Datatable = ({
       enabled: true,
       transitionTime: 300,
     },
+    elevation: 0,
     selectableRows: "multiple",
     selectAllRows: isPopupOpen && selectedRowsCount === 0,
     rowsSelected: selectedRows,
@@ -1784,6 +1911,7 @@ const Datatable = ({
                 rowsSelected
               ),
           }}
+          data-tableid="Datatable"
         />
         <TablePagination
           component="div"
@@ -1901,10 +2029,10 @@ const Datatable = ({
 
       {/* Popup Filter */}
       {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-center">
-          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg  w-[75%] bottom-0 -translate-y-1/2">
+        <div className="flex items-center justify-start ml-12">
+          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg  w-[65%] h-[8%] bottom-12 -translate-y-1/2">
             <div className="flex flex-row w-full">
-              <div className="pt-1 pl-2 flex w-[40%]">
+              <div className="pt-1 pl-2 flex w-[30%]">
                 <span className="cursor-pointer" onClick={handleClearSelection}>
                   <Minus />
                 </span>
@@ -1913,11 +2041,15 @@ const Datatable = ({
                 </span>
               </div>
 
-              <div className="flex flex-row z-10 h-8 justify-center w-[90%]">
+              <div
+                className={`flex flex-row z-10 h-8 justify-center ${
+                  selectedRowsCount === 1 ? "w-[90%]" : "w-[80%]"
+                }`}
+              >
                 {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   selectedRowsCount === 1 &&
                   !selectedRowStatusId.some((statusId: number) =>
-                    [7, 8, 9].includes(statusId)
+                    [4, 7, 8, 9, 13].includes(statusId)
                   ) && (
                     <ColorToolTip title="Edit" arrow>
                       <span
@@ -2162,7 +2294,7 @@ const Datatable = ({
                 </span>
               </div>
 
-              <div className="flex right-0 justify-end pr-3 pt-1 w-[60%]">
+              <div className="flex right-0 justify-end pr-3 pt-1 w-[50%]">
                 <span className="text-gray-400 italic text-[14px] pl-2">
                   shift+click to select, esc to deselect all
                 </span>

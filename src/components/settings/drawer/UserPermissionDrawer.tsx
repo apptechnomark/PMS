@@ -222,7 +222,11 @@ const UserPermissionDrawer = ({
             type="checkbox"
             id={uniqueId}
             checked={action.IsChecked}
-            onChange={() => handleCheckboxChange(parentId, childIndex, index)}
+            onChange={() =>
+              parentId === 3 && data.length === 3
+                ? handleCheckboxChange(2, childIndex, index)
+                : handleCheckboxChange(parentId, childIndex, index)
+            }
           />
         );
       });
@@ -264,7 +268,6 @@ const UserPermissionDrawer = ({
   });
 
   const handleClose = () => {
-    onDataFetch();
     setData([]);
     onClose();
   };

@@ -132,10 +132,10 @@ const OrganizationContent = forwardRef<
 
       if (
         organizationNameError &&
-        clientNameError &&
-        projectNameError &&
+        subProcessNameError &&
         processNameError &&
-        subProcessNameError
+        clientNameError &&
+        projectNameError
       ) {
         setLoader(true);
         try {

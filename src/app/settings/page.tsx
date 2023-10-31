@@ -119,6 +119,15 @@ const page = () => {
 
   const [orgTokenAvailable, setOrgTokenAvailable] = useState(false);
 
+  useEffect(() => {
+    if (
+      !hasPermissionWorklog("", "View", "Settings") &&
+      !localStorage.getItem("isClient")
+    ) {
+      router.push("/");
+    }
+  }, [router]);
+
   const handleRefresh = () => {
     window.location.reload();
   };
@@ -515,8 +524,8 @@ const page = () => {
     });
 
     setTabs(updatedTabs);
-    setVisibleTabs(updatedTabs.slice(0, 6));
-    setDropdownTabs(updatedTabs.slice(6));
+    setVisibleTabs(updatedTabs.slice(0, 8));
+    setDropdownTabs(updatedTabs.slice(8));
   };
 
   useEffect(() => {
@@ -941,8 +950,112 @@ const page = () => {
     fetchOrgToken();
   }, [orgSearchValue]);
 
+  // Common function for exporting data
+  const exportData = async (
+    endpoint: string,
+    filename: string,
+    searchValue: any
+  ) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/${endpoint}/export`,
+        {
+          GlobalSearch: searchValue,
+          SortColumn: null,
+          IsDesc: false,
+          PageNo: 1,
+          PageSize: 50000,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+          responseType: "blob",
+        }
+      );
+
+      if (response.status === 200) {
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${filename}.xlsx`; // Set the filename dynamically
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        Toast.success("Data exported successfully.");
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again later.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.error("Error exporting data.");
+    }
+  };
+
+  // API for exporting User Data
+  const exportUserData = async (searchValue: any) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/export`,
+        {
+          GlobalSearch: searchValue,
+          SortColumn: null,
+          IsDesc: false,
+          PageNo: 1,
+          PageSize: 50000,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+          responseType: "blob",
+        }
+      );
+
+      if (response.status === 200) {
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `user_data.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        Toast.success("Data exported successfully.");
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again later.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      Toast.error("Error exporting data.");
+    }
+  };
+
   return (
-    <Wrapper>
+    <Wrapper className="min-h-screen overflow-y-auto">
       <Navbar
         onUserDetailsFetch={handleUserDetailsFetch}
         onHandleModuleNames={handleModuleNames}
@@ -955,49 +1068,26 @@ const page = () => {
           </div>
         ) : (
           <div className="bg-white flex justify-between items-center">
-            <div className="flex items-center py-[6.5px]">
-              {visibleTabs.map((tab, index) => (
-                <label
-                  key={tab.id}
-                  onClick={() => handleTabClick(tab.id, index)}
-                  className={`border-r border-r-lightSilver px-[10px] text-[14px] cursor-pointer select-none ${
-                    selectedTabIndex === index
-                      ? "text-[#0592C6] text-[16px] font-[600]"
-                      : "text-slatyGrey"
-                  } ${tab.canView ? "" : "opacity-50 pointer-events-none"}`}
-                >
-                  {tab.label}
-                </label>
-              ))}
-              <div ref={selectRef}>
-                <span onClick={handleToggleOpen} className="cursor-pointer">
-                  <DotsIcon />
-                </span>
-                <div>
-                  <ul
-                    className={`absolute w-[215px] py-2 z-10 bg-pureWhite overflow-y-auto transition-transform drop-shadow-lg 
-                    ${
-                      open
-                        ? "max-h-full transition-opacity opacity-100 duration-500 ease-out"
-                        : "max-h-0 transition-opacity opacity-0 duration-500"
+            <div className="flex items-center py-[12px]">
+              {visibleTabs
+                .filter((i: any) => i.canView !== false)
+                .map((tab, index, array) => (
+                  <label
+                    key={tab.id}
+                    onClick={() => handleTabClick(tab.id, index)}
+                    className={`text-[14px] cursor-pointer select-none flex items-center justify-center ${
+                      selectedTabIndex === index
+                        ? "text-[#0592C6] text-[16px] font-[600]"
+                        : "text-slatyGrey"
+                    } ${
+                      index < array.length - 1
+                        ? "border-r border-r-lightSilver h-3 px-[10px]"
+                        : "pl-2"
                     }`}
                   >
-                    {dropdownTabs
-                      .filter((i: any) => i.canView === true)
-                      .map((tab, index) => (
-                        <li
-                          key={tab.id}
-                          onClick={() => handleTabClick(tab.id, index)}
-                          className={`p-2 hover:bg-whiteSmoke font-normal flex cursor-pointer ${
-                            tab.canView ? "" : "opacity-50 pointer-events-none"
-                          }`}
-                        >
-                          <label className="cursor-pointer">{tab.label}</label>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </div>
+                    {tab.label}
+                  </label>
+                ))}
             </div>
 
             <div
@@ -1131,7 +1221,45 @@ const page = () => {
                     }`}
                   >
                     <Tooltip position={"top"} content="Export">
-                      <ExportIcon />
+                      <span
+                        onClick={() =>
+                          tab === "Client"
+                            ? exportData(
+                                "client",
+                                "client_data",
+                                clientSearchValue
+                              )
+                            : tab === "Group"
+                            ? exportData(
+                                "group",
+                                "group_data",
+                                groupSearchValue
+                              )
+                            : tab === "Process"
+                            ? exportData(
+                                "process",
+                                "process_data",
+                                processSearchValue
+                              )
+                            : tab === "Project"
+                            ? exportData(
+                                "project",
+                                "project_data",
+                                projectSearchValue
+                              )
+                            : tab === "Status"
+                            ? exportData(
+                                "status",
+                                "status_data",
+                                statusSearchValue
+                              )
+                            : tab === "User"
+                            ? exportUserData(userSearchValue)
+                            : null
+                        }
+                      >
+                        <ExportIcon />
+                      </span>
                     </Tooltip>
                   </div>
                 </>
@@ -1159,8 +1287,8 @@ const page = () => {
                         ? true
                         : false
                     }
-                    addDynamicForm_Label="Project Name"
-                    addDynamicForm_Placeholder="Project Name"
+                    addDynamicForm_Label="Role"
+                    addDynamicForm_Placeholder="Select Role"
                     onChangeText={(value, label) => {
                       setTextValue(value);
                       setTextName(label);

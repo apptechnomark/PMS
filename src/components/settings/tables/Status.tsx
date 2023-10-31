@@ -85,7 +85,7 @@ function Status({
         }
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
       setLoader(false);
       setLoading(false);
       setStatusList([]);
@@ -93,9 +93,9 @@ function Status({
   };
 
   const headers = [
-    { header: "STATUS NAME", accessor: "Name", sortable: true },
-    { header: "COLOR", accessor: "Color", sortable: false },
-    { header: "ACTION", accessor: "action", sortable: false },
+    { header: "Status Name", accessor: "Name", sortable: true },
+    { header: "Color", accessor: "Color", sortable: false },
+    { header: "Action", accessor: "action", sortable: false },
   ];
 
   const Actions = ({ actions, id }: any) => {
@@ -178,10 +178,11 @@ function Status({
       </div>
     );
   };
+
   const StatusData = statusList?.map(
     (e: any) =>
       new Object({
-        Name: e.Name,
+        Name: <div className="text-sm">{e.Name}</div>,
         Color: (
           <div className="flex">
             <div

@@ -7,9 +7,10 @@ import { Toast } from "next-ts-lib";
 
 interface WrapperProps {
   children: ReactNode;
+  className?: any;
 }
 
-const Wrapper = ({ children }: WrapperProps): JSX.Element => {
+const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
   const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [Collapsed, setCollapsed] = useState<boolean>(false);
   const [drawer, setDrawer] = useState<boolean>(false);
@@ -17,7 +18,7 @@ const Wrapper = ({ children }: WrapperProps): JSX.Element => {
 
   const isOpen = (arg: any) => {
     setMobileOpen(arg);
-    setDrawer(arg)
+    setDrawer(arg);
   };
   const isCollapsed = (arg: any) => {
     setCollapsed(arg);
@@ -41,12 +42,26 @@ const Wrapper = ({ children }: WrapperProps): JSX.Element => {
   return (
     <div className="lg:flex !h-[200px]">
       <Toast position="top_center" />
-      <Sidebar setOpen={isOpen} setSetting={isCollapsed} toggleDrawer={drawer} />
-      <main className={`${windowSize <= 1023 ? "w-[100vw]" : Collapsed ? "w-[94vw]" : "w-[85vw]"}`}>
+      <Sidebar
+        setOpen={isOpen}
+        setSetting={isCollapsed}
+        toggleDrawer={drawer}
+      />
+      <main
+        className={`${
+          windowSize <= 1023
+            ? "w-[100vw]"
+            : Collapsed
+            ? "w-[94vw]"
+            : `w-[85vw] ${className}`
+        }`}
+      >
         <DrawerOverlay
           className="!top-[70px]"
           isOpen={drawer}
-          onClose={() => {setDrawer(!drawer)}}
+          onClose={() => {
+            setDrawer(!drawer);
+          }}
         />
         {children}
       </main>

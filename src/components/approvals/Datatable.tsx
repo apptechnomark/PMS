@@ -70,7 +70,30 @@ const getMuiTheme = () =>
     },
   });
 
-const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
+const pageNo = 1;
+const pageSize = 10;
+
+const initialFilter = {
+  pageNo: pageNo,
+  pageSize: pageSize,
+  sortColumn: "",
+  isDesc: true,
+  globalSearch: "",
+  userId: null,
+  clientId: null,
+  projectId: null,
+  startDate: null,
+  endDate: null,
+  Status: 6,
+};
+
+const Datatable = ({
+  onEdit,
+  onDataFetch,
+  currentFilterData,
+  onFilterOpen,
+  onCloseDrawer,
+}: any) => {
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -83,20 +106,32 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
   const [id, setId] = useState(0);
   const [note, setNote] = useState<string>("");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
   const [isRunning, setRunning] = useState<number>(-1);
   const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
   const [submissionId, setSubmissionId] = useState<number>(-1);
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
-
+  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [reviewList, setReviewList] = useState<any>([]);
+
+  useEffect(() => {
+    if (
+      onCloseDrawer === false ||
+      !onCloseDrawer ||
+      isEditOpen === false ||
+      !isEditOpen
+    ) {
+      setRowsPerPage(10);
+    }
+  }, [onCloseDrawer, isEditOpen]);
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
     setPage(newPage);
+    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
   };
 
   const handleChangeRowsPerPage = (
@@ -104,6 +139,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+    setFilteredOject({
+      ...filteredObject,
+      PageNo: 1,
+      PageSize: event.target.value,
+    });
   };
 
   const handleRowSelect = (
@@ -159,6 +199,12 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
     setSelectedRows([]);
     setIsPopupOpen(false);
   };
+
+  useEffect(() => {
+    if (onFilterOpen || onFilterOpen === true) {
+      handleClearSelection();
+    }
+  }, [onFilterOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: any) => {
@@ -336,6 +382,161 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         : -1
     );
   }, [reviewList]);
+
+  // Review List API
+  const getReviewList = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/approval/GetReviewList`,
+        filteredObject,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setReviewList(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        // setLoader(false);
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Applying filter data
+  useEffect(() => {
+    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    getReviewList();
+  }, [currentFilterData]);
+
+  // calling reviewList on first time
+  useEffect(() => {
+    getReviewList();
+  }, [filteredObject]);
+
+  // Accept WorkItem or Accept with Note API
+  const acceptWorkitem = async (note: string, id: number[]) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`,
+        {
+          workitemSubmissionIds: id,
+          comment: note ? note : null,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Selected tasks have been successfully approved.");
+          handleClearSelection();
+          getReviewList();
+          setRowsPerPage(10);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Accept WorkItem or Accept with Note API
+  const rejectWorkitem = async (note: string, id: number[]) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/approval/rejectworkitem`,
+        {
+          workitemSubmissionIds: id,
+          comment: note ? note : "",
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Selected tasks have been successfully rejected.");
+          handleClearSelection();
+          getReviewList();
+          setRowsPerPage(10);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    // refreshing data from Drawer side
+    const fetchData = async () => {
+      const fetchedData = await getReviewList();
+      onDataFetch(() => fetchData());
+    };
+    fetchData();
+    getReviewList();
+  }, []);
 
   // Table columns
   const columns = [
@@ -600,13 +801,20 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">Start Date</span>
         ),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          if (value === null || value === undefined || value === "") {
-            return <div className="ml-5 lg:ml-0">-</div>;
-          } else {
-            const startDate = value?.split("T");
-            return <div className="ml-5 lg:ml-0">{startDate[0]}</div>;
+        customBodyRender: (value: any) => {
+          if (value === null) {
+            return "-";
           }
+
+          const startDate = new Date(value);
+          const month = startDate.getMonth() + 1;
+          const formattedMonth = month < 10 ? `0${month}` : month;
+          const day = startDate.getDate();
+          const formattedDay = day < 10 ? `0${day}` : day;
+          const formattedYear = startDate.getFullYear();
+          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
+
+          return <div>{formattedDate}</div>;
         },
       },
     },
@@ -618,13 +826,20 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm uppercase">End Date</span>
         ),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          if (value === null || value === undefined || value === "") {
-            return <div className="ml-5 lg:ml-0">-</div>;
-          } else {
-            const endDate = value?.split("T");
-            return <div className="ml-5 lg:ml-0">{endDate[0]}</div>;
+        customBodyRender: (value: any) => {
+          if (value === null) {
+            return "-";
           }
+
+          const startDate = new Date(value);
+          const month = startDate.getMonth() + 1;
+          const formattedMonth = month < 10 ? `0${month}` : month;
+          const day = startDate.getDate();
+          const formattedDay = day < 10 ? `0${day}` : day;
+          const formattedYear = startDate.getFullYear();
+          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
+
+          return <div>{formattedDate}</div>;
         },
       },
     },
@@ -713,164 +928,11 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
     },
   ];
 
-  // Review List API
-  const getReviewList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/GetReviewList`,
-        {
-          pageNo: page + 1,
-          pageSize: rowsPerPage,
-          sortColumn: "",
-          isDesc: true,
-          globalSearch: "",
-          userId: null,
-          clientId: null,
-          projectId: null,
-          startDate: null,
-          endDate: null,
-          Status: 6,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReviewList(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        // setLoader(false);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Accept WorkItem or Accept with Note API
-  const acceptWorkitem = async (note: string, id: number[]) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`,
-        {
-          workitemSubmissionIds: id,
-          comment: note ? note : null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Selected tasks have been successfully approved.");
-          handleClearSelection();
-          getReviewList();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Accept WorkItem or Accept with Note API
-  const rejectWorkitem = async (note: string, id: number[]) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/rejectworkitem`,
-        {
-          workitemSubmissionIds: id,
-          comment: note ? note : "",
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Selected tasks have been successfully rejected.");
-          handleClearSelection();
-          getReviewList();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    // refreshing data from Drawer side
-    const fetchData = async () => {
-      const fetchedData = await getReviewList();
-      onDataFetch(() => fetchData());
-    };
-    fetchData();
-    getReviewList();
-  }, []);
-
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
     tableBodyHeight: "73vh",
+    elevation: 0,
     viewColumns: false,
     filter: false,
     print: false,
@@ -907,6 +969,7 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
           data={reviewList}
           columns={columns}
           title={undefined}
+          data-tableid="approval_Datatable"
           options={{
             ...options,
             onRowSelectionChange: (
@@ -1083,6 +1146,7 @@ const Datatable = ({ onDrawerOpen, onEdit, onDataFetch }: any) => {
         onOpen={isEditOpen}
         onClose={closeModal}
         onSelectWorkItemId={selectedRowId}
+        onSelectedSubmissionId={id}
         onReviewerDataFetch={getReviewList}
         onClearSelection={handleClearSelection}
       />

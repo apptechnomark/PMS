@@ -138,7 +138,6 @@ const ClientContent = forwardRef<
   const [deletedPocFields, setDeletedPocFields] = useState<any>([]);
   const [pocFields, setPocFields] = useState<any>([
     {
-      // pocFieldsId: 0,
       Name: null,
       Email: null,
     },
@@ -176,7 +175,6 @@ const ClientContent = forwardRef<
     setPocFields([
       ...pocFields,
       {
-        // pocFieldsId: 0,
         Name: null,
         Email: null,
       },
@@ -482,42 +480,36 @@ const ClientContent = forwardRef<
 
   const handleAccContHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAccContHrsErr(false);
       setAccContHrs(e);
     }
   };
 
   const handleAccActualHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAccActHrsErr(false);
       setAccActHrs(e);
     }
   };
 
   const handleAuditContHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAuditContHrsErr(false);
       setAuditContHrs(e);
     }
   };
 
   const handleAuditActHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAuditActHrsErr(false);
       setAuditActHrs(e);
     }
   };
 
   const handleTaxContHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAuditContHrsErr(false);
       setTaxContHrs(e);
     }
   };
 
   const handleTaxActHrs = (e: any) => {
     if (e.length <= 5) {
-      // setAuditActHrsErr(false);
       setTaxActHrs(e);
     }
   };
@@ -943,7 +935,6 @@ const ClientContent = forwardRef<
 
     setPocFields([
       {
-        // pocFieldsId: 0,
         Name: null,
         email: null,
       },
@@ -983,6 +974,11 @@ const ClientContent = forwardRef<
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
+    // common functon for adding additional field's data
+    const getFieldValue = (condition: any, value: any) => {
+      return condition && value !== "" ? value : null;
+    };
+
     try {
       const workTypes = [];
       if (accounting)
@@ -1003,93 +999,86 @@ const ClientContent = forwardRef<
 
           WorkTypes: workTypes.length > 0 ? workTypes : null,
 
-          OwnerAndCPAName:
-            isAdditionalFieldsClicked && cpaName !== "" ? cpaName : null,
-          OwnerEmail:
-            isAdditionalFieldsClicked && cpaEmail !== "" ? cpaEmail : null,
-          OwnerPhone:
-            isAdditionalFieldsClicked && cpaMobileNo !== ""
-              ? cpaMobileNo
-              : null,
-          City: isAdditionalFieldsClicked && city !== "" ? city : null,
+          OwnerAndCPAName: getFieldValue(isAdditionalFieldsClicked, cpaName),
+          OwnerEmail: getFieldValue(isAdditionalFieldsClicked, cpaEmail),
+          OwnerPhone: getFieldValue(isAdditionalFieldsClicked, cpaMobileNo),
+          City: getFieldValue(isAdditionalFieldsClicked, city),
           StateId: isAdditionalFieldsClicked && state !== 0 ? state : null,
-          Zip: isAdditionalFieldsClicked && zip !== "" ? zip : null,
+          Zip: getFieldValue(isAdditionalFieldsClicked, zip),
 
           ClientPOCInformation: isAdditionalFieldsClicked ? pocFields : [],
 
-          ClientITPOCName:
-            isAdditionalFieldsClicked && clientItPOCName !== ""
-              ? clientItPOCName
-              : null,
-          ClientITPOCEmail:
-            isAdditionalFieldsClicked && clientItPOCEmail !== ""
-              ? clientItPOCEmail
-              : null,
-          PABSPOCName:
-            isAdditionalFieldsClicked && pabsPOCName !== ""
-              ? pabsPOCName
-              : null,
-          Pabsbdm: isAdditionalFieldsClicked && pabsBDM !== "" ? pabsBDM : null,
-          PabsManagerAssigned:
-            isAdditionalFieldsClicked && pabsManagerAssigned !== ""
-              ? pabsManagerAssigned
-              : null,
-          GroupMail:
-            isAdditionalFieldsClicked && groupEmail !== "" ? groupEmail : null,
-          SopStatus:
-            isAdditionalFieldsClicked && sopStatus !== "" ? sopStatus : null,
-          DateOfImplementation:
-            isAdditionalFieldsClicked && dateOfImplementation !== ""
-              ? dateOfImplementation
-              : null,
-          AgreementStartDate:
-            isAdditionalFieldsClicked && agreementStartDate !== ""
-              ? agreementStartDate
-              : null,
-          FteAgreementTax:
-            isAdditionalFieldsClicked && fteAgreement !== ""
-              ? fteAgreement
-              : null,
-          EstimatedWorkflow:
-            isAdditionalFieldsClicked && estimationWorkflow !== ""
-              ? estimationWorkflow
-              : null,
-          VpnRequirement:
-            isAdditionalFieldsClicked && vpnRequirement !== ""
-              ? vpnRequirement
-              : null,
-          RemoteSystemAccess:
-            isAdditionalFieldsClicked && remoteSystemAccess !== ""
-              ? remoteSystemAccess
-              : null,
-          TaxPreparationSoftware:
-            isAdditionalFieldsClicked && taxPreparationSoftware !== ""
-              ? taxPreparationSoftware
-              : null,
-          DocumentPortal:
-            isAdditionalFieldsClicked && documentPortal !== ""
-              ? documentPortal
-              : null,
-          WorkflowTracker:
-            isAdditionalFieldsClicked && workflowTracker !== ""
-              ? workflowTracker
-              : null,
-          CommunicationChannel:
-            isAdditionalFieldsClicked && communicationChannel !== ""
-              ? communicationChannel
-              : null,
-          RecurringCall:
-            isAdditionalFieldsClicked && recurringCall !== ""
-              ? recurringCall
-              : null,
-          SpecificAdditionalProcessSteps:
-            isAdditionalFieldsClicked && specificProcessStep !== ""
-              ? specificProcessStep
-              : null,
-          ClientTimeZone:
-            isAdditionalFieldsClicked && clientTimeZone !== ""
-              ? clientTimeZone
-              : null,
+          ClientITPOCName: getFieldValue(
+            isAdditionalFieldsClicked,
+            clientItPOCName
+          ),
+          ClientITPOCEmail: getFieldValue(
+            isAdditionalFieldsClicked,
+            clientItPOCEmail
+          ),
+          PABSPOCName: getFieldValue(isAdditionalFieldsClicked, pabsPOCName),
+
+          Pabsbdm: getFieldValue(isAdditionalFieldsClicked, pabsBDM),
+          PabsManagerAssigned: getFieldValue(
+            isAdditionalFieldsClicked,
+            pabsManagerAssigned
+          ),
+
+          GroupMail: getFieldValue(isAdditionalFieldsClicked, groupEmail),
+          SopStatus: getFieldValue(isAdditionalFieldsClicked, sopStatus),
+
+          DateOfImplementation: getFieldValue(
+            isAdditionalFieldsClicked,
+            dateOfImplementation
+          ),
+          AgreementStartDate: getFieldValue(
+            isAdditionalFieldsClicked,
+            agreementStartDate
+          ),
+          FteAgreementTax: getFieldValue(
+            isAdditionalFieldsClicked,
+            fteAgreement
+          ),
+          EstimatedWorkflow: getFieldValue(
+            isAdditionalFieldsClicked,
+            estimationWorkflow
+          ),
+          VpnRequirement: getFieldValue(
+            isAdditionalFieldsClicked,
+            vpnRequirement
+          ),
+          RemoteSystemAccess: getFieldValue(
+            isAdditionalFieldsClicked,
+            remoteSystemAccess
+          ),
+          TaxPreparationSoftware: getFieldValue(
+            isAdditionalFieldsClicked,
+            taxPreparationSoftware
+          ),
+          DocumentPortal: getFieldValue(
+            isAdditionalFieldsClicked,
+            documentPortal
+          ),
+          WorkflowTracker: getFieldValue(
+            isAdditionalFieldsClicked,
+            workflowTracker
+          ),
+          CommunicationChannel: getFieldValue(
+            isAdditionalFieldsClicked,
+            communicationChannel
+          ),
+          RecurringCall: getFieldValue(
+            isAdditionalFieldsClicked,
+            recurringCall
+          ),
+          SpecificAdditionalProcessSteps: getFieldValue(
+            isAdditionalFieldsClicked,
+            specificProcessStep
+          ),
+          ClientTimeZone: getFieldValue(
+            isAdditionalFieldsClicked,
+            clientTimeZone
+          ),
         },
         {
           headers: {
@@ -1345,7 +1334,7 @@ const ClientContent = forwardRef<
           >
             Add Client
           </label>
-          {/* <span className="text-lightSilver">|</span>
+          <span className="text-lightSilver">|</span>
           <label
             onClick={() => {
               setIsAdditionalFieldsClicked(true);
@@ -1358,7 +1347,7 @@ const ClientContent = forwardRef<
             }`}
           >
             Additional Fields
-          </label> */}
+          </label>
         </span>
         <div className="flex gap-[20px] flex-col px-[20px] pb-[40px] max-h-[73.5vh] overflow-y-auto">
           {isAddClientClicked && (

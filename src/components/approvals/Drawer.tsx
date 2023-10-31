@@ -34,13 +34,17 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { Close, Save } from "@mui/icons-material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import ImageUploader from "../common/ImageUploader";
+import { Mention, MentionsInput } from "react-mentions";
+import mentionsInputStyle from "../worklog/mentionsInputStyle";
+import EditIcon from "@mui/icons-material/Edit";
 
 const EditDrawer = ({
   onOpen,
@@ -66,17 +70,50 @@ const EditDrawer = ({
   const [reasonDrawer, setReasonDrawer] = useState(true);
   const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
 
+  // Dropdowns
+  const [clientDropdownData, setClientDropdownData] = useState([]);
+  const [workTypeDropdownData, setWorkTypeDropdownData] = useState([]);
+  const [projectDropdownData, setProjectDropdownData] = useState([]);
+  const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
+  const [statusDropdownData, setStatusDropdownData] = useState([]);
+  const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
+  const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
+  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
+    []
+  );
+  const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
+
+  const [selectedDays, setSelectedDays] = useState<any>([]);
+  const [isManual, setIsManual] = useState(null);
+  const [manualSwitch, setManualSwitch] = useState(false);
+  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
+  const [isPartiallySubmitted, setIsPartiallySubmitted] =
+    useState<boolean>(false);
+  const [inputDateErrors, setInputDateErrors] = useState([false]);
+  const [startTimeErrors, setStartTimeErrors] = useState([false]);
+  const [endTimeErrors, setEndTimeErrors] = useState([false]);
+  const [manualDescErrors, setManualDescErrors] = useState([false]);
+  const [inputTypeDate, setInputTypeDate] = useState(["text"]);
+  const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
+  const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
+  const [userId, setUserId] = useState(0);
+
   // Task
   const [clientName, setClientName] = useState<string | number>(0);
   const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
   const [projectName, setProjectName] = useState<string | number>(0);
   const [processName, setProcessName] = useState<string | number>(0);
   const [subProcess, setSubProcess] = useState<string | number>(0);
+  const [clientTaskName, setClientTaskName] = useState<string>("");
   const [status, setStatus] = useState<string | number>(0);
   const [description, setDescription] = useState<string>("");
   const [priority, setPriority] = useState<string | number>(0);
   const [quantity, setQuantity] = useState<any>("");
   const [receiverDate, setReceiverDate] = useState<any>("");
+  const [allInfoDate, setAllInfoDate] = useState<any>("");
+  const [manager, setManager] = useState<any>(0);
   const [dueDate, setDueDate] = useState<any>("");
   const [assignee, setAssignee] = useState<string | number>(0);
   const [reviewer, setReviewer] = useState<string | number>(0);
@@ -85,11 +122,13 @@ const EditDrawer = ({
   const [assigneeDisable, setAssigneeDisable] = useState(true);
 
   // Selected Taxation
+  const [returnType, setReturnType] = useState<string | number>(0);
   const [typeOfReturn, setTypeOfReturn] = useState<string | number>(0);
   const [returnYear, setReturnYear] = useState<string | number>(0);
   const [complexity, setComplexity] = useState<string | number>("");
   const [countYear, setCountYear] = useState<string | number>(0);
-  const [noOfPages, setNoOfPages] = useState("");
+  const [noOfPages, setNoOfPages] = useState<string | number>(0);
+  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
 
   // Sub-Task
   const [subTaskFields, setSubTaskFields] = useState([
@@ -153,35 +192,230 @@ const EditDrawer = ({
 
   // Comments
   const [commentData, setCommentData] = useState([]);
+  const [value, setValue] = useState("");
+  const [valueError, setValueError] = useState(false);
+  const [valueEdit, setValueEdit] = useState("");
+  const [valueEditError, setValueEditError] = useState(false);
+  const [mention, setMention] = useState<any>([]);
+  let commentAttachment: any = [];
+  const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
 
-  // Dropdowns
-  const [clientDropdownData, setClientDropdownData] = useState([]);
-  const [workTypeDropdownData, setWorkTypeDropdownData] = useState([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
-  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-  const [statusDropdownData, setStatusDropdownData] = useState([]);
-  const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
-  const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
-  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
-    []
-  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedDays, setSelectedDays] = useState<any>([]);
-  const [isManual, setIsManual] = useState(null);
-  const [manualSwitch, setManualSwitch] = useState(false);
-  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
-  const [isPartiallySubmitted, setIsPartiallySubmitted] =
-    useState<boolean>(false);
-  const [inputDateErrors, setInputDateErrors] = useState([false]);
-  const [startTimeErrors, setStartTimeErrors] = useState([false]);
-  const [endTimeErrors, setEndTimeErrors] = useState([false]);
-  const [manualDescErrors, setManualDescErrors] = useState([false]);
-  const [inputTypeDate, setInputTypeDate] = useState(["text"]);
-  const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
-  const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
-  const [userId, setUserId] = useState(0);
+  const users =
+  assigneeDropdownData?.length > 0 &&
+  assigneeDropdownData.map(
+      (i: any) =>
+        new Object({
+          id: i.value,
+          display: i.label,
+        })
+    );
+
+  const handleEditClick = (index: any, message: any) => {
+    setEditingCommentIndex(index);
+    setValueEdit(message);
+  };
+
+  const handleSaveClick = async (e: any, i: any, type: any) => {
+    e.preventDefault();
+    setValueEditError(
+      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
+    );
+
+    if (
+      valueEdit.trim().length > 5 &&
+      valueEdit.trim().length < 501 &&
+      !valueEditError
+    ) {
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: i.CommentId,
+              Message: valueEdit,
+              TaggedUsers: mention,
+              Attachment: i.Attachment,
+              type: type,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment updated successfully.`);
+              setMention([]);
+              setValueEdit("");
+              getCommentData(1);
+              setEditingCommentIndex(-1);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
+      }
+    }
+  };
+
+  const handleCommentChange = (e: any) => {
+    setMention(
+      e
+        .split("(")
+        .map((i: any, index: number) => {
+          if (i.includes(")")) {
+            return parseInt(i.split(")")[0]);
+          }
+        })
+        .filter((i: any) => i !== undefined)
+    );
+    setValueError(false);
+  };
+
+  const handleFileChange = (e: any) => {
+    const selectedFiles = e.target.files;
+
+    if (selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const selectedFile = selectedFiles[i];
+        const fileName = selectedFile.name;
+        const fileExtension = fileName.split(".").pop();
+        let newFileName;
+
+        const uuidv4 = () => {
+          return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+            /[xy]/g,
+            function (c) {
+              const r = (Math.random() * 16) | 0,
+                v = c == "x" ? r : (r & 0x3) | 0x8;
+
+              return v.toString(16);
+            }
+          );
+        };
+
+        if (!fileName.toLowerCase().includes(".")) {
+          newFileName = `${uuidv4().slice(0, 32)}.txt`;
+        } else {
+          newFileName = `${uuidv4().slice(0, 32)}.${fileExtension}`;
+        }
+
+        const filePath = URL.createObjectURL(selectedFile).slice(5);
+        const fileObject = {
+          AttachmentId: 0,
+          SystemFileName: newFileName,
+          UserFileName: fileName,
+          AttachmentPath: filePath,
+        };
+        commentAttachment.push(fileObject);
+      }
+    }
+  };
+
+  const handleSubmitComment = async (
+    e: { preventDefault: () => void },
+    type: any
+  ) => {
+    e.preventDefault();
+    setValueError(value.trim().length < 5 || value.trim().length > 500);
+
+    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: 0,
+              Message: value,
+              TaggedUsers: mention,
+              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
+              type: type,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment sent successfully.`);
+              setMention([]);
+              commentAttachment = [];
+              setValueEdit("");
+              setValue("");
+              getCommentData(commentSelect);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
+      }
+    }
+  };
+
+  const extractText = (inputString: any) => {
+    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
+    const matches = [];
+    let match;
+    while ((match = regex.exec(inputString)) !== null) {
+      matches.push(match[1] || match[2] || match[0]);
+    }
+    return matches;
+  };
 
   const saveReviewerManualTimelog = async () => {
     const local: any = await localStorage.getItem("UserId");
@@ -690,6 +924,13 @@ const EditDrawer = ({
     { label: "23", value: 23 },
     { label: "24", value: 24 },
   ];
+
+  const currentYear = new Date().getFullYear();
+  const Years = [];
+
+  for (let year = 2010; year <= currentYear; year++) {
+    Years.push({ label: String(year), value: year });
+  }
 
   let Task = [
     hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "TASK",
@@ -1257,6 +1498,9 @@ const EditDrawer = ({
               setProjectName(data.ProjectId);
               setProcessName(data.ProcessId);
               setSubProcess(data.SubProcessId);
+              setClientTaskName(data.TaskName === null ? "" : data.TaskName);
+              setStatus(data.StatusId);
+              setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
               setStatus(data.StatusId);
               setPriority(data.Priority);
               setQuantity(data.Quantity);
@@ -1267,6 +1511,8 @@ const EditDrawer = ({
               setDateOfPreperation(data.PreparationDate);
               setAssignee(data.AssignedId);
               setReviewer(data.ReviewerId);
+              setManager(data.ManagerId === null ? 0 : data.ManagerId);
+              setReturnType(data.TaxReturnType);
               setTypeOfReturn(data.TypeOfReturnId);
               setReturnYear(
                 data.TypeOfReturnId === 0
@@ -1288,6 +1534,13 @@ const EditDrawer = ({
                   ? null
                   : data.TaxCustomFields.NoOfPages
               );
+              setChecklistWorkpaper(
+                data.ChecklistWorkpaper === true
+                  ? 1
+                  : data.ChecklistWorkpaper === false
+                  ? 2
+                  : 0
+              );
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -1305,7 +1558,7 @@ const EditDrawer = ({
             }
           }
         } catch (error: any) {
-          if (error.response && error.response.status === 401) {
+          if (error.response && error.response?.status === 401) {
             router.push("/login");
             localStorage.clear();
           }
@@ -1568,74 +1821,79 @@ const EditDrawer = ({
     // newAttachmentsErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`,
-          {
-            WorkItemId: onEdit,
-            Errors: errorLogFields.map(
-              (i: any) =>
-                new Object({
-                  ErrorLogId: i.ErrorLogId,
-                  ErrorType: i.ErrorType,
-                  RootCause: i.RootCause,
-                  Priority: i.Priority,
-                  ErrorCount: i.ErrorCount,
-                  NatureOfError: i.NatureOfError,
-                  CC: i.CC.map((j: any) => j.value),
-                  Remark: i.Remark,
-                  Attachments: null,
-                  // [
-                  //   {
-                  //     AttachmentId: 0,
-                  //     UserFileName: "Attachment300.txt",
-                  //     SystemFileName: "Attachment3_system.txt",
-                  //     AttachmentPath: "/path/to/attachment300.txt",
-                  //   },
-                  // ],
-                })
-            ),
-            IsClientWorklog: false,
-            SubmissionId: onHasId,
-            DeletedErrorlogIds: deletedErrorLog,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
+      if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`,
+            {
+              WorkItemId: onEdit,
+              Errors: errorLogFields.map(
+                (i: any) =>
+                  new Object({
+                    ErrorLogId: i.ErrorLogId,
+                    ErrorType: i.ErrorType,
+                    RootCause: i.RootCause,
+                    Priority: i.Priority,
+                    ErrorCount: i.ErrorCount,
+                    NatureOfError: i.NatureOfError,
+                    CC: i.CC.map((j: any) => j.value),
+                    Remark: i.Remark,
+                    Attachments: null,
+                    // [
+                    //   {
+                    //     AttachmentId: 0,
+                    //     UserFileName: "Attachment300.txt",
+                    //     SystemFileName: "Attachment3_system.txt",
+                    //     AttachmentPath: "/path/to/attachment300.txt",
+                    //   },
+                    // ],
+                  })
+              ),
+              IsClientWorklog: false,
+              SubmissionId: onHasId,
+              DeletedErrorlogIds: deletedErrorLog,
             },
-          }
-        );
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`Error logged successfully.`);
-            setDeletedErrorLog([]);
-            getErrorLogData();
-            onDataFetch();
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Error logged successfully.`);
+              setDeletedErrorLog([]);
+              getErrorLogData();
+              onDataFetch();
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Please try again later.");
+              toast.error("Failed Please try again.");
             } else {
               toast.error(data);
             }
           }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
           }
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getErrorLogData();
       }
     }
   };
@@ -1705,6 +1963,7 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           if (api === "/client/getdropdownforgroup") {
             setClientDropdownData(response.data.ResponseData);
+            getManagerData();
             getData("/WorkType/GetDropdown");
           }
           if (api === "/WorkType/GetDropdown") {
@@ -1744,6 +2003,44 @@ const EditDrawer = ({
         router.push("/login");
         localStorage.clear();
       }
+    }
+  };
+
+  const getManagerData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      let response = await axios.get(
+        `${process.env.api_url}/user/getmanagerdropdown`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setManagerDropdownData(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1977,13 +2274,18 @@ const EditDrawer = ({
     setDateOfReview("");
     setDateOfPreperation("");
     setAssigneeDisable(true);
+    setManager(0);
+    setClientTaskName("");
+    setAllInfoDate("");
 
     // Taxation selected
+    setReturnType(0);
     setTypeOfReturn(0);
     setReturnYear(0);
     setComplexity(0);
     setCountYear(0);
     setNoOfPages("");
+    setChecklistWorkpaper(0);
 
     // Sub-Task
     setSubTaskFields([
@@ -2086,7 +2388,12 @@ const EditDrawer = ({
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
 
+    onDataFetch();
     onClose();
+  };
+
+  const getAttachmentData = (data1: any, data2: any) => {
+    // console.log(data1, data2);
   };
 
   return (
@@ -2205,6 +2512,28 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                      <TextField
+                        label={
+                          <span>
+                            Task Name
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        fullWidth
+                        className="pt-1"
+                        value={
+                          clientTaskName?.trim().length <= 0
+                            ? ""
+                            : clientTaskName
+                        }
+                        InputProps={{ readOnly: true }}
+                        inputProps={{ readOnly: true }}
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1 }}
+                      />
+                    </div>
+                    <div className="mt-[10px] pl-6">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2226,8 +2555,6 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
-                    </div>
-                    <div className="mt-[10px] pl-6">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2286,11 +2613,13 @@ const EditDrawer = ({
                         inputProps={{ readOnly: true }}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2 }}
                       />
+                    </div>
+                    <div className="mt-[-5px] pl-6">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{ mx: 0.75, minWidth: 300, mt: 1.6 }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
@@ -2307,8 +2636,6 @@ const EditDrawer = ({
                           <MenuItem value={3}>Low</MenuItem>
                         </Select>
                       </FormControl>
-                    </div>
-                    <div className="mt-[-12px] pl-6">
                       <TextField
                         label={
                           <span>
@@ -2416,6 +2743,8 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, maxWidth: 300 }}
                       />
+                    </div>
+                    <div className="pl-6">
                       <div
                         className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
@@ -2436,8 +2765,6 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
-                    </div>
-                    <div className="mt-[2px] pl-6">
                       <div
                         className={`inline-flex mt-[-1px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
@@ -2457,9 +2784,22 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
+                      <div
+                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="All Info Date"
+                            value={
+                              allInfoDate === "" ? null : dayjs(allInfoDate)
+                            }
+                            readOnly
+                          />
+                        </LocalizationProvider>
+                      </div>
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{ mx: 0.75, minWidth: 300, mt: 1.5 }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Assignee
@@ -2478,6 +2818,8 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                    </div>
+                    <div className="mt-[10px] pl-6 flex items-center">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2499,86 +2841,125 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, minWidth: 300 }}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Manager
+                          <span className="text-defaultRed">&nbsp;*</span>
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={manager === 0 ? "" : manager}
+                          readOnly
+                        >
+                          {managerDropdownData.map((i: any, index: number) => (
+                            <MenuItem value={i.value} key={index}>
+                              {i.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                       {typeOfWork !== 3 ? (
                         <>
                           {onEdit > 0 && (
-                            <TextField
-                              label={
-                                <span>
-                                  Date of Preperation
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
+                            <>
+                              <TextField
+                                label={
+                                  <span>
+                                    Date of Preperation
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
                                   </span>
-                                </span>
-                              }
-                              type={inputTypePreperation}
-                              disabled
-                              fullWidth
-                              value={dateOfPreperation}
-                              InputProps={{ readOnly: true }}
-                              inputProps={{ readOnly: true }}
-                              onFocus={() => setInputTypePreperation("date")}
-                              onBlur={(e: any) => {
-                                setInputTypePreperation("text");
-                              }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 300, my: 0 }}
-                            />
+                                }
+                                type={inputTypePreperation}
+                                disabled
+                                fullWidth
+                                value={dateOfPreperation}
+                                InputProps={{ readOnly: true }}
+                                inputProps={{ readOnly: true }}
+                                margin="normal"
+                                variant="standard"
+                                sx={{
+                                  mx: 0.75,
+                                  maxWidth: 300,
+                                  mt: 0.3,
+                                  ml: 1.5,
+                                }}
+                              />
+                              <TextField
+                                label={
+                                  <span>
+                                    Date of Review
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                disabled
+                                type={inputTypeReview}
+                                fullWidth
+                                value={dateOfReview}
+                                InputProps={{ readOnly: true }}
+                                inputProps={{ readOnly: true }}
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 300, mt: -0.4 }}
+                              />
+                            </>
                           )}
                         </>
                       ) : (
-                        <FormControl
-                          variant="standard"
-                          sx={{ mx: 0.75, minWidth: 300 }}
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Type of Return
-                            <span className="text-defaultRed">&nbsp;*</span>
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={typeOfReturn === 0 ? "" : typeOfReturn}
-                            readOnly
+                        <>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
                           >
-                            {typeOfReturnDropdownData.map(
-                              (i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
-                                  {i.label}
-                                </MenuItem>
-                              )
-                            )}
-                          </Select>
-                        </FormControl>
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Return Type
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={returnType === 0 ? "" : returnType}
+                              readOnly
+                            >
+                              <MenuItem value={1}>Individual Return</MenuItem>
+                              <MenuItem value={2}>Business Return</MenuItem>
+                            </Select>
+                          </FormControl>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9 }}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Type of Return
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={typeOfReturn === 0 ? "" : typeOfReturn}
+                              readOnly
+                            >
+                              {typeOfReturnDropdownData.map(
+                                (i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
+                            </Select>
+                          </FormControl>
+                        </>
                       )}
                     </div>
-                    <div className="mt-[10px] pl-6">
-                      {typeOfWork !== 3 ? (
-                        <>
-                          {onEdit > 0 && (
-                            <TextField
-                              label={
-                                <span>
-                                  Date of Review
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              disabled
-                              type={inputTypeReview}
-                              fullWidth
-                              value={dateOfReview}
-                              InputProps={{ readOnly: true }}
-                              inputProps={{ readOnly: true }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 300, my: 0 }}
-                            />
-                          )}
-                        </>
-                      ) : (
+                    <div className="mt-[10px] pl-6 flex items-center">
+                      {typeOfWork === 3 && (
                         <>
                           <FormControl
                             variant="standard"
@@ -2594,9 +2975,11 @@ const EditDrawer = ({
                               value={returnYear === 0 ? "" : returnYear}
                               readOnly
                             >
-                              <MenuItem value={10}>Ten</MenuItem>
-                              <MenuItem value={20}>Twenty</MenuItem>
-                              <MenuItem value={30}>Thirty</MenuItem>
+                              {Years.map((i: any, index: number) => (
+                                <MenuItem value={i.value} key={index}>
+                                  {i.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                           </FormControl>
                           <FormControl
@@ -2613,14 +2996,14 @@ const EditDrawer = ({
                               value={complexity === 0 ? "" : complexity}
                               readOnly
                             >
-                              <MenuItem value={"Ten"}>Ten</MenuItem>
-                              <MenuItem value={"Twenty"}>Twenty</MenuItem>
-                              <MenuItem value={"Thirty"}>Thirty</MenuItem>
+                              <MenuItem value={1}>Moderate</MenuItem>
+                              <MenuItem value={2}>Intermediate</MenuItem>
+                              <MenuItem value={3}>Complex</MenuItem>
                             </Select>
                           </FormControl>
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
+                            sx={{ mx: 0.75, minWidth: 300, ml: 1 }}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Current Year
@@ -2632,21 +3015,59 @@ const EditDrawer = ({
                               value={countYear === 0 ? "" : countYear}
                               readOnly
                             >
-                              <MenuItem value={10}>Ten</MenuItem>
-                              <MenuItem value={20}>Twenty</MenuItem>
-                              <MenuItem value={30}>Thirty</MenuItem>
+                              {Years.map((i: any, index: number) => (
+                                <MenuItem value={i.value} key={index}>
+                                  {i.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                           </FormControl>
                           <TextField
-                            label="No of Pages"
+                            label={
+                              <span>
+                                No of Pages
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            type="number"
                             fullWidth
-                            value={noOfPages}
+                            value={noOfPages === 0 ? "" : noOfPages}
                             InputProps={{ readOnly: true }}
                             inputProps={{ readOnly: true }}
                             margin="normal"
                             variant="standard"
                             sx={{ mx: 0.75, maxWidth: 300, my: 0 }}
                           />
+                        </>
+                      )}
+                    </div>
+                    <div className="mt-[10px] pl-6 flex items-center">
+                      {typeOfWork === 3 && (
+                        <>
+                          <FormControl
+                            variant="standard"
+                            sx={{ mx: 0.75, minWidth: 300 }}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Checklist/Workpaper
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={
+                                checklistWorkpaper === 0
+                                  ? ""
+                                  : checklistWorkpaper
+                              }
+                              readOnly
+                            >
+                              <MenuItem value={1}>True</MenuItem>
+                              <MenuItem value={2}>False</MenuItem>
+                            </Select>
+                          </FormControl>
                         </>
                       )}
                     </div>
@@ -2761,7 +3182,7 @@ const EditDrawer = ({
             )}
 
             {hasPermissionWorklog("Comment", "View", "WorkLogs") && (
-              <div className="mt-14" id="tabpanel-3">
+              <div className="mt-14" id={`${onEdit > 0 && "tabpanel-3"}`}>
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <CommentsIcon />
@@ -2813,36 +3234,101 @@ const EditDrawer = ({
                           <div>
                             <Typography>{i.UserName}</Typography>
                             <Typography>
-                              {i.SubmitedDate}, {i.SubmitedTime}
+                              {i.SubmitedDate},&nbsp;
+                              {new Date(
+                                `1970-01-01T${i.SubmitedTime}:00Z`
+                              ).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
                             </Typography>
-                            <div className="flex items-center justify-center">
-                              {i.Message.split(" ").map(
-                                (i: any, index: number) => {
-                                  if (i.startsWith("@")) {
-                                    return (
-                                      <span
-                                        className="text-secondary"
-                                        key={index}
-                                      >
-                                        &nbsp;
-                                        {i.split("[")[1]}
-                                        &nbsp;
+                            <div className="flex items-center gap-2">
+                              {editingCommentIndex === index ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="flex flex-col">
+                                    <MentionsInput
+                                      style={mentionsInputStyle}
+                                      className="!w-[100%] textareaOutlineNoneEdit"
+                                      value={valueEdit}
+                                      onChange={(e) => {
+                                        setValueEdit(e.target.value);
+                                        setValueEditError(false);
+                                        handleCommentChange(e.target.value);
+                                      }}
+                                      placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                    >
+                                      <Mention
+                                        data={users}
+                                        style={{ backgroundColor: "#cee4e5" }}
+                                        trigger="@"
+                                      />
+                                    </MentionsInput>
+                                    {valueEditError &&
+                                    valueEdit.trim().length > 1 &&
+                                    valueEdit.trim().length < 5 ? (
+                                      <span className="text-defaultRed text-[14px]">
+                                        Minimum 5 characters required.
                                       </span>
-                                    );
-                                  } else if (i.includes("]")) {
-                                    return (
-                                      <span
-                                        className="text-secondary"
-                                        key={index}
-                                      >
-                                        {i.split("]")[0]}
-                                        &nbsp;
+                                    ) : valueEditError &&
+                                      valueEdit.trim().length > 500 ? (
+                                      <span className="text-defaultRed text-[14px]">
+                                        Maximum 500 characters allowed.
                                       </span>
-                                    );
-                                  } else {
-                                    return i;
-                                  }
-                                }
+                                    ) : (
+                                      valueEditError && (
+                                        <span className="text-defaultRed text-[14px]">
+                                          This is a required field.
+                                        </span>
+                                      )
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="!bg-secondary text-white border rounded-md px-[4px]"
+                                    onClick={(e) =>
+                                      handleSaveClick(e, i, commentSelect)
+                                    }
+                                  >
+                                    <Save className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="hidden"></span>
+                                  <div className="flex items-start">
+                                    {extractText(i.Message).map((i: any) => {
+                                      const assignee = assigneeDropdownData.map(
+                                        (j: any) => j.label
+                                      );
+                                      return assignee.includes(i) ? (
+                                        <span
+                                          className="text-secondary"
+                                          key={index}
+                                        >
+                                          &nbsp; {i} &nbsp;
+                                        </span>
+                                      ) : (
+                                        i
+                                      );
+                                    })}
+                                  </div>
+                                  {userId === i.UserId &&
+                                    hasPermissionWorklog(
+                                      "Comment",
+                                      "save",
+                                      "WorkLogs"
+                                    ) && (
+                                      <button
+                                        type="button"
+                                        className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
+                                        onClick={() =>
+                                          handleEditClick(index, i.Message)
+                                        }
+                                      >
+                                        <EditIcon className="h-4 w-4" />
+                                      </button>
+                                    )}
+                                </>
                               )}
                             </div>
                           </div>
@@ -2850,6 +3336,67 @@ const EditDrawer = ({
                       ))}
                   </div>
                 </div>
+                {commentsDrawer &&
+                  hasPermissionWorklog("Comment", "save", "WorkLogs") && (
+                    <>
+                      <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
+                        <MentionsInput
+                          style={mentionsInputStyle}
+                          className="!w-[92%] textareaOutlineNone"
+                          value={value}
+                          onChange={(e) => {
+                            setValue(e.target.value);
+                            setValueError(false);
+                            handleCommentChange(e.target.value);
+                          }}
+                          placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                        >
+                          <Mention
+                            data={users}
+                            style={{ backgroundColor: "#cee4e5" }}
+                            trigger="@"
+                          />
+                        </MentionsInput>
+                        <span
+                          className="text-white cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <FileIcon />
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            multiple
+                            className="input-field hidden"
+                            onChange={(e) => handleFileChange(e)}
+                          />
+                        </span>
+                        <button
+                          type="button"
+                          className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
+                          onClick={(e) => handleSubmitComment(e, commentSelect)}
+                        >
+                          <SendIcon />
+                        </button>
+                      </div>
+                      {valueError &&
+                      value.trim().length > 1 &&
+                      value.trim().length < 5 ? (
+                        <span className="text-defaultRed text-[14px] ml-20">
+                          Minimum 5 characters required.
+                        </span>
+                      ) : valueError && value.trim().length > 500 ? (
+                        <span className="text-defaultRed text-[14px] ml-20">
+                          Maximum 500 characters allowed.
+                        </span>
+                      ) : (
+                        valueError && (
+                          <span className="text-defaultRed text-[14px] ml-20">
+                            This is a required field.
+                          </span>
+                        )
+                      )}
+                    </>
+                  )}
               </div>
             )}
 
@@ -4126,6 +4673,7 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
                             />
+                            {/* <ImageUploader getData={getAttachmentData} /> */}
                             {/* <TextField
                               label={
                                 <span>

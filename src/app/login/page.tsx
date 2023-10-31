@@ -65,7 +65,7 @@ const page = () => {
               "token",
               response.data.ResponseData.Token.Token
             );
-            router.push("/settings");
+            router.push("/");
           } else {
             setClicked(false);
             const data = response.data.Message;
@@ -105,7 +105,7 @@ const page = () => {
         <span className="absolute -top-10 left-4">
           <Pabs width="200" height="50" />
         </span>
-        <div className="loginWrapper flex items-center flex-col pt-[3%] !w-[40%] font-normal">
+        <div className="loginWrapper flex items-center flex-col pt-[10%] !w-[40%] font-normal border-l border-lightSilver">
           <p className="font-bold mb-[20px] text-darkCharcoal text-2xl">
             Welcome to PABS-PMS
           </p>

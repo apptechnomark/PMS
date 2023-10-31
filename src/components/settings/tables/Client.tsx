@@ -11,6 +11,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import SwitchModal from "@/components/common/SwitchModal";
 import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
+import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
 
 function Client({
   onOpen,
@@ -24,12 +25,12 @@ function Client({
   onSearchClientData,
 }: any) {
   const headers = [
-    { header: "CLIENT NAME", accessor: "Name", sortable: true },
-    { header: "EMAIL ID", accessor: "Email", sortable: true },
-    { header: "ADDRESS", accessor: "Address", sortable: true },
-    { header: "MOBILE", accessor: "ContactNo", sortable: true },
-    { header: "STATUS", accessor: "IsActive", sortable: false },
-    { header: "ACTIONS", accessor: "actions", sortable: false },
+    { header: "Client Name", accessor: "Name", sortable: true },
+    { header: "Email ID", accessor: "Email", sortable: true },
+    { header: "Address", accessor: "Address", sortable: true },
+    { header: "Mobile", accessor: "ContactNo", sortable: true },
+    { header: "Status", accessor: "IsActive", sortable: false },
+    { header: "Actions", accessor: "actions", sortable: false },
   ];
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -39,6 +40,7 @@ function Client({
   const [switchId, setSwitchId] = useState(0);
   const [switchActive, setSwitchActive] = useState(false);
   const [openProcessDrawer, setOpenProcessDrawer] = useState(false);
+  const [openFieldsDrawer, setOpenFieldsDrawer] = useState(false);
   const [loader, setLoader] = useState(true);
 
   const handleOpenProcessDrawer = () => {
@@ -47,6 +49,10 @@ function Client({
 
   const handleCloseProcessDrawer = () => {
     setOpenProcessDrawer(false);
+  };
+
+  const handleCloseFieldsDrawer = () => {
+    setOpenFieldsDrawer(false);
   };
 
   // for showing value according to search
@@ -243,7 +249,8 @@ function Client({
       (action: any) =>
         (action.toLowerCase() === "edit" && canEdit) ||
         (action.toLowerCase() === "delete" && canDelete) ||
-        (action.toLowerCase() === "process" && canProcess)
+        (action.toLowerCase() === "process" && canProcess) ||
+        action.toLowerCase() === "fields"
     );
 
     return actionPermissions.length > 0 ? (
@@ -289,8 +296,17 @@ function Client({
     (d: any) =>
       new Object({
         ...d,
+        Name: <div className="text-sm">{d.Name}</div>,
+        Email: <div className="text-sm">{d.Email}</div>,
+        Address: <div className="text-sm">{d.Address}</div>,
+        ContactNo: <div className="text-sm">{d.ContactNo}</div>,
         IsActive: <SwitchData id={d.Id} IsActive={d.IsActive} />,
-        actions: <Actions actions={["Edit", "Delete", "Process"]} id={d.Id} />,
+        actions: (
+          <Actions
+            actions={["Edit", "Process", "Fields", "Delete"]}
+            id={d.Id}
+          />
+        ),
       })
   );
 
@@ -310,6 +326,9 @@ function Client({
     }
     if (actionId.toLowerCase() === "process") {
       setOpenProcessDrawer(true);
+    }
+    if (actionId.toLowerCase() === "fields") {
+      setOpenFieldsDrawer(true);
     }
   };
 
@@ -391,8 +410,16 @@ function Client({
               selectedRowId={selectedRowId}
               onDataFetch={getData}
             />
+
+            <ClientFieldsDrawer
+              onOpen={openFieldsDrawer}
+              onClose={handleCloseFieldsDrawer}
+              selectedRowId={selectedRowId}
+              onDataFetch={getData}
+            />
+
             <DrawerOverlay
-              isOpen={openProcessDrawer}
+              isOpen={openProcessDrawer || openFieldsDrawer}
               onClose={handleCloseProcessDrawer}
             />
           </div>

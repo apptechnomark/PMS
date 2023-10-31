@@ -26,9 +26,9 @@ function Group({
   const org_token = localStorage.getItem("Org_Token");
 
   const headers = [
-    { header: "GROUP NAME", accessor: "Name", sortable: true },
-    { header: "USER", accessor: "user", sortable: false },
-    { header: "ACTION", accessor: "action", sortable: false },
+    { header: "Group Name", accessor: "Name", sortable: true },
+    { header: "User", accessor: "user", sortable: false },
+    { header: "Action", accessor: "action", sortable: false },
   ];
 
   // setting getData function for sending in parent component
@@ -225,7 +225,7 @@ function Group({
   const groupData = data?.map(
     (e: any) =>
       new Object({
-        Name: e.Name,
+        Name: <div className="text-sm">{e.Name}</div>,
         user: (
           <div className="flex">
             <AvatarGroup show={3}>

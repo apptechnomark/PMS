@@ -76,6 +76,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [revwStatusDropdownData, setRevwStatusDropdownData] = useState([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
+  const [error, setError] = useState("");
 
   let isHaveManageAssignee: any;
 
@@ -242,7 +243,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     }
   };
 
-  // API for status dropdown
   const getAllStatus = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -289,7 +289,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     }
   };
 
-  // API for Reviewer status dropdown
   const getReviewStatusData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -311,7 +310,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               i.Type === "Accept" ||
               i.Type === "AcceptWithNotes" ||
               i.Type === "Errorlogs" ||
-              i.Type === "Reject"
+              i.Type === "Reject" ||
+              i.Type === "SignedOff"
                 ? i
                 : ""
             ).filter((i: any) => i !== "")
@@ -337,7 +337,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     }
   };
 
-  // API for Assigned To and Assigned By Dropdown
   const getAssignee = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -392,6 +391,11 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   }, [clientName]);
 
   const saveCurrentFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -583,9 +587,24 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       StatusId: status || null,
       AssignedTo: assignedTo || null,
       AssignedBy: assignedBy || null,
-      DueDate: dueDate || null,
-      StartDate: startDate || null,
-      EndDate: endDate || null,
+      DueDate:
+        dueDate !== null
+          ? new Date(
+              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
+      StartDate:
+        startDate !== null
+          ? new Date(
+              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
+      EndDate:
+        endDate !== null
+          ? new Date(
+              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
       ReviewStatus: ReviewStatus || null,
     };
     setCurrSelectedFileds(selectedFields);
@@ -601,6 +620,11 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     endDate,
     ReviewStatus,
   ]);
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
+  };
 
   return (
     <div>
@@ -732,23 +756,17 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label={<span>Due Date</span>}
+                    label="Due Date"
                     value={dueDate === null ? null : dayjs(dueDate)}
                     onChange={(newDate: any) => {
                       setDueDate(newDate.$d);
                     }}
-                  />
-                </LocalizationProvider>
-              </div>
-              <div
-                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
-              >
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label={<span>Start Date</span>}
-                    value={startDate === null ? null : dayjs(startDate)}
-                    onChange={(newDate: any) => {
-                      setStartDate(newDate.$d);
+                    shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
                     }}
                   />
                 </LocalizationProvider>
@@ -758,10 +776,37 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label={<span>End Date</span>}
+                    label="From"
+                    value={startDate === null ? null : dayjs(startDate)}
+                    shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    onChange={(newDate: any) => {
+                      setStartDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+              <div
+                className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+              >
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To"
                     value={endDate === null ? null : dayjs(endDate)}
+                    shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => {
                       setEndDate(newDate.$d);
+                    }}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
                     }}
                   />
                 </LocalizationProvider>
@@ -822,7 +867,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   required
                   variant="standard"
                   value={filterName}
-                  onChange={(e) => setFilterName(e.target.value)}
+                  onChange={(e) => {
+                    setFilterName(e.target.value);
+                    setError("");
+                  }}
+                  error={Boolean(error)}
+                  helperText={error}
                 />
               </FormControl>
               <Button

@@ -11,22 +11,13 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
 // Material Import
-import {
-  Popover,
-  TextField,
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-  styled,
-} from "@mui/material";
-import PopupState, { bindPopover, bindTrigger } from "material-ui-popup-state";
-import { Delete, Edit, Search } from "@mui/icons-material";
-import EditDialog from "@/components/approvals/EditDialog";
+import { Tooltip, TooltipProps, tooltipClasses, styled } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { ToastContainer } from "react-toastify";
 // import SearchIcon from "@/assets/icons/SearchIcon";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
 
 const page = () => {
   const router = useRouter();
@@ -37,17 +28,24 @@ const page = () => {
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
-  const [isEditOpen, setisEditOpen] = useState<boolean>(false);
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
-  const [savedFilters, setSavedFilters] = useState<any>([]);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
+  const [currentFilterData, setCurrentFilterData] = useState([]);
+
+  const handleCloseFilter = () => {
+    setisFilterOpen(false);
+  };
+
+  const getIdFromFilterDialog = (data: any) => {
+    setCurrentFilterData(data);
+  };
 
   useEffect(() => {
     if (
       !hasPermissionWorklog("", "View", "Approvals") &&
       !localStorage.getItem("isClient")
     ) {
-      router.push("/settings");
+      router.push("/");
     }
   }, [router]);
 
@@ -89,93 +87,24 @@ const page = () => {
     setDataFunction(() => getData);
   };
 
-  // For Closing Filter Modal
-  // const closeFilterModal = () => {
-  //   setisFilterOpen(false);
-  // };
-
   return (
     <Wrapper>
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
-            <label className="px-[20px] py-[11px] font-bold text-[16px] cursor-pointer select-none text-slatyGrey">
-              REVIEW
+            <label className="py-[10px] cursor-pointer select-none text-[16px] text-slatyGrey">
+              Review
             </label>
           </div>
           <div className="flex gap-[20px] items-center">
             <ColorToolTip title="Filter" placement="top" arrow>
-              {savedFilters.length > 0 ? (
-                <PopupState variant="popover" popupId="action-button">
-                  {(popupState) => (
-                    <div>
-                      <span
-                        {...bindTrigger(popupState)}
-                        className="cursor-pointer"
-                      >
-                        <FilterIcon />
-                      </span>
-                      <Popover
-                        {...bindPopover(popupState)}
-                        anchorOrigin={{
-                          vertical: "bottom",
-                          horizontal: "right",
-                        }}
-                        transformOrigin={{
-                          vertical: "top",
-                          horizontal: "right",
-                        }}
-                      >
-                        <div className="flex flex-col py-2 w-[200px]">
-                          <span
-                            className="p-2 cursor-pointer hover:bg-lightGray"
-                            onClick={() => {
-                              popupState.close();
-                              setisFilterOpen(true);
-                            }}
-                          >
-                            Default Filter
-                          </span>
-                          <hr className="text-lightSilver mt-2" />
-                          <span className="py-3 px-2 relative">
-                            <TextField
-                              variant="standard"
-                              placeholder="Search Saved Filters"
-                            />
-                            <Search className="absolute top-4 right-2 text-slatyGrey" />
-                          </span>
-                          <div className="group p-2 cursor-pointer hover:bg-lightGray flex justify-between">
-                            <span
-                              onClick={() => {
-                                popupState.close();
-                                setisFilterOpen(true);
-                              }}
-                            >
-                              Test Filter
-                            </span>
-                            <span className="flex gap-[10px] pr-[10px]">
-                              <span onClick={() => console.log("edit")}>
-                                <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                              </span>
-                              <span onClick={() => console.log("Delete")}>
-                                <Delete className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                      </Popover>
-                    </div>
-                  )}
-                </PopupState>
-              ) : (
-                <span
-                  className="cursor-pointer"
-                  onClick={() => setisEditOpen(true)}
-                >
-                  <FilterIcon />
-                </span>
-              )}
+              <span
+                className="cursor-pointer"
+                onClick={() => setisFilterOpen(true)}
+              >
+                <FilterIcon />
+              </span>
             </ColorToolTip>
             <ColorToolTip title="Import" placement="top" arrow>
               <span className="cursor-pointer">
@@ -193,6 +122,9 @@ const page = () => {
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
           onDrawerOpen={handleDrawerOpen}
+          currentFilterData={currentFilterData}
+          onFilterOpen={isFilterOpen}
+          onCloseDrawer={openDrawer}
         />
 
         <Drawer
@@ -202,6 +134,13 @@ const page = () => {
           onEdit={hasEditId}
           hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
+        />
+
+        <FilterDialog_Approval
+          onOpen={isFilterOpen}
+          onClose={handleCloseFilter}
+          onDataFetch={() => {}}
+          currentFilterData={getIdFromFilterDialog}
         />
 
         <ToastContainer

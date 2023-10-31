@@ -27,6 +27,7 @@ interface EditModalProps {
   onReviewerDataFetch?: any;
   onClearSelection?: any;
   onSelectWorkItemId: number;
+  onSelectedSubmissionId: number;
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -56,6 +57,7 @@ const EditDialog: React.FC<EditModalProps> = ({
   onSelectWorkItemId,
   onReviewerDataFetch,
   onClearSelection,
+  onSelectedSubmissionId,
 }) => {
   const [estTime, setEstTime] = useState<any>(0);
   const [totalTime, setTotalTime] = useState<any>(0);
@@ -67,6 +69,7 @@ const EditDialog: React.FC<EditModalProps> = ({
   const handleClose = () => {
     setEditTime("00:00:00");
     onClose();
+    onReviewerDataFetch();
   };
 
   // for formatting edit time
@@ -132,7 +135,7 @@ const EditDialog: React.FC<EditModalProps> = ({
 
   // API for get Edit time contents
   useEffect(() => {
-    if (onSelectWorkItemId > 0 || onSelectWorkItemId !== null) {
+    if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
       const getDataForManualTime = async () => {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -140,7 +143,7 @@ const EditDialog: React.FC<EditModalProps> = ({
           const response = await axios.post(
             `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`,
             {
-              WorkItemId: onSelectWorkItemId,
+              SubmissionId: onSelectedSubmissionId,
             },
             {
               headers: {
@@ -184,7 +187,7 @@ const EditDialog: React.FC<EditModalProps> = ({
       // calling api function
       getDataForManualTime();
     }
-  }, [onSelectWorkItemId]);
+  }, [onSelectedSubmissionId]);
 
   // API for update manager time
   const updateManualTime = async () => {
@@ -200,6 +203,7 @@ const EditDialog: React.FC<EditModalProps> = ({
         {
           WorkItemId: onSelectWorkItemId,
           managerTime: convertedEditTime,
+          SubmissionId: onSelectedSubmissionId,
         },
         {
           headers: {
@@ -248,7 +252,7 @@ const EditDialog: React.FC<EditModalProps> = ({
         TransitionComponent={Transition}
         keepMounted
         maxWidth="md"
-        onClose={onClose}
+        onClose={handleClose}
         className="ml-80"
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">

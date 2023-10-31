@@ -31,6 +31,8 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { useRouter } from "next/navigation";
+import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
+import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
 
 const page = () => {
   const router = useRouter();
@@ -53,6 +55,8 @@ const page = () => {
   const [timer, setTimer] = useState<string>("00:00:00");
   const [loaded, setLoaded] = useState(false);
   const [filterApplied, setFilterApplied] = useState(false);
+  const [isTaskClicked, setIsTaskClicked] = useState(true);
+  const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -77,7 +81,7 @@ const page = () => {
       !hasPermissionWorklog("", "View", "WorkLogs") &&
       !localStorage.getItem("isClient")
     ) {
-      router.push("/settings");
+      router.push("/");
     }
   }, [router]);
 
@@ -347,13 +351,44 @@ const page = () => {
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="bg-white flex justify-between items-center px-[20px]">
-          <div className="flex gap-[10px] items-center py-[6.5px]">
-            <label className="px-[20px] py-[11px] font-bold text-[16px] cursor-pointer select-none text-slatyGrey">
-              TASK
+          <div className="flex gap-[20px] items-center py-[6.5px]">
+            <label
+              onClick={() => {
+                setIsTaskClicked(true);
+                setIsUnassigneeClicked(false);
+              }}
+              className={`py-[10px] cursor-pointer select-none ${
+                isTaskClicked
+                  ? "text-secondary text-[16px] font-semibold"
+                  : "text-slatyGrey text-[14px]"
+              }`}
+            >
+              Task
             </label>
+            {hasPermissionWorklog("", "View", "WorkLogs") &&
+              hasPermissionWorklog("", "ClientManager", "WorkLogs") &&
+              hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
+                <span className="text-lightSilver">|</span>
+              )}
+            {hasPermissionWorklog("", "ClientManager", "WorkLogs") &&
+              hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
+                <label
+                  onClick={() => {
+                    setIsUnassigneeClicked(true);
+                    setIsTaskClicked(false);
+                  }}
+                  className={`py-[10px] cursor-pointer select-none ${
+                    isUnassigneeClicked
+                      ? "text-secondary text-[16px] font-semibold"
+                      : "text-slatyGrey text-[14px]"
+                  }`}
+                >
+                  Unassigned Task
+                </label>
+              )}
           </div>
           <div className="flex gap-[20px] items-center">
-            {filterList.length > 0 ? (
+            {filterList.length > 0 && isTaskClicked ? (
               <div>
                 <span
                   aria-describedby={idFilter}
@@ -473,64 +508,91 @@ const page = () => {
                 </span>
               </ColorToolTip>
             )}
-            <ColorToolTip title="Import" placement="top" arrow>
-              <span className="cursor-pointer">
-                <ImportIcon />
-              </span>
-            </ColorToolTip>
-            <ColorToolTip title="Export" placement="top" arrow>
-              <span className="cursor-pointer">
-                <ExportIcon />
-              </span>
-            </ColorToolTip>
-            <span className="text-secondary font-light">{timer}</span>
-            <Button
-              type="submit"
-              variant="contained"
-              color="info"
-              className={`rounded-[4px] !h-[36px] !w-[125px] pt-2 ${
-                breakId === 0 ? "!bg-secondary" : "!bg-[#ff9f43]"
-              }`}
-              onClick={
-                loaded &&
-                hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")
-                  ? setBreak
-                  : () => toast.error("User not have permission to Break Task")
-              }
-            >
-              {breakId === 0 ? "Break" : "Stop break"}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              className="rounded-[4px] !h-[36px] !bg-secondary"
-              onClick={
-                hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")
-                  ? handleDrawerOpen
-                  : () => toast.error("User not have permission to Create Task")
-              }
-            >
-              <span className="flex items-center justify-center gap-[10px] px-[5px]">
-                <span>
-                  <AddPlusIcon />
-                </span>
-                <span className="pt-1">Create Task</span>
-              </span>
-            </Button>
+            {isTaskClicked ? (
+              <>
+                <ColorToolTip title="Import" placement="top" arrow>
+                  <span className="cursor-pointer">
+                    <ImportIcon />
+                  </span>
+                </ColorToolTip>
+                <ColorToolTip title="Export" placement="top" arrow>
+                  <span className="cursor-pointer">
+                    <ExportIcon />
+                  </span>
+                </ColorToolTip>
+              </>
+            ) : (
+              <></>
+            )}
+            {isTaskClicked && (
+              <>
+                <span className="text-secondary font-light">{timer}</span>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="info"
+                  className={`rounded-[4px] !h-[36px] !w-[125px] pt-2 ${
+                    breakId === 0 ? "!bg-secondary" : "!bg-[#ff9f43]"
+                  }`}
+                  onClick={
+                    loaded &&
+                    hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")
+                      ? setBreak
+                      : () =>
+                          toast.error("User not have permission to Break Task")
+                  }
+                >
+                  {breakId === 0 ? "Break" : "Stop break"}
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  className="rounded-[4px] !h-[36px] !bg-secondary"
+                  onClick={
+                    hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")
+                      ? handleDrawerOpen
+                      : () =>
+                          toast.error("User not have permission to Create Task")
+                  }
+                >
+                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                    <span>
+                      <AddPlusIcon />
+                    </span>
+                    <span className="pt-1">Create Task</span>
+                  </span>
+                </Button>
+              </>
+            )}
           </div>
         </div>
-        <Datatable
-          isOnBreak={breakId}
-          onGetBreakData={getBreakData}
-          onSetBreak={setBreak}
-          currentFilterData={currentFilterData}
-          onCurrentFilterId={clickedFilterId}
-          onDataFetch={handleDataFetch}
-          onEdit={handleEdit}
-          onRecurring={handleSetRecurring}
-          onDrawerOpen={handleDrawerOpen}
-          onComment={handleSetComments}
-        />
+        {isTaskClicked && (
+          <Datatable
+            isOnBreak={breakId}
+            onGetBreakData={getBreakData}
+            onSetBreak={setBreak}
+            currentFilterData={currentFilterData}
+            onCurrentFilterId={clickedFilterId}
+            onDataFetch={handleDataFetch}
+            onEdit={handleEdit}
+            onRecurring={handleSetRecurring}
+            onDrawerOpen={handleDrawerOpen}
+            onDrawerClose={handleDrawerClose}
+            onComment={handleSetComments}
+          />
+        )}
+        {isUnassigneeClicked && (
+          <UnassigneeDatatable
+            currentFilterData={currentFilterData}
+            onCurrentFilterId={clickedFilterId}
+            onDataFetch={handleDataFetch}
+            onEdit={handleEdit}
+            onRecurring={handleSetRecurring}
+            onDrawerOpen={handleDrawerOpen}
+            onDrawerClose={handleDrawerClose}
+            onComment={handleSetComments}
+          />
+        )}
         <Drawer
           onDataFetch={dataFunction}
           onOpen={openDrawer}
@@ -542,14 +604,23 @@ const page = () => {
         <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
 
         {/* Filter Dialog Box */}
-        <FilterDialog
-          currentFilterData={getIdFromFilterDialog}
-          onOpen={isFilterOpen}
-          onClose={closeFilterModal}
-          onActionClick={() => {}}
-          onDataFetch={getFilterList}
-          onCurrentFilterId={currentFilterId}
-        />
+        {isTaskClicked && (
+          <FilterDialog
+            currentFilterData={getIdFromFilterDialog}
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            onActionClick={() => {}}
+            onDataFetch={getFilterList}
+            onCurrentFilterId={currentFilterId}
+          />
+        )}
+        {isUnassigneeClicked && (
+          <UnassigneeFilterDialog
+            onOpen={isFilterOpen}
+            onClose={closeFilterModal}
+            currentFilterData={getIdFromFilterDialog}
+          />
+        )}
       </div>
 
       {/* Delete Dialog Box */}

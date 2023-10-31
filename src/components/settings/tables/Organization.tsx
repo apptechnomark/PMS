@@ -27,13 +27,13 @@ function Organization({
 
   const columns = [
     {
-      header: "ORGANIZATION NAME",
+      header: "Organization Name",
       accessor: "OrganizationName",
       sortable: true,
     },
-    { header: "ACTIVE", accessor: "IsActive", sortable: false },
+    { header: "Active", accessor: "IsActive", sortable: false },
     {
-      header: "ACTIONS",
+      header: "Actions",
       accessor: "actions",
       sortable: false,
     },
@@ -161,6 +161,7 @@ function Organization({
     (i: any) =>
       new Object({
         ...i,
+        OrganizationName: <div className="text-sm">{i.OrganizationName}</div>,
         IsActive: <SwitchData id={i.OrganizationId} IsActive={i.IsActive} />,
         actions: <Actions actions={["Edit"]} id={i.OrganizationId} />,
       })

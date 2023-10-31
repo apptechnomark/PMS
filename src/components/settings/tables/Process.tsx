@@ -23,17 +23,17 @@ function Process({
   const org_token = localStorage.getItem("Org_Token");
 
   const headers = [
-    { header: "PROCESS", accessor: "process", sortable: true },
-    { header: "SUB-PROCESS", accessor: "sub_process", sortable: true },
-    { header: "ACTIVITY", accessor: "activity", sortable: true },
-    { header: "EST. TIME", accessor: "est_time", sortable: true },
+    { header: "Process", accessor: "process", sortable: true },
+    { header: "Sub-Process", accessor: "sub_process", sortable: true },
+    { header: "Activity", accessor: "activity", sortable: true },
+    { header: "Est. Time", accessor: "est_time", sortable: true },
     {
-      header: "PRODUCTIVE/NON-PRODUCTIVE",
+      header: "Productive/Non-Productive",
       accessor: "productive",
       sortable: true,
     },
-    { header: "BILLABLE/NON-BILLABLE", accessor: "billable", sortable: true },
-    { header: "ACTION", accessor: "actions", sortable: false },
+    { header: "Billable/Non-Billable", accessor: "billable", sortable: true },
+    { header: "Action", accessor: "actions", sortable: false },
   ];
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -206,14 +206,24 @@ function Process({
 
     return {
       ...i,
-      process: i.ParentProcessName,
-      sub_process: i.ChildProcessName,
-      activity: `${firstActivity}${
-        remainingCount > 0 ? `, +${remainingCount}` : ""
-      }`,
-      est_time: formattedTime,
-      productive: i.IsProductive ? "Productive" : "Non-Productive",
-      billable: i.IsBillable ? "Billable" : "Non-Billable",
+      process: <div className="text-sm">{i.ParentProcessName}</div>,
+      sub_process: <div className="text-sm">{i.ChildProcessName}</div>,
+      activity: (
+        <div className="text-sm">
+          {firstActivity} {remainingCount > 0 ? `, +${remainingCount}` : ""}
+        </div>
+      ),
+      est_time: <div className="text-sm">{formattedTime}</div>,
+      productive: (
+        <div className="text-sm">
+          {i.IsProductive ? "Productive" : "Non-Productive"}
+        </div>
+      ),
+      billable: (
+        <div className="text-sm">
+          {i.IsBillable ? "Billable" : "Non-Billable"}
+        </div>
+      ),
       actions: <Actions actions={["Edit", "Delete"]} id={i.ProcessId} />,
       details:
         modifiedList.length > 0 ? (

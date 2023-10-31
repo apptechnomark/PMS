@@ -34,24 +34,24 @@ const User = ({
   onSearchUserData,
 }: any) => {
   const headers = [
-    { header: "USER NAME", accessor: "FullName", sortable: true },
-    { header: "USER TYPE", accessor: "UserType", sortable: true },
-    { header: "EMAIL", accessor: "Email", sortable: true },
-    { header: "MOBILE NO", accessor: "ContactNo", sortable: true },
-    { header: "DEPARTMENT", accessor: "DepartmentName", sortable: false },
-    { header: "REPORTING MANAGER", accessor: "RMUserName", sortable: false },
-    { header: "GROUP", accessor: "GroupNames", sortable: false },
-    { header: "STATUS", accessor: "IsActive", sortable: false },
+    { header: "User Name", accessor: "FullName", sortable: true },
+    { header: "User Type", accessor: "UserType", sortable: true },
+    { header: "Email", accessor: "Email", sortable: true },
+    { header: "Mobile No", accessor: "ContactNo", sortable: true },
+    { header: "Department", accessor: "DepartmentName", sortable: false },
+    { header: "Reporting Manager", accessor: "RMUserName", sortable: false },
+    { header: "Group", accessor: "GroupNames", sortable: false },
+    { header: "Status", accessor: "IsActive", sortable: false },
   ];
 
   const headersDropdown = [
-    { header: "USER TYPE", accessor: "UserType", sortable: true },
-    { header: "EMAIL", accessor: "Email", sortable: true },
-    { header: "MOBILE NO", accessor: "ContactNo", sortable: true },
-    { header: "DEPARTMENT", accessor: "DepartmentName", sortable: false },
-    { header: "REPORTING MANAGER", accessor: "RMUserName", sortable: false },
-    { header: "GROUP", accessor: "GroupNames", sortable: false },
-    { header: "STATUS", accessor: "IsActive", sortable: false },
+    { header: "User Type", accessor: "UserType", sortable: true },
+    { header: "Email", accessor: "Email", sortable: true },
+    { header: "Mobile No", accessor: "ContactNo", sortable: true },
+    { header: "Department", accessor: "DepartmentName", sortable: false },
+    { header: "Reporting Manager", accessor: "RMUserName", sortable: false },
+    { header: "Group", accessor: "GroupNames", sortable: false },
+    { header: "Status", accessor: "IsActive", sortable: false },
   ];
 
   const defaultVisibleHeaders = headers.slice(0, 5);
@@ -114,7 +114,14 @@ const User = ({
     setUserId(0);
   };
 
-  const handleActionValue = async (actionId: string, id: any, roleId: any) => {
+  const handleActionValue = async (
+    actionId: string,
+    id: any,
+    roleId: any,
+    firstName: string,
+    lastName: string,
+    email: any
+  ) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
       onEdit(id);
@@ -126,6 +133,9 @@ const User = ({
     }
     if (actionId.toLowerCase() === "delete") {
       setIsDeleteOpen(true);
+    }
+    if (actionId.toLowerCase() === "resend invite") {
+      handleResendInvite(id, email, firstName, lastName);
     }
   };
 
@@ -173,6 +183,56 @@ const User = ({
     }
   };
 
+  const handleResendInvite = async (
+    id: number,
+    email: any,
+    firstName: string,
+    lastName: string
+  ) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/ResendLink`,
+        {
+          UserId: id,
+          Email: email,
+          FirstName: firstName,
+          LastName: lastName,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          Toast.success("Resend Link sent Successfully.");
+          getData();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again later.");
+          } else {
+            Toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Please try again.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const closeSwitchModal = async () => {
     await setIsOpenSwitchModal(false);
   };
@@ -190,7 +250,14 @@ const User = ({
     );
   };
 
-  const Actions = ({ actions, id, roleId }: any) => {
+  const Actions = ({
+    actions,
+    id,
+    roleId,
+    firstName,
+    lastName,
+    email,
+  }: any) => {
     const actionsRef = useRef<HTMLDivElement>(null);
     const [open, setOpen] = useState(false);
 
@@ -210,12 +277,15 @@ const User = ({
       };
     }, []);
 
-    const actionPermissions = actions.filter(
-      (action: any) =>
-        (action.toLowerCase() === "edit" && canEdit) ||
-        (action.toLowerCase() === "permissions" && canPermission) ||
-        (action.toLowerCase() === "delete" && canDelete)
-    );
+    const actionPermissions = actions.filter((action: any) => {
+      const lowerCaseAction = action ? action.toLowerCase() : "";
+      return (
+        (lowerCaseAction === "edit" && canEdit) ||
+        (lowerCaseAction === "permissions" && canPermission) ||
+        (lowerCaseAction === "delete" && canDelete) ||
+        lowerCaseAction === "resend invite"
+      );
+    });
 
     return actionPermissions.length > 0 ? (
       <div
@@ -234,14 +304,34 @@ const User = ({
                       ((action.toLowerCase() === "edit" && canEdit) ||
                         (action.toLowerCase() === "permissions" &&
                           canPermission) ||
-                        (action.toLowerCase() === "delete" && canDelete)) && (
+                        (action.toLowerCase() === "delete" && canDelete) ||
+                        action.toLowerCase() === "resend invite") && (
                         <li
                           key={index}
-                          onClick={() => handleActionValue(action, id, roleId)}
-                          className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
+                          onClick={() =>
+                            handleActionValue(
+                              action,
+                              id,
+                              roleId,
+                              firstName,
+                              lastName,
+                              email
+                            )
+                          }
+                          className={`flex w-full h-9 px-3 ${
+                            action.toLowerCase() === "resend invite"
+                              ? "hover:bg-red-100"
+                              : "hover:bg-lightGray"
+                          } !cursor-pointer`}
                         >
                           <div className="flex justify-center items-center ml-2 cursor-pointer">
-                            <label className="inline-block text-xs cursor-pointer">
+                            <label
+                              className={`inline-block text-xs cursor-pointer ${
+                                action.toLowerCase() === "resend invite"
+                                  ? "text-defaultRed font-semibold"
+                                  : ""
+                              }`}
+                            >
                               {action}
                             </label>
                           </div>
@@ -266,8 +356,15 @@ const User = ({
       new Object({
         ...i,
         FullName: (
-          <div className="text-[#0592C6] font-semibold">{i.FullName}</div>
+          <div className="text-[#0592C6] font-semibold text-sm">
+            {i.FullName}
+          </div>
         ),
+        UserType: <div className="text-sm">{i.UserType}</div>,
+        Email: <div className="text-sm">{i.Email}</div>,
+        ContactNo: <div className="text-sm">{i.ContactNo}</div>,
+        DepartmentName: <div className="text-sm">{i.DepartmentName}</div>,
+        RMUserName: <div className="text-sm">{i.RMUserName}</div>,
         GroupNames: (
           <div className="flex">
             <AvatarGroup show={3}>
@@ -280,9 +377,17 @@ const User = ({
         IsActive: <SwitchData id={i.UserId} IsActive={i.IsActive} />,
         actions: (
           <Actions
-            actions={["Edit", "Permissions", "Delete"]}
+            actions={[
+              "Edit",
+              "Permissions",
+              "Delete",
+              i.IsConfirmed ? null : "Resend Invite",
+            ]}
             id={i.UserId}
             roleId={i.RoleId}
+            firstName={i.FirstName}
+            lastName={i.LastName}
+            email={i.Email}
           />
         ),
       })

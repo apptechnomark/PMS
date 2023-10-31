@@ -8,6 +8,7 @@ import WorkloadIcon from "../../assets/icons/WorkloadIcon";
 import Worklogs from "../../assets/icons/WorklogsIcon";
 import Approvals from "../../assets/icons/ApprovalsIcon";
 import Settings from "../../assets/icons/SettingsIcon";
+import Project from "../../assets/icons/ProjectIcon";
 import Reports from "../../assets/icons/ReportsIcon";
 import MenuIcon from "../../assets/icons/MenuIcon";
 import Pabs from "../../assets/icons/Pabs";
@@ -114,7 +115,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
                 response.data.ResponseData.Organizations[0].OrganizationName
               );
             }
-            getSidebarData();
+            getSidebarData(response.data.ResponseData.IsClientUser);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -132,8 +133,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       }
     };
 
-    const getSidebarData = async () => {
-      const isClient = await localStorage.getItem("isClient");
+    const getSidebarData = async (isClient: any) => {
       const permission: any = await localStorage.getItem("permission");
       if (permission.length > 0) {
         sidebarItems = [
@@ -147,29 +147,53 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
           //   href: "/workload",
           //   icon: <WorkloadIcon />,
           // },
-          hasPermissionWorklog("", "View", "WorkLogs") &&
-            hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") &&
-            isClient === "false" && {
+          (hasPermissionWorklog("", "View", "WorkLogs") ||
+            hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
+            hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
+            !isClient && {
               name: "Work Logs",
               href: "/worklogs",
               icon: <Worklogs />,
             },
           hasPermissionWorklog("", "View", "Approvals") &&
-            isClient === "false" && {
+            !isClient && {
               name: "Approvals",
               href: "/approvals",
               icon: <Approvals />,
             },
-          isClient === "false" && {
-            name: "Settings",
-            href: "/settings",
-            icon: <Settings />,
-          },
+          hasPermissionWorklog("", "View", "Settings") &&
+            !isClient && {
+              name: "Settings",
+              href: "/settings",
+              icon: <Settings />,
+            },
           // {
           //   name: "Reports",
           //   href: "/reports",
           //   icon: <Reports />,
           // },
+          hasPermissionWorklog("", "View", "Dashboard") &&
+            isClient && {
+              name: "Dashboard",
+              href: "/dashboard",
+              icon: <DashboardIcon />,
+            },
+          hasPermissionWorklog("", "View", "WorkLogs") &&
+            (hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
+              hasPermissionWorklog("Rating", "View", "WorkLogs")) &&
+            isClient && {
+              name: "Worklogs",
+              href: "/worklog",
+              icon: <Worklogs />,
+            },
+          hasPermissionWorklog("", "View", "Report") &&
+            (hasPermissionWorklog("Task", "View", "Report") ||
+              hasPermissionWorklog("Rating", "View", "Report")) &&
+            isClient && {
+              name: "Reports",
+              href: "/report",
+              icon: <Reports />,
+            },
         ];
       }
     };

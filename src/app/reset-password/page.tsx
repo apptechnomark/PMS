@@ -59,7 +59,12 @@ const page = () => {
           }
         } else {
           setClicked(false);
-          Toast.error("Please try again after sometime.");
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again after sometime.");
+          } else {
+            Toast.error(data);
+          }
         }
       } catch (error) {
         setClicked(false);

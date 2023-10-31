@@ -421,7 +421,6 @@ const ProjectContent = forwardRef<
             label="Sub-project Name"
             placeholder="Enter Sub-Project Name"
             value={subProject}
-            noSpecialChar
             getValue={(e) => setSubProject(e)}
             getError={(e) => {}}
           />

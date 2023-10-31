@@ -23,6 +23,7 @@ import {
   FormControlLabel,
   FormGroup,
   FormHelperText,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -44,6 +45,19 @@ import dayjs from "dayjs";
 import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "./mentionsInputStyle";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import {
+  getAssigneeDropdownData,
+  getCCDropdownData,
+  getClientDropdownData,
+  getManagerDropdownData,
+  getProcessDropdownData,
+  getProjectDropdownData,
+  getReviewerDropdownData,
+  getStatusDropdownData,
+  getSubProcessDropdownData,
+  getTypeOfReturnDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 const EditDrawer = ({
   onOpen,
@@ -57,6 +71,8 @@ const EditDrawer = ({
   const [activeTab, setActiveTab] = useState(0);
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
+  const [isCreatedByClient, setIsCreatedByClient] = useState(false);
+  const [editData, setEditData] = useState<any>([]);
 
   const [taskDrawer, setTaskDrawer] = useState(true);
   const [subTaskDrawer, setSubTaskDrawer] = useState(true);
@@ -84,7 +100,10 @@ const EditDrawer = ({
   const [processNameErr, setProcessNameErr] = useState(false);
   const [subProcess, setSubProcess] = useState<any>(0);
   const [subProcessErr, setSubProcessErr] = useState(false);
+  const [manager, setManager] = useState<any>(0);
+  const [managerErr, setManagerErr] = useState(false);
   const [status, setStatus] = useState<any>(0);
+  const [editStatus, setEditStatus] = useState<any>(0);
   const [statusErr, setStatusErr] = useState(false);
   const [description, setDescription] = useState<string>("");
   const [descriptionErr, setDescriptionErr] = useState(false);
@@ -92,7 +111,7 @@ const EditDrawer = ({
   const [priorityErr, setPriorityErr] = useState(false);
   const [estTime, setEstTime] = useState<string>("");
   const [estTimeErr, setEstTimeErr] = useState(false);
-  const [quantity, setQuantity] = useState<any>("");
+  const [quantity, setQuantity] = useState<any>(1);
   const [quantityErr, setQuantityErr] = useState(false);
   const [stdTime, setStdTime] = useState<string>("");
   const [stdTimeErr, setStdTimeErr] = useState(false);
@@ -125,6 +144,8 @@ const EditDrawer = ({
   const [countYearErr, setCountYearErr] = useState(false);
   const [noOfPages, setNoOfPages] = useState<any>(0);
   const [noOfPagesErr, setNoOfPagesErr] = useState(false);
+  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
+  const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
 
   // Sub-Task
   const [subTaskSwitch, setSubTaskSwitch] = useState(false);
@@ -221,7 +242,6 @@ const EditDrawer = ({
   const [reminderId, setReminderId] = useState(0);
 
   // CheclkList
-  const [generalOpen, setGeneralOpen] = useState(true);
   const [addChecklistField, setAddChecklistField] = useState(false);
   const [checkListName, setCheckListName] = useState("");
   const [checkListNameError, setCheckListNameError] = useState(false);
@@ -232,12 +252,13 @@ const EditDrawer = ({
   const [commentSelect, setCommentSelect] = useState<number | string>(1);
 
   // Dropdowns
-  const [clientDropdownData, setClientDropdownData] = useState([]);
-  const [workTypeDropdownData, setWorkTypeDropdownData] = useState([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [clientDropdownData, setClientDropdownData] = useState<any>([]);
+  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState<any>([]);
+  const [projectDropdownData, setProjectDropdownData] = useState<any>([]);
+  const [processDropdownData, setProcessDropdownData] = useState<any>([]);
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
+  const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
   const [statusDropdownDataUse, setStatusDropdownDataUse] = useState([]);
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
@@ -652,12 +673,14 @@ const EditDrawer = ({
       dueDate: validateField(dueDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
+      manager: validateField(manager),
       returnType: typeOfWork === 3 && validateField(returnType),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
       complexity: typeOfWork === 3 && validateField(complexity),
       countYear: typeOfWork === 3 && validateField(countYear),
       noOfPages: typeOfWork === 3 && validateField(noOfPages),
+      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
       recurringStartDate: recurringSwitch && validateField(recurringStartDate),
       recurringEndDate: recurringSwitch && validateField(recurringEndDate),
       recurringMonth:
@@ -686,11 +709,14 @@ const EditDrawer = ({
     setDueDateErr(fieldValidations.dueDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
+    setManagerErr(fieldValidations.manager);
     typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
     typeOfWork === 3 && setTypeOfReturnErr(fieldValidations.typeOfReturn);
     typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
     typeOfWork === 3 && setComplexityErr(fieldValidations.complexity);
     typeOfWork === 3 && setCountYearErr(fieldValidations.countYear);
+    typeOfWork === 3 &&
+      setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
     onEdit === 0 &&
       recurringSwitch &&
       setRecurringStartDateErr(fieldValidations.recurringStartDate);
@@ -755,12 +781,14 @@ const EditDrawer = ({
       dueDate: validateField(dueDate),
       assignee: validateField(assignee),
       reviewer: validateField(reviewer),
+      manager: validateField(manager),
       returnType: typeOfWork === 3 && validateField(returnType),
       typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
       complexity: typeOfWork === 3 && validateField(complexity),
       countYear: typeOfWork === 3 && validateField(countYear),
       noOfPages: typeOfWork === 3 && validateField(noOfPages),
+      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
@@ -856,6 +884,7 @@ const EditDrawer = ({
       allInfoDate: allInfoDate === "" ? null : allInfoDate,
       AssignedId: assignee,
       ReviewerId: reviewer,
+      managerId: manager,
       TaxReturnType: returnType === 0 ? null : returnType,
       TypeOfReturnId: typeOfReturn === 0 ? null : typeOfReturn,
       TaxCustomFields:
@@ -867,6 +896,12 @@ const EditDrawer = ({
               CountYear: countYear,
               NoOfPages: noOfPages,
             },
+      checklistWorkpaper:
+        checklistWorkpaper === 1
+          ? true
+          : checklistWorkpaper === 2
+          ? false
+          : null,
       ManualTimeList:
         onEdit > 0
           ? null
@@ -991,9 +1026,13 @@ const EditDrawer = ({
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
-      !quantity.includes(".")
+      !quantity.toString().includes(".")
     ) {
-      saveWorklog();
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Create Task.");
+      }
     }
 
     if (
@@ -1011,28 +1050,38 @@ const EditDrawer = ({
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
-      !quantity.includes(".") &&
+      !quantity.toString().includes(".") &&
       !noOfPagesErr &&
       noOfPages > 0 &&
       noOfPages < 10000
     ) {
-      saveWorklog();
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Create Task.");
+      }
     }
 
     if (
+      (onEdit > 0 && editStatus === 4) ||
+      (onEdit > 0 && editStatus === 5) ||
       (onEdit > 0 && status === 7) ||
       (onEdit > 0 && status === 8) ||
-      (onEdit > 0 && status === 9)
+      (onEdit > 0 && status === 9) ||
+      (onEdit > 0 && status === 13)
     ) {
       toast.warning(
-        "Cannot change task for status 'Accept,' 'Reject,' or 'Accept with Notes'."
+        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
       getEditData();
     } else if (
       onEdit > 0 &&
+      editStatus !== 4 &&
+      editStatus !== 5 &&
       status !== 7 &&
       status !== 8 &&
       status !== 9 &&
+      status !== 13 &&
       typeOfWork !== 3 &&
       !hasEditErrors &&
       !descriptionErr &&
@@ -1046,12 +1095,20 @@ const EditDrawer = ({
       !quantityErr &&
       !quantity.toString().includes(".")
     ) {
-      saveWorklog();
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getEditData();
+      }
     } else if (
       onEdit > 0 &&
+      editStatus !== 4 &&
+      editStatus !== 5 &&
       status !== 7 &&
       status !== 8 &&
       status !== 9 &&
+      status !== 13 &&
       typeOfWork === 3 &&
       !hasEditErrors &&
       !descriptionErr &&
@@ -1068,7 +1125,12 @@ const EditDrawer = ({
       noOfPages > 0 &&
       noOfPages < 10000
     ) {
-      saveWorklog();
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getEditData();
+      }
     }
   };
 
@@ -1234,12 +1296,12 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
           const getTimeDifference = (startTime: any, endTime: any) => {
-            const [s, e] = startTime.split(":").map(Number);
-            const [t, r] = endTime.split(":").map(Number);
+            const [s, e, s_sec] = startTime.split(":").map(Number);
+            const [t, r, e_sec] = endTime.split(":").map(Number);
             const d = t * 60 + r - s * 60 - e;
             return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
               d % 60
-            ).padStart(2, "0")}`;
+            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
           };
           setManualDataLength(data.length);
           setManualSwitch(data.length <= 0 ? false : true);
@@ -1563,6 +1625,8 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
+          setEditData(data);
+          setIsCreatedByClient(data.IsCreatedByClient);
           setIsManual(data.IsManual);
           setClientName(data.ClientId);
           setTypeOfWork(data.WorkTypeId);
@@ -1570,6 +1634,7 @@ const EditDrawer = ({
           setProcessName(data.ProcessId);
           setSubProcess(data.SubProcessId);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
+          setEditStatus(data.StatusId);
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
           data.StatusId === 2 && data.IsManual === true
@@ -1617,6 +1682,7 @@ const EditDrawer = ({
           setDateOfPreperation(data.PreparationDate);
           setAssignee(data.AssignedId);
           setReviewer(data.ReviewerId);
+          setManager(data.ManagerId === null ? 0 : data.ManagerId);
           setReturnType(data.TaxReturnType);
           setTypeOfReturn(data.TypeOfReturnId);
           setReturnYear(
@@ -1630,6 +1696,13 @@ const EditDrawer = ({
           );
           setNoOfPages(
             data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.NoOfPages
+          );
+          setChecklistWorkpaper(
+            data.ChecklistWorkpaper === true
+              ? 1
+              : data.ChecklistWorkpaper === false
+              ? 2
+              : 0
           );
         } else {
           const data = response.data.Message;
@@ -1674,9 +1747,16 @@ const EditDrawer = ({
 
   // Edit Update Button Click
   const handleSubmitSubTask = async () => {
-    if (status === 7 || status === 8 || status === 9) {
+    if (
+      editStatus === 4 ||
+      editStatus === 5 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
       toast.warning(
-        "Cannot change task for status 'Accept,' 'Reject,' or 'Accept with Notes'."
+        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
       getWorklogData();
     } else {
@@ -1947,6 +2027,7 @@ const EditDrawer = ({
               getEditData();
               getManualData();
             } else {
+              getManualData();
               const data = response.data.Message;
               if (data === null) {
                 toast.error("Please try again later.");
@@ -1976,9 +2057,15 @@ const EditDrawer = ({
   };
 
   const handleSubmitReminder = async () => {
-    if (status === 7 || status === 8 || status === 9) {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
       toast.warning(
-        "Cannot change task for status 'Accept,' 'Reject,' or 'Accept with Notes'."
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
       getReminderData();
     } else {
@@ -2069,199 +2156,113 @@ const EditDrawer = ({
     }
   };
 
-  // API CALLS
-  const getData = async (api: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response: any;
-      if (api === "/WorkType/GetDropdown") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: clientName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if (api === "/project/getdropdown") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: clientName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if (api === "/Process/GetDropdownByClient") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: clientName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if ("/client/getdropdownforgroup") {
-        response = await axios.get(`${process.env.pms_api_url}${api}`, {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        });
-      } else if ("/status/GetDropdown") {
-        response = await axios.get(`${process.env.pms_api_url}${api}`, {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        });
-      }
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          if (api === "/client/getdropdownforgroup") {
-            setClientDropdownData(response.data.ResponseData);
-            getData("/status/GetDropdown");
-            // onEdit > 0 && onEditData();
-            clientName > 0 && getData("/WorkType/GetDropdown");
-          }
-          if (api === "/WorkType/GetDropdown") {
-            setWorkTypeDropdownData(response.data.ResponseData);
-            getTypeOfReturn();
-            getData("/project/getdropdown");
-          }
-          if (api === "/project/getdropdown") {
-            setProjectDropdownData(response.data.ResponseData.List);
-            getData("/Process/GetDropdownByClient");
-          }
-          if (api === "/Process/GetDropdownByClient") {
-            setProcessDropdownData(
-              response.data.ResponseData.map(
-                (i: any) => new Object({ label: i.Name, value: i.Id })
-              )
-            );
-          }
-          if (api === "/status/GetDropdown") {
-            setStatusDropdownData(response.data.ResponseData);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getCCData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCCDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getTypeOfReturn = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/getformtypelist`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfReturnDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // GEtDropdownData
+  useEffect(() => {
+    const getData = async () => {
+      await setStatusDropdownData(await getStatusDropdownData());
+      await setCCDropdownData(await getCCDropdownData());
+    };
+    getData();
+  }, []);
 
   useEffect(() => {
-    getData("/status/GetDropdown");
-    getCCData();
-    onEditData();
-  }, [onEdit]);
+    const getData = async () => {
+      onOpen &&
+        statusDropdownData.length === 0 &&
+        (await setStatusDropdownData(await getStatusDropdownData()));
+      onOpen &&
+        onEdit === 0 &&
+        setStatus(
+          statusDropdownData
+            .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
+            .filter((i: any) => i !== undefined)[0]
+        );
+      onOpen &&
+        statusDropdownData.length === 0 &&
+        (await setCCDropdownData(await getCCDropdownData()));
+      statusDropdownData.length > 0 && (await onEditData());
+    };
+    getData();
+  }, [onEdit, onOpen, statusDropdownData]);
+
+  useEffect(() => {
+    const getData = async () => {
+      getUserDetails();
+      setClientDropdownData(await getClientDropdownData());
+      setManagerDropdownData(await getManagerDropdownData());
+      const workTypeData: any =
+        clientName > 0 && (await getTypeOfWorkDropdownData(clientName));
+      workTypeData.length > 0 && setTypeOfWorkDropdownData(workTypeData);
+      workTypeData.length > 0 &&
+        onEdit === 0 &&
+        setTypeOfWork(
+          workTypeData.map((i: any) => i.value).includes(3)
+            ? 3
+            : workTypeData.map((i: any) => i.value).includes(1)
+            ? 1
+            : workTypeData.map((i: any) => i.value).includes(2)
+            ? 2
+            : 0
+        );
+      const projectData: any =
+        clientName > 0 && (await getProjectDropdownData(clientName));
+      projectData.length > 0 && setProjectDropdownData(projectData);
+      projectData.length > 0 &&
+        onEdit === 0 &&
+        setProjectName(projectData.map((i: any) => i.value)[0]);
+      const processData: any =
+        clientName > 0 && (await getProcessDropdownData(clientName));
+      setProcessDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
+    };
+
+    onOpen && getData();
+  }, [clientName, onOpen]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const data: any =
+        processName !== 0 &&
+        (await getSubProcessDropdownData(clientName, processName));
+      data.length > 0 && setEstTimeData(data);
+      data.length > 0 &&
+        setSubProcessDropdownData(
+          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+        );
+    };
+
+    getData();
+  }, [processName]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const assigneeData = await getAssigneeDropdownData(
+        clientName,
+        typeOfWork
+      );
+      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
+      const UserId: any = localStorage.getItem("UserId");
+      assigneeData.length > 0 &&
+        setAssignee(
+          assigneeData
+            .map((i: any) =>
+              i.value === parseInt(UserId) ? i.value : undefined
+            )
+            .filter((i: any) => i !== undefined)[0]
+        );
+      setReviewerDropdownData(
+        await getReviewerDropdownData(clientName, typeOfWork)
+      );
+    };
+
+    const getTypeOfReturn = async () => {
+      setTypeOfReturnDropdownData(await getTypeOfReturnDropdownData());
+    };
+
+    typeOfWork !== 0 && getData();
+    typeOfWork === 3 && getTypeOfReturn();
+  }, [typeOfWork, clientName]);
 
   // Add Checklist
   const toggleGeneralOpen = (index: any) => {
@@ -2279,9 +2280,15 @@ const EditDrawer = ({
   };
 
   const handleSaveCheckListName = async (Category: any, index: number) => {
-    if (status === 7 || status === 8 || status === 9) {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
       toast.warning(
-        "Cannot change task for status 'Accept,' 'Reject,' or 'Accept with Notes'."
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
       getCheckListData();
     } else {
@@ -2350,9 +2357,15 @@ const EditDrawer = ({
     IsCheck: any,
     Title: any
   ) => {
-    if (status === 7 || status === 8 || status === 9) {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
       toast.warning(
-        "Cannot change task for status 'Accept,' 'Reject,' or 'Accept with Notes'."
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
       getCheckListData();
     } else {
@@ -2449,127 +2462,6 @@ const EditDrawer = ({
     }
   };
 
-  useEffect(() => {
-    onOpen && getUserDetails();
-    onOpen && getData("/client/getdropdownforgroup");
-  }, [clientName, onOpen]);
-
-  useEffect(() => {
-    onEdit === 0 &&
-      setStatus(
-        statusDropdownData
-          .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
-          .filter((i: any) => i !== undefined)[0]
-      );
-  }, [statusDropdownData]);
-
-  useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.pms_api_url}/Process/GetDropdownByClient`,
-          {
-            clientId: clientName,
-            processId: processName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setEstTimeData(response.data.ResponseData);
-            setSubProcessDropdownData(
-              response.data.ResponseData.map(
-                (i: any) => new Object({ label: i.Name, value: i.Id })
-              )
-            );
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
-    };
-    processName !== 0 && getData();
-  }, [processName]);
-
-  useEffect(() => {
-    const getData = async (api: any) => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.api_url}${api}`,
-          {
-            ClientId: clientName,
-            WorktypeId: typeOfWork,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            if (api === "/user/GetAssigneeUserDropdown") {
-              setAssigneeDropdownData(response.data.ResponseData);
-            }
-            if (api === "/user/GetReviewerDropdown") {
-              setReviewerDropdownData(response.data.ResponseData);
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
-    };
-    typeOfWork !== 0 && getData("/user/GetAssigneeUserDropdown");
-    typeOfWork !== 0 && getData("/user/GetReviewerDropdown");
-  }, [typeOfWork]);
-
   // Comments
   const [commentData, setCommentData] = useState([]);
   const [value, setValue] = useState("");
@@ -2580,13 +2472,15 @@ const EditDrawer = ({
   let commentAttachment: any = [];
   const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
 
-  const users = assigneeDropdownData.map(
-    (i: any) =>
-      new Object({
-        id: i.value,
-        display: i.label,
-      })
-  );
+  const users =
+    assigneeDropdownData?.length > 0 &&
+    assigneeDropdownData.map(
+      (i: any) =>
+        new Object({
+          id: i.value,
+          display: i.label,
+        })
+    );
 
   const handleEditClick = (index: any, message: any) => {
     setEditingCommentIndex(index);
@@ -2601,58 +2495,63 @@ const EditDrawer = ({
 
     if (
       valueEdit.trim().length > 5 &&
-      valueEdit.trim().length < 500 &&
+      valueEdit.trim().length < 501 &&
       !valueEditError
     ) {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-          {
-            workitemId: onEdit,
-            CommentId: i.CommentId,
-            Message: valueEdit,
-            TaggedUsers: mention,
-            Attachment: i.Attachment,
-            type: type,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: i.CommentId,
+              Message: valueEdit,
+              TaggedUsers: mention,
+              Attachment: i.Attachment,
+              type: type,
             },
-          }
-        );
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`Comment updated successfully.`);
-            setMention([]);
-            setValueEdit("");
-            getCommentData(1);
-            setEditingCommentIndex(-1);
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment updated successfully.`);
+              setMention([]);
+              setValueEdit("");
+              getCommentData(1);
+              setEditingCommentIndex(-1);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Please try again later.");
+              toast.error("Failed Please try again.");
             } else {
               toast.error(data);
             }
           }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
           }
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
       }
     }
   };
@@ -2718,57 +2617,62 @@ const EditDrawer = ({
     e.preventDefault();
     setValueError(value.trim().length < 5 || value.trim().length > 500);
 
-    if (value.trim().length > 5 && value.trim().length < 500 && !valueError) {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-          {
-            workitemId: onEdit,
-            CommentId: 0,
-            Message: value,
-            TaggedUsers: mention,
-            Attachment: commentAttachment.length > 0 ? commentAttachment : [],
-            type: type,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
+    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: 0,
+              Message: value,
+              TaggedUsers: mention,
+              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
+              type: type,
             },
-          }
-        );
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`Comment sent successfully.`);
-            setMention([]);
-            commentAttachment = [];
-            setValueEdit("");
-            setValue("");
-            getCommentData(1);
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment sent successfully.`);
+              setMention([]);
+              commentAttachment = [];
+              setValueEdit("");
+              setValue("");
+              getCommentData(commentSelect);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Please try again later.");
+              toast.error("Failed Please try again.");
             } else {
               toast.error(data);
             }
           }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
           }
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
       }
     }
   };
@@ -2834,6 +2738,8 @@ const EditDrawer = ({
   };
 
   const handleClose = () => {
+    setEditData([]);
+    setIsCreatedByClient(false);
     setUserId(0);
     setWorkItemId(0);
     setClientName(0);
@@ -2848,6 +2754,9 @@ const EditDrawer = ({
     setProcessNameErr(false);
     setSubProcess(0);
     setSubProcessErr(false);
+    setManager(0);
+    setManagerErr(false);
+    setEditStatus(0);
     setStatus(0);
     setStatusErr(false);
     setDescription("");
@@ -2856,7 +2765,7 @@ const EditDrawer = ({
     setPriorityErr(false);
     setEstTime("");
     setEstTimeErr(false);
-    setQuantity("");
+    setQuantity(1);
     setQuantityErr(false);
     setStdTime("");
     setStdTimeErr(false);
@@ -2889,6 +2798,8 @@ const EditDrawer = ({
     setCountYearErr(false);
     setNoOfPages(0);
     setNoOfPagesErr(false);
+    setChecklistWorkpaper(0);
+    setChecklistWorkpaperErr(false);
 
     // Sub-Task
     setSubTaskSwitch(false);
@@ -2972,7 +2883,7 @@ const EditDrawer = ({
     // Dropdown
 
     setClientDropdownData([]);
-    setWorkTypeDropdownData([]);
+    setTypeOfWorkDropdownData([]);
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setSubProcessDropdownData([]);
@@ -2995,10 +2906,10 @@ const EditDrawer = ({
     }
   };
 
-  // const isWeekend = (date: any) => {
-  //   const day = date.day();
-  //   return day === 6 || day === 0;
-  // };
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
+  };
 
   return (
     <>
@@ -3052,79 +2963,20 @@ const EditDrawer = ({
                 </div>
                 {taskDrawer && (
                   <>
-                    <div className="mt-[10px] pl-6 flex">
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={clientDropdownData}
-                        value={
-                          clientDropdownData.find(
-                            (i: any) => i.value === clientName
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setClientName(value.value);
-                          setTypeOfWork(0);
-                          setTypeOfWorkErr(false);
-                          setProjectName(0);
-                          setProjectNameErr(false);
-                          setProcessName(0);
-                          setProcessNameErr(false);
-                          setSubProcess(0);
-                          setSubProcessErr(false);
-                          setDescription("");
-                          setDescriptionErr(false);
-                          setPriority(0);
-                          setPriorityErr(false);
-                          setQuantity("");
-                          setQuantityErr(false);
-                          setReceiverDate("");
-                          setReceiverDateErr(false);
-                          setDueDate("");
-                          setDueDateErr(false);
-                          assigneeDisable && setAssignee(0);
-                          assigneeDisable && setAssigneeErr(false);
-                          setReviewer(0);
-                          setReviewerErr(false);
-                        }}
-                        sx={{ width: 300, mt: 0.4, ml: 0.8 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Client Name
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={clientNameErr}
-                            onBlur={(e) => {
-                              if (clientName > 0) {
-                                setClientNameErr(false);
-                              }
-                            }}
-                            helperText={
-                              clientNameErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, ml: 1.5 }}
-                        error={typeOfWorkErr}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Type of Work
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={typeOfWork === 0 ? "" : typeOfWork}
-                          onChange={(e) => {
-                            setProjectName(0);
+                    <Grid container className="px-8">
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={clientDropdownData}
+                          value={
+                            clientDropdownData.find(
+                              (i: any) => i.value === clientName
+                            ) || null
+                          }
+                          onChange={(e, value: any) => {
+                            value && setClientName(value.value);
+                            setTypeOfWorkErr(false);
                             setProjectNameErr(false);
                             setProcessName(0);
                             setProcessNameErr(false);
@@ -3132,9 +2984,11 @@ const EditDrawer = ({
                             setSubProcessErr(false);
                             setDescription("");
                             setDescriptionErr(false);
+                            setManager(0);
+                            setManagerErr(false);
                             setPriority(0);
                             setPriorityErr(false);
-                            setQuantity("");
+                            setQuantity(1);
                             setQuantityErr(false);
                             setReceiverDate("");
                             setReceiverDateErr(false);
@@ -3144,793 +2998,418 @@ const EditDrawer = ({
                             assigneeDisable && setAssigneeErr(false);
                             setReviewer(0);
                             setReviewerErr(false);
-                            setTypeOfWork(e.target.value);
-                            setDateOfReview("");
-                            setDateOfPreperation("");
-                            setReturnType(0);
-                            setTypeOfReturn(0);
-                            setReturnYear(0);
-                            setComplexity(0);
-                            setCountYear(0);
-                            setNoOfPages(0);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
-                              setTypeOfWorkErr(false);
-                            }
-                          }}
-                        >
-                          {workTypeDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                        {typeOfWorkErr && (
-                          <FormHelperText>
-                            This is a required field.
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={projectDropdownData}
-                        value={
-                          projectDropdownData.find(
-                            (i: any) => i.value === projectName
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setProjectName(value.value);
-                        }}
-                        sx={{ width: 300, mt: 0.4, ml: 0.8 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Project Name
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={projectNameErr}
-                            onBlur={(e) => {
-                              if (projectName > 0) {
-                                setProjectNameErr(false);
-                              }
-                            }}
-                            helperText={
-                              projectNameErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      <TextField
-                        label={
-                          <span>
-                            Task Name
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
-                        fullWidth
-                        className="pt-1"
-                        value={
-                          clientTaskName?.trim().length <= 0
-                            ? ""
-                            : clientTaskName
-                        }
-                        onChange={(e) => {
-                          setClientTaskName(e.target.value);
-                          setClientTaskNameErr(false);
-                        }}
-                        onBlur={(e: any) => {
-                          if (e.target.value.trim().length > 4) {
-                            setClientTaskNameErr(false);
-                          }
-                          if (
-                            e.target.value.trim().length > 4 &&
-                            e.target.value.trim().length < 50
-                          ) {
-                            setClientTaskNameErr(false);
-                          }
-                        }}
-                        error={clientTaskNameErr}
-                        helperText={
-                          clientTaskNameErr &&
-                          clientTaskName?.trim().length > 0 &&
-                          clientTaskName?.trim().length < 4
-                            ? "Minimum 4 characters required."
-                            : clientTaskNameErr &&
-                              clientTaskName?.trim().length > 50
-                            ? "Maximum 50 characters allowed."
-                            : clientTaskNameErr
-                            ? "This is a required field."
-                            : ""
-                        }
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1.5 }}
-                      />
-                    </div>
-                    <div className="mt-[10px] pl-6 flex">
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={processDropdownData}
-                        value={
-                          processDropdownData.find(
-                            (i: any) => i.value === processName
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setProcessName(value.value);
-                        }}
-                        sx={{ width: 300, mt: 0.4, ml: 1 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Process Name
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={processNameErr}
-                            onBlur={(e) => {
-                              if (processName > 0) {
-                                setProcessNameErr(false);
-                              }
-                            }}
-                            helperText={
-                              processNameErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={subProcessDropdownData}
-                        value={
-                          subProcessDropdownData.find(
-                            (i: any) => i.value === subProcess
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setSubProcess(value.value);
-                        }}
-                        sx={{ width: 300, mt: 0.4, ml: 0.8 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Sub Process
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={subProcessErr}
-                            onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setSubProcessErr(false);
-                              }
-                            }}
-                            helperText={
-                              subProcessErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      <Autocomplete
-                        id="combo-box-demo"
-                        options={
-                          onEdit === 0
-                            ? statusDropdownData
-                            : statusDropdownDataUse
-                        }
-                        disabled={
-                          onEdit === 0 ||
-                          status === 7 ||
-                          status === 8 ||
-                          status === 9
-                        }
-                        value={
-                          onEdit === 0 && manualSwitch
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
-                              ) || null
-                            : onEdit === 0
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
-                              ) || null
-                            : statusDropdownDataUse.find(
-                                (i: any) => i.value === status
-                              ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setStatus(value.value);
-                        }}
-                        sx={{ width: 300, mt: 0.4, ml: 1.5 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Status
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={statusErr}
-                            onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setStatusErr(false);
-                              }
-                            }}
-                            helperText={
-                              statusErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      <TextField
-                        label={
-                          <span>
-                            Description
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
-                        fullWidth
-                        className="pt-1"
-                        value={
-                          description?.trim().length <= 0 ? "" : description
-                        }
-                        onChange={(e) => {
-                          setDescription(e.target.value);
-                          setDescriptionErr(false);
-                        }}
-                        onBlur={(e: any) => {
-                          if (e.target.value.trim().length > 5) {
-                            setDescriptionErr(false);
-                          }
-                          if (
-                            e.target.value.trim().length > 5 &&
-                            e.target.value.trim().length < 500
-                          ) {
-                            setDescriptionErr(false);
-                          }
-                        }}
-                        error={descriptionErr}
-                        helperText={
-                          descriptionErr &&
-                          description?.trim().length > 0 &&
-                          description?.trim().length < 5
-                            ? "Minimum 5 characters required."
-                            : descriptionErr && description?.trim().length > 500
-                            ? "Maximum 500 characters allowed."
-                            : descriptionErr
-                            ? "This is a required field."
-                            : ""
-                        }
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1.5 }}
-                      />
-                    </div>
-                    <div className="mt-[-12px] pl-6">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, mt: 1.75 }}
-                        error={priorityErr}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Priority
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={priority === 0 ? "" : priority}
-                          onChange={(e) => setPriority(e.target.value)}
-                          onBlur={(e: any) => {
-                            if (e.target.value > 0) {
-                              setPriorityErr(false);
-                            }
-                          }}
-                        >
-                          <MenuItem value={1}>High</MenuItem>
-                          <MenuItem value={2}>Medium</MenuItem>
-                          <MenuItem value={3}>Low</MenuItem>
-                        </Select>
-                        {priorityErr && (
-                          <FormHelperText>
-                            This is a required field.
-                          </FormHelperText>
-                        )}
-                      </FormControl>
-                      <TextField
-                        label="Estimated Time"
-                        disabled
-                        fullWidth
-                        value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
-                                .map((i) => {
-                                  const hours = Math.floor(
-                                    i.EstimatedHour / 3600
-                                  );
-                                  const minutes = Math.floor(
-                                    (i.EstimatedHour % 3600) / 60
-                                  );
-                                  const remainingSeconds = i.EstimatedHour % 60;
-                                  const formattedHours = hours
-                                    .toString()
-                                    .padStart(2, "0");
-                                  const formattedMinutes = minutes
-                                    .toString()
-                                    .padStart(2, "0");
-                                  const formattedSeconds = remainingSeconds
-                                    .toString()
-                                    .padStart(2, "0");
-                                  return subProcess === i.Id
-                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
-                                    : null;
-                                })
-                                .filter((i) => i !== null)
-                            : ""
-                        }
-                        onBlur={(e: any) => {
-                          if (e.target.value.trim().length > 0) {
-                            setEstTimeErr(false);
-                          }
-                        }}
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
-                      />
-                      <TextField
-                        label={
-                          <span>
-                            Quantity
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
-                        onFocus={(e) =>
-                          e.target.addEventListener(
-                            "wheel",
-                            function (e) {
-                              e.preventDefault();
-                            },
-                            { passive: false }
-                          )
-                        }
-                        type="number"
-                        fullWidth
-                        value={quantity}
-                        onChange={(e) => {
-                          setQuantity(e.target.value);
-                          setQuantityErr(false);
-                        }}
-                        onBlur={(e: any) => {
-                          if (
-                            e.target.value.trim().length > 0 &&
-                            e.target.value.trim().length < 5 &&
-                            !e.target.value.trim().includes(".")
-                          ) {
-                            setQuantityErr(false);
-                          }
-                        }}
-                        error={quantityErr}
-                        helperText={
-                          quantityErr && quantity.toString().includes(".")
-                            ? "Only intiger value allowed."
-                            : quantityErr && quantity === ""
-                            ? "This is a required field."
-                            : quantityErr && quantity <= 0
-                            ? "Enter valid number."
-                            : quantityErr && quantity.length > 4
-                            ? "Maximum 4 numbers allowed."
-                            : ""
-                        }
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
-                      />
-                      <TextField
-                        label="Standard Time"
-                        fullWidth
-                        value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
-                                .map((i) => {
-                                  const hours = Math.floor(
-                                    (i.EstimatedHour * quantity) / 3600
-                                  );
-                                  const minutes = Math.floor(
-                                    ((i.EstimatedHour * quantity) % 3600) / 60
-                                  );
-                                  const remainingSeconds =
-                                    (i.EstimatedHour * quantity) % 60;
-                                  const formattedHours = hours
-                                    .toString()
-                                    .padStart(2, "0");
-                                  const formattedMinutes = minutes
-                                    .toString()
-                                    .padStart(2, "0");
-                                  const formattedSeconds = remainingSeconds
-                                    .toString()
-                                    .padStart(2, "0");
-                                  return subProcess === i.Id
-                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
-                                    : null;
-                                })
-                                .filter((i) => i !== null)
-                            : ""
-                        }
-                        disabled
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
-                      />
-                    </div>
-                    <div className="mt-[2px] pl-6 flex items-center">
-                      <div
-                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
-                        }`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label={
-                              <span>
-                                Received Date
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            onError={() => setReceiverDateErr(false)}
-                            value={
-                              receiverDate === "" ? null : dayjs(receiverDate)
-                            }
-                            // shouldDisableDate={isWeekend}
-                            maxDate={dayjs(dueDate).subtract(2, "day")}
-                            onChange={(newDate: any) => {
-                              setReceiverDate(newDate.$d);
-                              setReceiverDateErr(false);
-                              const selectedDate = dayjs(newDate.$d);
-                              let nextDate: any = selectedDate;
-                              if (
-                                selectedDate.day() === 6 ||
-                                selectedDate.day() === 0
-                              ) {
-                                nextDate = nextDate.add(2, "day");
-                              } else if (selectedDate.day() === 5) {
-                                nextDate = nextDate.add(3, "day");
-                              } else {
-                                nextDate = dayjs(newDate.$d)
-                                  .add(2, "day")
-                                  .toDate();
-                              }
-                              setDueDate(nextDate);
-                            }}
-                            slotProps={{
-                              textField: {
-                                helperText: receiverDateErr
-                                  ? "This is a required field."
-                                  : "",
-                                readOnly: true,
-                              } as Record<string, any>,
-                            }}
-                          />
-                        </LocalizationProvider>
-                      </div>
-                      <div
-                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          dueDateErr ? "datepickerError" : ""
-                        }`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label={
-                              <span>
-                                Due Date
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            onError={() => setDueDateErr(false)}
-                            value={dueDate === "" ? null : dayjs(dueDate)}
-                            minDate={dayjs(receiverDate).add(2, "day")}
-                            onChange={(newDate: any) => {
-                              setDueDate(newDate.$d);
-                              setDueDateErr(false);
-                            }}
-                            slotProps={{
-                              textField: {
-                                helperText:
-                                  dueDateErr && dueDate < receiverDate
-                                    ? "Due Date must be grater than Received Date"
-                                    : dueDateErr
-                                    ? "This is a required field."
-                                    : "",
-                                readOnly: true,
-                              } as Record<string, any>,
-                            }}
-                          />
-                        </LocalizationProvider>
-                      </div>
-                      <div
-                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
-                        }`}
-                      >
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
-                            label={<span>All Info Date</span>}
-                            // onError={() => setAllInfoDateErr(false)}
-                            value={
-                              allInfoDate === "" ? null : dayjs(allInfoDate)
-                            }
-                            onChange={(newDate: any) => {
-                              setAllInfoDate(newDate.$d);
-                              // setAllInfoDateErr(false);
-                            }}
-                            // slotProps={{
-                            //   textField: {
-                            //     helperText: allInfoDateErr
-                            //       ? "This is a required field."
-                            //       : "",
-                            //     readOnly: true,
-                            //   } as Record<string, any>,
-                            // }}
-                          />
-                        </LocalizationProvider>
-                      </div>
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={assigneeDropdownData}
-                        disabled={!assigneeDisable}
-                        value={
-                          assigneeDropdownData.find(
-                            (i: any) => i.value === assignee
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setAssignee(value.value);
-                        }}
-                        sx={{ width: 300, mt: -0.5, ml: 0.8 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Assignee
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={assigneeErr}
-                            onBlur={(e) => {
-                              if (assignee > 0) {
-                                setAssigneeErr(false);
-                              }
-                            }}
-                            helperText={
-                              assigneeErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={reviewerDropdownData}
-                        value={
-                          reviewerDropdownData.find(
-                            (i: any) => i.value === reviewer
-                          ) || null
-                        }
-                        onChange={(e, value: any) => {
-                          value && setReviewer(value.value);
-                        }}
-                        sx={{ width: 300, mt: -0.5, ml: 0.8 }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            label={
-                              <span>
-                                Reviewer
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </span>
-                            }
-                            error={reviewerErr}
-                            onBlur={(e) => {
-                              if (reviewer > 0) {
-                                setReviewerErr(false);
-                              }
-                            }}
-                            helperText={
-                              reviewerErr ? "This is a required field." : ""
-                            }
-                          />
-                        )}
-                      />
-                      {typeOfWork !== 3 ? (
-                        <>
-                          {onEdit > 0 && (
-                            <>
-                              <TextField
-                                label={
-                                  <span>
-                                    Date of Preperation
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+                          disabled={isCreatedByClient && editData.ClientId > 0}
+                          sx={{ mx: 0.75, width: 300 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Client Name
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
                                   </span>
+                                </span>
+                              }
+                              error={clientNameErr}
+                              onBlur={(e) => {
+                                if (clientName > 0) {
+                                  setClientNameErr(false);
                                 }
-                                type={inputTypePreperation}
-                                disabled
-                                fullWidth
-                                value={dateOfPreperation}
-                                onChange={(e) =>
-                                  setDateOfPreperation(e.target.value)
-                                }
-                                onFocus={() => setInputTypePreperation("date")}
-                                onBlur={(e: any) => {
-                                  setInputTypePreperation("text");
-                                }}
-                                margin="normal"
-                                variant="standard"
-                                sx={{
-                                  mx: 0.75,
-                                  maxWidth: 300,
-                                  mt: 0.3,
-                                  ml: 1.5,
-                                }}
-                              />
-                              <TextField
-                                label={
-                                  <span>
-                                    Date of Review
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                disabled
-                                type={inputTypeReview}
-                                fullWidth
-                                value={dateOfReview}
-                                onChange={(e) =>
-                                  setDateOfReview(e.target.value)
-                                }
-                                onFocus={() => setInputTypeReview("date")}
-                                onBlur={(e: any) => {
-                                  setInputTypeReview("text");
-                                }}
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 300, mt: -0.4 }}
-                              />
-                            </>
+                              }}
+                              helperText={
+                                clientNameErr ? "This is a required field." : ""
+                              }
+                            />
                           )}
-                        </>
-                      ) : (
-                        <>
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
-                            error={returnTypeErr}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <FormControl
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.3 }}
+                          error={typeOfWorkErr}
+                          disabled={
+                            isCreatedByClient && editData.WorkTypeId > 0
+                          }
+                        >
+                          <InputLabel id="demo-simple-select-standard-label">
+                            Type of Work
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={typeOfWork === 0 ? "" : typeOfWork}
+                            onChange={(e) => {
+                              setProjectName(0);
+                              setProjectNameErr(false);
+                              setProcessName(0);
+                              setProcessNameErr(false);
+                              setSubProcess(0);
+                              setSubProcessErr(false);
+                              setDescription("");
+                              setDescriptionErr(false);
+                              setManager(0);
+                              setManagerErr(false);
+                              setPriority(0);
+                              setPriorityErr(false);
+                              setQuantity(1);
+                              setQuantityErr(false);
+                              setReceiverDate("");
+                              setReceiverDateErr(false);
+                              setDueDate("");
+                              setDueDateErr(false);
+                              assigneeDisable && setAssignee(0);
+                              assigneeDisable && setAssigneeErr(false);
+                              setReviewer(0);
+                              setReviewerErr(false);
+                              setTypeOfWork(e.target.value);
+                              setDateOfReview("");
+                              setDateOfPreperation("");
+                              setReturnType(0);
+                              setTypeOfReturn(0);
+                              setReturnYear(0);
+                              setComplexity(0);
+                              setCountYear(0);
+                              setNoOfPages(0);
+                            }}
+                            onBlur={(e: any) => {
+                              if (e.target.value > 0) {
+                                setTypeOfWorkErr(false);
+                              }
+                            }}
                           >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Return Type
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={returnType === 0 ? "" : returnType}
-                              onChange={(e) => setReturnType(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setReturnTypeErr(false);
-                                }
-                              }}
-                            >
-                              <MenuItem value={1}>Individual Return</MenuItem>
-                              <MenuItem value={2}>Business Return</MenuItem>
-                            </Select>
-                            {returnTypeErr && (
-                              <FormHelperText>
-                                This is a required field.
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9 }}
-                            error={typeOfReturnErr}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Type of Return
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={typeOfReturn === 0 ? "" : typeOfReturn}
-                              onChange={(e) => setTypeOfReturn(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setTypeOfReturnErr(false);
-                                }
-                              }}
-                            >
-                              {typeOfReturnDropdownData.map(
-                                (i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                )
-                              )}
-                            </Select>
-                            {typeOfReturnErr && (
-                              <FormHelperText>
-                                This is a required field.
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.85 }}
-                            error={returnYearErr}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Return Year
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={returnYear === 0 ? "" : returnYear}
-                              onChange={(e) => setReturnYear(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setReturnYearErr(false);
-                                }
-                              }}
-                            >
-                              {Years.map((i: any, index: number) => (
+                            {typeOfWorkDropdownData.map(
+                              (i: any, index: number) => (
                                 <MenuItem value={i.value} key={index}>
                                   {i.label}
                                 </MenuItem>
-                              ))}
-                            </Select>
-                            {returnYearErr && (
-                              <FormHelperText>
-                                This is a required field.
-                              </FormHelperText>
+                              )
                             )}
-                          </FormControl>
-                        </>
-                      )}
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
+                          </Select>
+                          {typeOfWorkErr && (
+                            <FormHelperText>
+                              This is a required field.
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={projectDropdownData}
+                          value={
+                            projectDropdownData.find(
+                              (i: any) => i.value === projectName
+                            ) || null
+                          }
+                          disabled={isCreatedByClient && editData.ProjectId > 0}
+                          onChange={(e, value: any) => {
+                            value && setProjectName(value.value);
+                          }}
+                          sx={{ mx: 0.75, width: 300 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Project Name
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={projectNameErr}
+                              onBlur={(e) => {
+                                if (projectName > 0) {
+                                  setProjectNameErr(false);
+                                }
+                              }}
+                              helperText={
+                                projectNameErr
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          id="combo-box-demo"
+                          options={
+                            onEdit === 0
+                              ? statusDropdownData
+                              : statusDropdownDataUse
+                          }
+                          disabled={
+                            onEdit === 0 ||
+                            status === 7 ||
+                            status === 8 ||
+                            status === 9
+                          }
+                          value={
+                            onEdit === 0 && manualSwitch
+                              ? statusDropdownData.find(
+                                  (i: any) => i.value === status
+                                ) || null
+                              : onEdit === 0
+                              ? statusDropdownData.find(
+                                  (i: any) => i.value === status
+                                ) || null
+                              : statusDropdownDataUse.find(
+                                  (i: any) => i.value === status
+                                ) || null
+                          }
+                          onChange={(e, value: any) => {
+                            value && setStatus(value.value);
+                          }}
+                          sx={{ mx: 0.75, width: 300 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Status
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={statusErr}
+                              onBlur={(e) => {
+                                if (subProcess > 0) {
+                                  setStatusErr(false);
+                                }
+                              }}
+                              helperText={
+                                statusErr ? "This is a required field." : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={processDropdownData}
+                          value={
+                            processDropdownData.find(
+                              (i: any) => i.value === processName
+                            ) || null
+                          }
+                          disabled={isCreatedByClient && editData.ProcessId > 0}
+                          onChange={(e, value: any) => {
+                            value && setProcessName(value.value);
+                          }}
+                          sx={{ mx: 0.75, width: 300 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Process Name
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={processNameErr}
+                              onBlur={(e) => {
+                                if (processName > 0) {
+                                  setProcessNameErr(false);
+                                }
+                              }}
+                              helperText={
+                                processNameErr
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={subProcessDropdownData}
+                          value={
+                            subProcessDropdownData.find(
+                              (i: any) => i.value === subProcess
+                            ) || null
+                          }
+                          disabled={
+                            isCreatedByClient && editData.SubProcessId > 0
+                          }
+                          onChange={(e, value: any) => {
+                            value && setSubProcess(value.value);
+                          }}
+                          sx={{ mx: 0.75, width: 300 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Sub Process
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={subProcessErr}
+                              onBlur={(e) => {
+                                if (subProcess > 0) {
+                                  setSubProcessErr(false);
+                                }
+                              }}
+                              helperText={
+                                subProcessErr ? "This is a required field." : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label={
+                            <span>
+                              Task Name
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          fullWidth
+                          className="pt-1"
+                          value={
+                            clientTaskName?.trim().length <= 0
+                              ? ""
+                              : clientTaskName
+                          }
+                          onChange={(e) => {
+                            setClientTaskName(e.target.value);
+                            setClientTaskNameErr(false);
+                          }}
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 4) {
+                              setClientTaskNameErr(false);
+                            }
+                            if (
+                              e.target.value.trim().length > 4 &&
+                              e.target.value.trim().length < 50
+                            ) {
+                              setClientTaskNameErr(false);
+                            }
+                          }}
+                          error={clientTaskNameErr}
+                          helperText={
+                            clientTaskNameErr &&
+                            clientTaskName?.trim().length > 0 &&
+                            clientTaskName?.trim().length < 4
+                              ? "Minimum 4 characters required."
+                              : clientTaskNameErr &&
+                                clientTaskName?.trim().length > 50
+                              ? "Maximum 50 characters allowed."
+                              : clientTaskNameErr
+                              ? "This is a required field."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          fullWidth
+                          className="pt-1"
+                          value={
+                            description?.trim().length <= 0 ? "" : description
+                          }
+                          onChange={(e) => {
+                            setDescription(e.target.value);
+                            setDescriptionErr(false);
+                          }}
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 5) {
+                              setDescriptionErr(false);
+                            }
+                            if (
+                              e.target.value.trim().length > 5 &&
+                              e.target.value.trim().length < 500
+                            ) {
+                              setDescriptionErr(false);
+                            }
+                          }}
+                          error={descriptionErr}
+                          helperText={
+                            descriptionErr &&
+                            description?.trim().length > 0 &&
+                            description?.trim().length < 5
+                              ? "Minimum 5 characters required."
+                              : descriptionErr &&
+                                description?.trim().length > 500
+                              ? "Maximum 500 characters allowed."
+                              : descriptionErr
+                              ? "This is a required field."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <FormControl
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -1.2 }}
+                          error={priorityErr}
+                        >
+                          <InputLabel id="demo-simple-select-standard-label">
+                            Priority
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={priority === 0 ? "" : priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                            onBlur={(e: any) => {
+                              if (e.target.value > 0) {
+                                setPriorityErr(false);
+                              }
+                            }}
+                          >
+                            <MenuItem value={1}>High</MenuItem>
+                            <MenuItem value={2}>Medium</MenuItem>
+                            <MenuItem value={3}>Low</MenuItem>
+                          </Select>
+                          {priorityErr && (
+                            <FormHelperText>
+                              This is a required field.
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
                       {typeOfWork === 3 && (
-                        <>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
+                            sx={{ mx: 0.75, width: 300, mt: -1.2 }}
                             error={complexityErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -3958,79 +3437,638 @@ const EditDrawer = ({
                               </FormHelperText>
                             )}
                           </FormControl>
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
-                            error={countYearErr}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Current Year
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={countYear === 0 ? "" : countYear}
-                              onChange={(e) => setCountYear(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setCountYearErr(false);
+                        </Grid>
+                      )}
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label="Estimated Time"
+                          disabled
+                          fullWidth
+                          value={
+                            subProcess > 0
+                              ? (estTimeData as any[])
+                                  .map((i) => {
+                                    const hours = Math.floor(
+                                      i.EstimatedHour / 3600
+                                    );
+                                    const minutes = Math.floor(
+                                      (i.EstimatedHour % 3600) / 60
+                                    );
+                                    const remainingSeconds =
+                                      i.EstimatedHour % 60;
+                                    const formattedHours = hours
+                                      .toString()
+                                      .padStart(2, "0");
+                                    const formattedMinutes = minutes
+                                      .toString()
+                                      .padStart(2, "0");
+                                    const formattedSeconds = remainingSeconds
+                                      .toString()
+                                      .padStart(2, "0");
+                                    return subProcess === i.Id
+                                      ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                      : null;
+                                  })
+                                  .filter((i) => i !== null)
+                              : ""
+                          }
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 0) {
+                              setEstTimeErr(false);
+                            }
+                          }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.8 }}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label={
+                            <span>
+                              Quantity
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          onFocus={(e) =>
+                            e.target.addEventListener(
+                              "wheel",
+                              function (e) {
+                                e.preventDefault();
+                              },
+                              { passive: false }
+                            )
+                          }
+                          type="number"
+                          fullWidth
+                          value={quantity}
+                          onChange={(e) => {
+                            setQuantity(e.target.value);
+                            setQuantityErr(false);
+                          }}
+                          onBlur={(e: any) => {
+                            if (
+                              e.target.value.trim().length > 0 &&
+                              e.target.value.trim().length < 5 &&
+                              !e.target.value.trim().includes(".")
+                            ) {
+                              setQuantityErr(false);
+                            }
+                          }}
+                          error={quantityErr}
+                          helperText={
+                            quantityErr && quantity.toString().includes(".")
+                              ? "Only intiger value allowed."
+                              : quantityErr && quantity === ""
+                              ? "This is a required field."
+                              : quantityErr && quantity <= 0
+                              ? "Enter valid number."
+                              : quantityErr && quantity.length > 4
+                              ? "Maximum 4 numbers allowed."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.8 }}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <TextField
+                          label="Standard Time"
+                          fullWidth
+                          value={
+                            subProcess > 0
+                              ? (estTimeData as any[])
+                                  .map((i) => {
+                                    const hours = Math.floor(
+                                      (i.EstimatedHour * quantity) / 3600
+                                    );
+                                    const minutes = Math.floor(
+                                      ((i.EstimatedHour * quantity) % 3600) / 60
+                                    );
+                                    const remainingSeconds =
+                                      (i.EstimatedHour * quantity) % 60;
+                                    const formattedHours = hours
+                                      .toString()
+                                      .padStart(2, "0");
+                                    const formattedMinutes = minutes
+                                      .toString()
+                                      .padStart(2, "0");
+                                    const formattedSeconds = remainingSeconds
+                                      .toString()
+                                      .padStart(2, "0");
+                                    return subProcess === i.Id
+                                      ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                      : null;
+                                  })
+                                  .filter((i) => i !== null)
+                              : ""
+                          }
+                          disabled
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, width: 300, mt: -0.9 }}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            receiverDateErr ? "datepickerError" : ""
+                          }`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Received Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              onError={() => setReceiverDateErr(false)}
+                              value={
+                                receiverDate === "" ? null : dayjs(receiverDate)
+                              }
+                              shouldDisableDate={isWeekend}
+                              maxDate={dayjs(Date.now())}
+                              onChange={(newDate: any) => {
+                                setReceiverDate(newDate.$d);
+                                setReceiverDateErr(false);
+                                const selectedDate = dayjs(newDate.$d);
+                                let nextDate: any = selectedDate;
+                                if (
+                                  selectedDate.day() === 4 ||
+                                  selectedDate.day() === 5
+                                ) {
+                                  nextDate = nextDate.add(4, "day");
+                                } else {
+                                  nextDate = dayjs(newDate.$d)
+                                    .add(2, "day")
+                                    .toDate();
+                                }
+                                setDueDate(nextDate);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText: receiverDateErr
+                                    ? "This is a required field."
+                                    : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            dueDateErr ? "datepickerError" : ""
+                          }`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Due Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              onError={() => setDueDateErr(false)}
+                              value={dueDate === "" ? null : dayjs(dueDate)}
+                              disabled
+                              onChange={(newDate: any) => {
+                                setDueDate(newDate.$d);
+                                setDueDateErr(false);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText:
+                                    dueDateErr && dueDate < receiverDate
+                                      ? "Due Date must be grater than Received Date"
+                                      : dueDateErr
+                                      ? "This is a required field."
+                                      : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <div
+                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            receiverDateErr ? "datepickerError" : ""
+                          }`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="All Info Date"
+                              value={
+                                allInfoDate === "" ? null : dayjs(allInfoDate)
+                              }
+                              onChange={(newDate: any) =>
+                                setAllInfoDate(newDate.$d)
+                              }
+                            />
+                          </LocalizationProvider>
+                        </div>
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={assigneeDropdownData}
+                          disabled={!assigneeDisable}
+                          value={
+                            assigneeDropdownData.find(
+                              (i: any) => i.value === assignee
+                            ) || null
+                          }
+                          onChange={(e, value: any) => {
+                            value && setAssignee(value.value);
+                          }}
+                          sx={{ width: 300, mt: -1, mx: 0.75 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Assignee
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={assigneeErr}
+                              onBlur={(e) => {
+                                if (assignee > 0) {
+                                  setAssigneeErr(false);
                                 }
                               }}
-                            >
-                              {Years.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
-                                  {i.label}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                            {countYearErr && (
-                              <FormHelperText>
-                                This is a required field.
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                          <TextField
-                            label={
-                              <span>
-                                No of Pages
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            type="number"
-                            fullWidth
-                            value={noOfPages === 0 ? "" : noOfPages}
-                            onChange={(e) => {
-                              setNoOfPages(e.target.value);
-                              setNoOfPagesErr(false);
-                            }}
-                            onBlur={(e: any) => {
-                              if (
-                                e.target.value.trim().length > 0 &&
-                                e.target.value.trim().length < 5
-                              ) {
-                                setNoOfPagesErr(false);
+                              helperText={
+                                assigneeErr ? "This is a required field." : ""
                               }
-                            }}
-                            error={noOfPagesErr}
-                            helperText={
-                              noOfPagesErr && noOfPages < 0
-                                ? "Add valid number."
-                                : noOfPagesErr && noOfPages.length > 4
-                                ? "Maximum 4 numbers allowed."
-                                : noOfPagesErr
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 300, my: 0 }}
-                          />
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={reviewerDropdownData}
+                          value={
+                            reviewerDropdownData.find(
+                              (i: any) => i.value === reviewer
+                            ) || null
+                          }
+                          onChange={(e, value: any) => {
+                            value && setReviewer(value.value);
+                          }}
+                          sx={{ width: 300, mt: -1, mx: 0.75 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Reviewer
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={reviewerErr}
+                              onBlur={(e) => {
+                                if (reviewer > 0) {
+                                  setReviewerErr(false);
+                                }
+                              }}
+                              helperText={
+                                reviewerErr ? "This is a required field." : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={3} className="pt-4">
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={managerDropdownData}
+                          value={
+                            managerDropdownData.find(
+                              (i: any) => i.value === manager
+                            ) || null
+                          }
+                          onChange={(e, value: any) => {
+                            value && setManager(value.value);
+                          }}
+                          sx={{ width: 300, mt: -1, mx: 0.75 }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="standard"
+                              label={
+                                <span>
+                                  Manager
+                                  <span className="text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              error={managerErr}
+                              onBlur={(e) => {
+                                if (manager > 0) {
+                                  setManagerErr(false);
+                                }
+                              }}
+                              helperText={
+                                managerErr ? "This is a required field." : ""
+                              }
+                            />
+                          )}
+                        />
+                      </Grid>
+                      {typeOfWork === 3 && (
+                        <>
+                          <Grid item xs={3} className="pt-4">
+                            <FormControl
+                              variant="standard"
+                              sx={{ width: 300, mt: -1.4, mx: 0.75 }}
+                              error={returnTypeErr}
+                              disabled={
+                                isCreatedByClient && editData.TaxReturnType > 0
+                              }
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Return Type
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={returnType === 0 ? "" : returnType}
+                                onChange={(e) => setReturnType(e.target.value)}
+                                onBlur={(e: any) => {
+                                  if (e.target.value > 0) {
+                                    setReturnTypeErr(false);
+                                  }
+                                }}
+                              >
+                                <MenuItem value={1}>Individual Return</MenuItem>
+                                <MenuItem value={2}>Business Return</MenuItem>
+                              </Select>
+                              {returnTypeErr && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <FormControl
+                              variant="standard"
+                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                              error={typeOfReturnErr}
+                              disabled={
+                                isCreatedByClient && editData.TypeOfReturnId > 0
+                              }
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Type of Return
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={typeOfReturn === 0 ? "" : typeOfReturn}
+                                onChange={(e) =>
+                                  setTypeOfReturn(e.target.value)
+                                }
+                                onBlur={(e: any) => {
+                                  if (e.target.value > 0) {
+                                    setTypeOfReturnErr(false);
+                                  }
+                                }}
+                              >
+                                {typeOfReturnDropdownData.map(
+                                  (i: any, index: number) => (
+                                    <MenuItem value={i.value} key={index}>
+                                      {i.label}
+                                    </MenuItem>
+                                  )
+                                )}
+                              </Select>
+                              {typeOfReturnErr && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <FormControl
+                              variant="standard"
+                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                              error={returnYearErr}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Return Year
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={returnYear === 0 ? "" : returnYear}
+                                onChange={(e) => setReturnYear(e.target.value)}
+                                onBlur={(e: any) => {
+                                  if (e.target.value > 0) {
+                                    setReturnYearErr(false);
+                                  }
+                                }}
+                              >
+                                {Years.map((i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {returnYearErr && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <FormControl
+                              variant="standard"
+                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                              error={countYearErr}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Current Year
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={countYear === 0 ? "" : countYear}
+                                onChange={(e) => setCountYear(e.target.value)}
+                                onBlur={(e: any) => {
+                                  if (e.target.value > 0) {
+                                    setCountYearErr(false);
+                                  }
+                                }}
+                              >
+                                {Years.map((i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {countYearErr && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <TextField
+                              label={
+                                <span>
+                                  No of Pages
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              type="number"
+                              fullWidth
+                              value={noOfPages === 0 ? "" : noOfPages}
+                              onChange={(e) => {
+                                setNoOfPages(e.target.value);
+                                setNoOfPagesErr(false);
+                              }}
+                              onBlur={(e: any) => {
+                                if (
+                                  e.target.value.trim().length > 0 &&
+                                  e.target.value.trim().length < 5
+                                ) {
+                                  setNoOfPagesErr(false);
+                                }
+                              }}
+                              error={noOfPagesErr}
+                              helperText={
+                                noOfPagesErr && noOfPages < 0
+                                  ? "Add valid number."
+                                  : noOfPagesErr && noOfPages.length > 4
+                                  ? "Maximum 4 numbers allowed."
+                                  : noOfPagesErr
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ width: 300, mt: 0, mx: 0.75 }}
+                            />
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <FormControl
+                              variant="standard"
+                              sx={{ width: 300, mt: -0.8, mx: 0.75 }}
+                              error={checklistWorkpaperErr}
+                            >
+                              <InputLabel id="demo-simple-select-standard-label">
+                                Checklist/Workpaper
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </InputLabel>
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={
+                                  checklistWorkpaper === 0
+                                    ? ""
+                                    : checklistWorkpaper
+                                }
+                                onChange={(e) =>
+                                  setChecklistWorkpaper(e.target.value)
+                                }
+                                onBlur={(e: any) => {
+                                  if (e.target.value > 0) {
+                                    setChecklistWorkpaperErr(false);
+                                  }
+                                }}
+                              >
+                                <MenuItem value={1}>Yes</MenuItem>
+                                <MenuItem value={2}>No</MenuItem>
+                              </Select>
+                              {checklistWorkpaperErr && (
+                                <FormHelperText>
+                                  This is a required field.
+                                </FormHelperText>
+                              )}
+                            </FormControl>
+                          </Grid>
                         </>
                       )}
-                    </div>
+                      {onEdit > 0 && (
+                        <>
+                          <Grid item xs={3} className="pt-4">
+                            <TextField
+                              label="Date of Preperation"
+                              type={inputTypePreperation}
+                              disabled
+                              fullWidth
+                              value={dateOfPreperation}
+                              onChange={(e) =>
+                                setDateOfPreperation(e.target.value)
+                              }
+                              onFocus={() => setInputTypePreperation("date")}
+                              onBlur={(e: any) => {
+                                setInputTypePreperation("text");
+                              }}
+                              margin="normal"
+                              variant="standard"
+                              sx={{
+                                width: 300,
+                                mt: typeOfWork === 3 ? -0.4 : -1,
+                                mx: 0.75,
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={3} className="pt-4">
+                            <TextField
+                              label="Date of Review"
+                              disabled
+                              type={inputTypeReview}
+                              fullWidth
+                              value={dateOfReview}
+                              onChange={(e) => setDateOfReview(e.target.value)}
+                              onFocus={() => setInputTypeReview("date")}
+                              onBlur={(e: any) => {
+                                setInputTypeReview("text");
+                              }}
+                              margin="normal"
+                              variant="standard"
+                              sx={{
+                                width: 300,
+                                mt: typeOfWork === 3 ? -0.4 : -1,
+                                mx: 0.75,
+                              }}
+                            />
+                          </Grid>
+                        </>
+                      )}
+                    </Grid>
                   </>
                 )}
               </div>
@@ -4410,41 +4448,43 @@ const EditDrawer = ({
                               <div className="flex items-center gap-2">
                                 {editingCommentIndex === index ? (
                                   <div className="flex items-center gap-2">
-                                    <MentionsInput
-                                      style={mentionsInputStyle}
-                                      className="!w-[100%] textareaOutlineNoneEdit"
-                                      value={valueEdit}
-                                      onChange={(e) => {
-                                        setValueEdit(e.target.value);
-                                        setValueEditError(false);
-                                        handleCommentChange(e.target.value);
-                                      }}
-                                      placeholder="Type a nex message OR type @ if you want to mention anyone in the message."
-                                    >
-                                      <Mention
-                                        data={users}
-                                        style={{ backgroundColor: "#cee4e5" }}
-                                        trigger="@"
-                                      />
-                                    </MentionsInput>
-                                    {valueEditError &&
-                                    valueEdit.trim().length > 1 &&
-                                    valueEdit.trim().length < 5 ? (
-                                      <span className="text-defaultRed text-[14px]">
-                                        Minimum 5 characters required.
-                                      </span>
-                                    ) : valueEditError &&
-                                      valueEdit.trim().length > 500 ? (
-                                      <span className="text-defaultRed text-[14px]">
-                                        Maximum 500 characters allowed.
-                                      </span>
-                                    ) : (
-                                      valueEditError && (
+                                    <div className="flex flex-col">
+                                      <MentionsInput
+                                        style={mentionsInputStyle}
+                                        className="!w-[100%] textareaOutlineNoneEdit"
+                                        value={valueEdit}
+                                        onChange={(e) => {
+                                          setValueEdit(e.target.value);
+                                          setValueEditError(false);
+                                          handleCommentChange(e.target.value);
+                                        }}
+                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                      >
+                                        <Mention
+                                          data={users}
+                                          style={{ backgroundColor: "#cee4e5" }}
+                                          trigger="@"
+                                        />
+                                      </MentionsInput>
+                                      {valueEditError &&
+                                      valueEdit.trim().length > 1 &&
+                                      valueEdit.trim().length < 5 ? (
                                         <span className="text-defaultRed text-[14px]">
-                                          This is a required field.
+                                          Minimum 5 characters required.
                                         </span>
-                                      )
-                                    )}
+                                      ) : valueEditError &&
+                                        valueEdit.trim().length > 500 ? (
+                                        <span className="text-defaultRed text-[14px]">
+                                          Maximum 500 characters allowed.
+                                        </span>
+                                      ) : (
+                                        valueEditError && (
+                                          <span className="text-defaultRed text-[14px]">
+                                            This is a required field.
+                                          </span>
+                                        )
+                                      )}
+                                    </div>
                                     <button
                                       type="button"
                                       className="!bg-secondary text-white border rounded-md px-[4px]"
@@ -4513,7 +4553,7 @@ const EditDrawer = ({
                               setValueError(false);
                               handleCommentChange(e.target.value);
                             }}
-                            placeholder="Type a nex message OR type @ if you want to mention anyone in the message."
+                            placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                           >
                             <Mention
                               data={users}
@@ -5696,7 +5736,7 @@ const EditDrawer = ({
                                           )
                                         }
                                         disabled={
-                                          status === 4 ||
+                                          editStatus === 4 ||
                                           status === 7 ||
                                           status === 9 ||
                                           status === 8

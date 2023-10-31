@@ -22,10 +22,10 @@ const Project = ({
   onSearchProjectData,
 }: any) => {
   const headers = [
-    { header: "CLIENT NAME", accessor: "ClientName", sortable: true },
-    { header: "PROJECT NAME", accessor: "ProjectName", sortable: true },
-    { header: "SUB-PROJECT NAME", accessor: "SubProjectName", sortable: true },
-    { header: "STATUS", accessor: "IsActive", sortable: false },
+    { header: "Client Name", accessor: "ClientName", sortable: true },
+    { header: "Project Name", accessor: "ProjectName", sortable: true },
+    { header: "Sub-Project Name", accessor: "SubProjectName", sortable: true },
+    { header: "Status", accessor: "IsActive", sortable: false },
   ];
 
   // const defaultVisibleHeaders = headers.slice(0, 5);
@@ -205,6 +205,9 @@ const Project = ({
     (i: any) =>
       new Object({
         ...i,
+        ClientName: <div className="text-sm">{i.ClientName}</div>,
+        ProjectName: <div className="text-sm">{i.ProjectName}</div>,
+        SubProjectName: <div className="text-sm">{i.SubProjectName}</div>,
         IsActive: <SwitchData id={i.ProjectId} IsActive={i.IsActive} />,
         actions: <Actions actions={["Edit", "Delete"]} id={i.ProjectId} />,
         details:
@@ -216,13 +219,17 @@ const Project = ({
                   return {
                     ...child,
                     ClientName: (
-                      <span className="w-[155px]">{child.ClientName}</span>
+                      <span className="w-[155px] text-sm">
+                        {child.ClientName}
+                      </span>
                     ),
                     ProjectName: (
-                      <span className="w-[220px]">{child.ProjectName}</span>
+                      <span className="w-[220px] text-sm">
+                        {child.ProjectName}
+                      </span>
                     ),
                     SubProjectName: (
-                      <span className="w-[180px] -ml-20">
+                      <span className="w-[180px] -ml-20 text-sm">
                         {child.SubProjectName}
                       </span>
                     ),
