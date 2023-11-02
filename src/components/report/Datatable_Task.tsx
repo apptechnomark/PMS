@@ -110,13 +110,19 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
   // Table Columns
   const columns = [
     {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+      },
+    },
+    {
       name: "TaskName",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">TASK</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task</span>,
       },
     },
     {
@@ -124,9 +130,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">TYPE</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Type</span>,
       },
     },
     {
@@ -135,7 +139,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">PRIORITY</span>
+          <span className="font-bold">Priority</span>
         ),
         customBodyRender: (value: any) => {
           let isHighPriority;
@@ -174,11 +178,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">STATUS</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
+          const statusColorCode = tableMeta.rowData[9];
           return (
             <div>
               <div className="inline-block mr-3">
@@ -199,7 +201,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">ASSIGNED TO</span>
+          <span className="font-bold">Assigned To</span>
         ),
       },
     },
@@ -209,7 +211,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
     //     filter: true,
     //     sort: true,
     //     customHeadLabelRender: () => (
-    //       <span className="font-extrabold uppercase">MONTH CLOSE</span>
+    //       <span className="font-bold">MONTH CLOSE</span>
     //     ),
     //   },
     // },
@@ -219,7 +221,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">hours logged</span>
+          <span className="font-bold">Hours Logged</span>
         ),
       },
     },
@@ -229,7 +231,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">START DATE</span>
+          <span className="font-bold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -254,7 +256,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">DUE DATE</span>
+          <span className="font-bold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {

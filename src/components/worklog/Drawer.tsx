@@ -142,6 +142,8 @@ const Drawer = ({
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [subProcess, setSubProcess] = useState<any>(0);
   const [subProcessErr, setSubProcessErr] = useState(false);
+  const [clientTaskName, setClientTaskName] = useState<string>("");
+  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [startDateErr, setStartDateErr] = useState(false);
   const [endDate, setEndDate] = useState("");
@@ -871,62 +873,66 @@ const Drawer = ({
     };
 
     const fieldValidations = {
-      projectName: typeChecked("ProjectName") && validateField(projectName),
-      typeOfWork: typeChecked("TypeOfWork") && validateField(typeOfWork),
-      returnType:
-        typeOfWork === 3 &&
-        typeChecked("ReturnType") &&
-        validateField(returnType),
-      typeOfReturn:
-        typeOfWork === 3 &&
-        typeChecked("TypeOfReturn") &&
-        validateField(typeOfReturn),
-      priority: typeChecked("Priority") && validateField(priority),
-      processName: typeChecked("ProcessName") && validateField(processName),
-      subProcess: typeChecked("SubProcessName") && validateField(subProcess),
-      startDate: typeChecked("StartDate") && validateField(startDate),
-      endDate: typeChecked("EndDate") && validateField(endDate),
-      quantity: typeChecked("Quantity") && validateField(quantity),
+      // projectName: typeChecked("ProjectName") && validateField(projectName),
+      // typeOfWork: typeChecked("TypeOfWork") && validateField(typeOfWork),
+      // returnType:
+      //   typeOfWork === 3 &&
+      //   typeChecked("ReturnType") &&
+      //   validateField(returnType),
+      // typeOfReturn:
+      //   typeOfWork === 3 &&
+      //   typeChecked("TypeOfReturn") &&
+      //   validateField(typeOfReturn),
+      // priority: typeChecked("Priority") && validateField(priority),
+      // processName: typeChecked("ProcessName") && validateField(processName),
+      // subProcess: typeChecked("SubProcessName") && validateField(subProcess),
+      clientTaskName: typeChecked("TaskName") && validateField(clientTaskName),
+      // startDate: typeChecked("StartDate") && validateField(startDate),
+      // endDate: typeChecked("EndDate") && validateField(endDate),
+      // quantity: typeChecked("Quantity") && validateField(quantity),
     };
 
     fieldsData.map((field: any) => {
-      field.Type === "ProjectName" &&
+      // field.Type === "ProjectName" &&
+      //   field.IsChecked &&
+      //   setProjectNameErr(fieldValidations.projectName);
+      // field.Type === "TypeOfWork" &&
+      //   field.IsChecked &&
+      //   setTypeOfWorkErr(fieldValidations.typeOfWork);
+      // field.Type === "Priority" &&
+      //   field.IsChecked &&
+      //   setPriorityErr(fieldValidations.priority);
+      // field.Type === "ProcessName" &&
+      //   field.IsChecked &&
+      //   setProcessNameErr(fieldValidations.processName);
+      // field.Type === "SubProcessName" &&
+      //   field.IsChecked &&
+      //   setSubProcessErr(fieldValidations.subProcess);
+      field.Type === "TaskName" &&
         field.IsChecked &&
-        setProjectNameErr(fieldValidations.projectName);
-      field.Type === "TypeOfWork" &&
-        field.IsChecked &&
-        setTypeOfWorkErr(fieldValidations.typeOfWork);
-      field.Type === "Priority" &&
-        field.IsChecked &&
-        setPriorityErr(fieldValidations.priority);
-      field.Type === "ProcessName" &&
-        field.IsChecked &&
-        setProcessNameErr(fieldValidations.processName);
-      field.Type === "SubProcessName" &&
-        field.IsChecked &&
-        setSubProcessErr(fieldValidations.subProcess);
-      field.Type === "StartDate" &&
-        field.IsChecked &&
-        setStartDateErr(fieldValidations.startDate);
-      field.Type === "EndDate" &&
-        field.IsChecked &&
-        setEndDateErr(fieldValidations.endDate);
-      field.Type === "Quantity" &&
-        field.IsChecked &&
-        setQuantityErr(fieldValidations.quantity);
-      field.Type === "Quantity" &&
-        field.IsChecked &&
-        setQuantityErr(
-          quantity.length <= 0 ||
-            quantity.length > 4 ||
-            quantity <= 0 ||
-            quantity.toString().includes(".")
-        );
-      typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
-      field.Type === "TypeOfReturn" &&
-        field.IsChecked &&
-        typeOfWork === 3 &&
-        setTypeOfReturnErr(fieldValidations.typeOfReturn);
+        setClientTaskNameErr(fieldValidations.clientTaskName);
+      // field.Type === "StartDate" &&
+      //   field.IsChecked &&
+      //   setStartDateErr(fieldValidations.startDate);
+      // field.Type === "EndDate" &&
+      //   field.IsChecked &&
+      //   setEndDateErr(fieldValidations.endDate);
+      // field.Type === "Quantity" &&
+      //   field.IsChecked &&
+      //   setQuantityErr(fieldValidations.quantity);
+      // field.Type === "Quantity" &&
+      //   field.IsChecked &&
+      //   setQuantityErr(
+      //     quantity.length <= 0 ||
+      //       quantity.length > 4 ||
+      //       quantity <= 0 ||
+      //       quantity.toString().includes(".")
+      //   );
+      // typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
+      // field.Type === "TypeOfReturn" &&
+      //   field.IsChecked &&
+      //   typeOfWork === 3 &&
+      //   setTypeOfReturnErr(fieldValidations.typeOfReturn);
     });
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
@@ -961,6 +967,7 @@ const Drawer = ({
           {
             ClientId: clientId,
             WorkItemId: onEdit > 0 ? onEdit : 0,
+            taskName: clientTaskName.length <= 0 ? null : clientTaskName,
             WorkTypeId: typeOfWork === 0 ? null : typeOfWork,
             ProjectId: projectName === 0 ? null : projectName,
             ProcessId: processName === 0 ? null : processName,
@@ -1047,11 +1054,7 @@ const Drawer = ({
             "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
           );
           onEdit > 0 && getEditData();
-        } else if (
-          quantity > 0 &&
-          quantity < 10000 &&
-          !quantity.toString().includes(".")
-        ) {
+        } else {
           saveWorklog();
         }
       } else {
@@ -1235,6 +1238,7 @@ const Drawer = ({
           setPriority(data.Priority === null ? 0 : data.Priority);
           setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
           setSubProcess(data.SubProcessId === null ? 0 : data.SubProcessId);
+          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setStartDate(data.ReceiverDate === null ? "" : data.ReceiverDate);
           setEndDate(data.DueDate === null ? "" : data.DueDate);
           setQuantity(data.Quantity === null ? 0 : data.Quantity);
@@ -1327,10 +1331,32 @@ const Drawer = ({
             if (response.data.ResponseStatus === "Success") {
               if (api === "/WorkType/GetDropdown") {
                 setTypeOfWorkDropdownData(response.data.ResponseData);
+                response.data.ResponseData.length > 0 &&
+                  onEdit === 0 &&
+                  setTypeOfWork(
+                    response.data.ResponseData.map(
+                      (i: any) => i.value
+                    ).includes(3)
+                      ? 3
+                      : response.data.ResponseData.map(
+                          (i: any) => i.value
+                        ).includes(1)
+                      ? 1
+                      : response.data.ResponseData.map(
+                          (i: any) => i.value
+                        ).includes(2)
+                      ? 2
+                      : 0
+                  );
                 getData("/project/getdropdown");
               }
               if (api === "/project/getdropdown") {
                 setProjectDropdownData(response.data.ResponseData.List);
+                response.data.ResponseData.List.length > 0 &&
+                  onEdit === 0 &&
+                  setProjectName(
+                    response.data.ResponseData.List.map((i: any) => i.value)[0]
+                  );
                 getData("/Process/GetDropdownByClient");
               }
               if (api === "/Process/GetDropdownByClient") {
@@ -1556,25 +1582,27 @@ const Drawer = ({
     setActiveTab(0);
     setTaskDrawer(true);
     setProjectName(0);
-    setProjectNameErr(false);
+    // setProjectNameErr(false);
     setTypeOfWork(0);
-    setTypeOfWorkErr(false);
+    // setTypeOfWorkErr(false);
     setReturnType(0);
-    setReturnTypeErr(false);
+    // setReturnTypeErr(false);
     setTypeOfReturn(0);
-    setTypeOfReturnErr(false);
+    // setTypeOfReturnErr(false);
     setPriority(0);
-    setPriorityErr(false);
+    // setPriorityErr(false);
     setProcessName(0);
-    setProcessNameErr(false);
+    // setProcessNameErr(false);
     setSubProcess(0);
-    setSubProcessErr(false);
+    // setSubProcessErr(false);
+    setClientTaskName("");
+    setClientTaskNameErr(false);
     setStartDate("");
-    setStartDateErr(false);
+    // setStartDateErr(false);
     setEndDate("");
-    setEndDateErr(false);
+    // setEndDateErr(false);
     setQuantity(0);
-    setQuantityErr(false);
+    // setQuantityErr(false);
     setSubProcessDropdownData([]);
     setEditStatus(0);
 
@@ -1659,9 +1687,9 @@ const Drawer = ({
               .map((task: any, index: number) => (
                 <div
                   key={index}
-                  className={`py-2 px-3 text-[15px] ${
+                  className={`my-2 px-3 text-[14px] ${
                     index !== Task.length - 1 && "border-r border-r-lightSilver"
-                  } cursor-pointer font-semibold hover:text-[#0592C6] text-slatyGrey`}
+                  } cursor-pointer font-bold hover:text-[#0592C6] text-slatyGrey`}
                   onClick={() => handleTabClick(index)}
                 >
                   {task}
@@ -1720,25 +1748,18 @@ const Drawer = ({
                               <TextField
                                 {...params}
                                 variant="standard"
-                                label={
-                                  <span>
-                                    Project Name
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                error={projectNameErr}
-                                onBlur={(e) => {
-                                  if (projectName > 0) {
-                                    setProjectNameErr(false);
-                                  }
-                                }}
-                                helperText={
-                                  projectNameErr
-                                    ? "This is a required field."
-                                    : ""
-                                }
+                                label="Project Name"
+                                // error={projectNameErr}
+                                // onBlur={(e) => {
+                                //   if (projectName > 0) {
+                                //     setProjectNameErr(false);
+                                //   }
+                                // }}
+                                // helperText={
+                                //   projectNameErr
+                                //     ? "This is a required field."
+                                //     : ""
+                                // }
                               />
                             )}
                           />
@@ -1749,14 +1770,14 @@ const Drawer = ({
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3 }}
-                            error={typeOfWorkErr}
+                            // error={typeOfWorkErr}
                             disabled={
                               !isCreatedByClient || isCompletedTaskClicked
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Type of Work
-                              <span className="text-defaultRed">&nbsp;*</span>
+                              {/* <span className="text-defaultRed">&nbsp;*</span> */}
                             </InputLabel>
                             <Select
                               labelId="demo-simple-select-standard-label"
@@ -1765,11 +1786,11 @@ const Drawer = ({
                               onChange={(e) => {
                                 setTypeOfWork(e.target.value);
                               }}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setTypeOfWorkErr(false);
-                                }
-                              }}
+                              // onBlur={(e: any) => {
+                              //   if (e.target.value > 0) {
+                              //     setTypeOfWorkErr(false);
+                              //   }
+                              // }}
                             >
                               {typeOfWorkDropdownData.map(
                                 (i: any, index: number) => (
@@ -1779,11 +1800,11 @@ const Drawer = ({
                                 )
                               )}
                             </Select>
-                            {typeOfWorkErr && (
+                            {/* {typeOfWorkErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                         </Grid>
                       )}
@@ -1792,35 +1813,35 @@ const Drawer = ({
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3 }}
-                            error={priorityErr}
+                            // error={priorityErr}
                             disabled={
                               !isCreatedByClient || isCompletedTaskClicked
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Priority
-                              <span className="text-defaultRed">&nbsp;*</span>
+                              {/* <span className="text-defaultRed">&nbsp;*</span> */}
                             </InputLabel>
                             <Select
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
                               value={priority === 0 ? "" : priority}
                               onChange={(e) => setPriority(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setPriorityErr(false);
-                                }
-                              }}
+                              // onBlur={(e: any) => {
+                              //   if (e.target.value > 0) {
+                              //     setPriorityErr(false);
+                              //   }
+                              // }}
                             >
                               <MenuItem value={1}>High</MenuItem>
                               <MenuItem value={2}>Medium</MenuItem>
                               <MenuItem value={3}>Low</MenuItem>
                             </Select>
-                            {priorityErr && (
+                            {/* {priorityErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                         </Grid>
                       )}
@@ -1847,25 +1868,18 @@ const Drawer = ({
                               <TextField
                                 {...params}
                                 variant="standard"
-                                label={
-                                  <span>
-                                    Process Name
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                error={processNameErr}
-                                onBlur={(e) => {
-                                  if (processName > 0) {
-                                    setProcessNameErr(false);
-                                  }
-                                }}
-                                helperText={
-                                  processNameErr
-                                    ? "This is a required field."
-                                    : ""
-                                }
+                                label="Process Name"
+                                // error={processNameErr}
+                                // onBlur={(e) => {
+                                //   if (processName > 0) {
+                                //     setProcessNameErr(false);
+                                //   }
+                                // }}
+                                // helperText={
+                                //   processNameErr
+                                //     ? "This is a required field."
+                                //     : ""
+                                // }
                               />
                             )}
                           />
@@ -1893,27 +1907,71 @@ const Drawer = ({
                               <TextField
                                 {...params}
                                 variant="standard"
-                                label={
-                                  <span>
-                                    Sub Process
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                error={subProcessErr}
-                                onBlur={(e) => {
-                                  if (subProcess > 0) {
-                                    setSubProcessErr(false);
-                                  }
-                                }}
-                                helperText={
-                                  subProcessErr
-                                    ? "This is a required field."
-                                    : ""
-                                }
+                                label="Sub Process"
+                                // error={subProcessErr}
+                                // onBlur={(e) => {
+                                //   if (subProcess > 0) {
+                                //     setSubProcessErr(false);
+                                //   }
+                                // }}
+                                // helperText={
+                                //   subProcessErr
+                                //     ? "This is a required field."
+                                //     : ""
+                                // }
                               />
                             )}
+                          />
+                        </Grid>
+                      )}
+                      {type.Type === "TaskName" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-0.5">
+                          <TextField
+                            label={
+                              <span>
+                                Task Name
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            fullWidth
+                            value={
+                              clientTaskName?.trim().length <= 0
+                                ? ""
+                                : clientTaskName
+                            }
+                            onChange={(e) => {
+                              setClientTaskName(e.target.value);
+                              setClientTaskNameErr(false);
+                            }}
+                            onBlur={(e: any) => {
+                              if (e.target.value.trim().length > 4) {
+                                setClientTaskNameErr(false);
+                              }
+                              if (
+                                e.target.value.trim().length > 4 &&
+                                e.target.value.trim().length < 50
+                              ) {
+                                setClientTaskNameErr(false);
+                              }
+                            }}
+                            error={clientTaskNameErr}
+                            helperText={
+                              clientTaskNameErr &&
+                              clientTaskName?.trim().length > 0 &&
+                              clientTaskName?.trim().length < 4
+                                ? "Minimum 4 characters required."
+                                : clientTaskNameErr &&
+                                  clientTaskName?.trim().length > 50
+                                ? "Maximum 50 characters allowed."
+                                : clientTaskNameErr
+                                ? "This is a required field."
+                                : ""
+                            }
+                            margin="normal"
+                            variant="standard"
+                            sx={{ width: 300 }}
                           />
                         </Grid>
                       )}
@@ -1926,14 +1984,7 @@ const Drawer = ({
                           >
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DatePicker
-                                label={
-                                  <span>
-                                    Received Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
+                                label="Received Date"
                                 disabled={
                                   !isCreatedByClient || isCompletedTaskClicked
                                 }
@@ -1962,9 +2013,9 @@ const Drawer = ({
                                 }}
                                 slotProps={{
                                   textField: {
-                                    helperText: startDateErr
-                                      ? "This is a required field."
-                                      : "",
+                                    // helperText: startDateErr
+                                    //   ? "This is a required field."
+                                    //   : "",
                                     readOnly: true,
                                   } as Record<string, any>,
                                 }}
@@ -1976,23 +2027,16 @@ const Drawer = ({
                       {type.Type === "EndDate" && type.IsChecked && (
                         <Grid item xs={3} className="pt-[13px]">
                           <div
-                            className={`inline-flex mb-[8px] mt-[-1px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                              endDateErr ? "datepickerError" : ""
-                            }`}
+                            className={`inline-flex mb-[8px] mt-[-1px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            // ${
+                            //   endDateErr ? "datepickerError" : ""
+                            // }
                           >
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DatePicker
-                                label={
-                                  <span>
-                                    Due Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
+                                label="Due Date"
                                 disabled
                                 shouldDisableDate={isWeekend}
-                                maxDate={dayjs(Date.now())}
                                 onError={() => setEndDateErr(false)}
                                 value={endDate === "" ? null : dayjs(endDate)}
                                 onChange={(newDate: any) => {
@@ -2001,9 +2045,9 @@ const Drawer = ({
                                 }}
                                 slotProps={{
                                   textField: {
-                                    helperText: endDateErr
-                                      ? "This is a required field."
-                                      : "",
+                                    // helperText: endDateErr
+                                    //   ? "This is a required field."
+                                    //   : "",
                                     readOnly: true,
                                   } as Record<string, any>,
                                 }}
@@ -2015,14 +2059,7 @@ const Drawer = ({
                       {type.Type === "Quantity" && type.IsChecked && (
                         <Grid item xs={3} className="pt-0">
                           <TextField
-                            label={
-                              <span>
-                                Quantity
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
+                            label="Quantity"
                             disabled={
                               !isCreatedByClient || isCompletedTaskClicked
                             }
@@ -2040,29 +2077,29 @@ const Drawer = ({
                             value={quantity === 0 ? "" : quantity}
                             onChange={(e) => {
                               setQuantity(e.target.value);
-                              setQuantityErr(false);
+                              // setQuantityErr(false);
                             }}
-                            onBlur={(e: any) => {
-                              if (
-                                e.target.value.trim().length > 0 &&
-                                e.target.value.trim().length < 5 &&
-                                !e.target.value.trim().includes(".")
-                              ) {
-                                setQuantityErr(false);
-                              }
-                            }}
-                            error={quantityErr}
-                            helperText={
-                              quantityErr && quantity.toString().includes(".")
-                                ? "Only intiger value allowed."
-                                : quantityErr && quantity === ""
-                                ? "This is a required field."
-                                : quantityErr && quantity <= 0
-                                ? "Enter valid number."
-                                : quantityErr && quantity.length > 4
-                                ? "Maximum 4 numbers allowed."
-                                : ""
-                            }
+                            // onBlur={(e: any) => {
+                            //   if (
+                            //     e.target.value.trim().length > 0 &&
+                            //     e.target.value.trim().length < 5 &&
+                            //     !e.target.value.trim().includes(".")
+                            //   ) {
+                            //     setQuantityErr(false);
+                            //   }
+                            // }}
+                            // error={quantityErr}
+                            // helperText={
+                            //   quantityErr && quantity.toString().includes(".")
+                            //     ? "Only intiger value allowed."
+                            //     : quantityErr && quantity === ""
+                            //     ? "This is a required field."
+                            //     : quantityErr && quantity <= 0
+                            //     ? "Enter valid number."
+                            //     : quantityErr && quantity.length > 4
+                            //     ? "Maximum 4 numbers allowed."
+                            //     : ""
+                            // }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300 }}
@@ -2076,34 +2113,34 @@ const Drawer = ({
                             <FormControl
                               variant="standard"
                               sx={{ width: 300 }}
-                              error={returnTypeErr}
+                              // error={returnTypeErr}
                               disabled={
                                 !isCreatedByClient || isCompletedTaskClicked
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
                                 Return Type
-                                <span className="text-defaultRed">&nbsp;*</span>
+                                {/* <span className="text-defaultRed">&nbsp;*</span> */}
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-standard-label"
                                 id="demo-simple-select-standard"
                                 value={returnType === 0 ? "" : returnType}
                                 onChange={(e) => setReturnType(e.target.value)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setReturnTypeErr(false);
-                                  }
-                                }}
+                                // onBlur={(e: any) => {
+                                //   if (e.target.value > 0) {
+                                //     setReturnTypeErr(false);
+                                //   }
+                                // }}
                               >
                                 <MenuItem value={1}>Individual Return</MenuItem>
                                 <MenuItem value={2}>Business Return</MenuItem>
                               </Select>
-                              {returnTypeErr && (
+                              {/* {returnTypeErr && (
                                 <FormHelperText>
                                   This is a required field.
                                 </FormHelperText>
-                              )}
+                              )} */}
                             </FormControl>
                           </Grid>
                         )}
@@ -2114,14 +2151,14 @@ const Drawer = ({
                             <FormControl
                               variant="standard"
                               sx={{ width: 300 }}
-                              error={typeOfReturnErr}
+                              // error={typeOfReturnErr}
                               disabled={
                                 !isCreatedByClient || isCompletedTaskClicked
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
                                 Type of Return
-                                <span className="text-defaultRed">&nbsp;*</span>
+                                {/* <span className="text-defaultRed">&nbsp;*</span> */}
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-standard-label"
@@ -2130,11 +2167,11 @@ const Drawer = ({
                                 onChange={(e) =>
                                   setTypeOfReturn(e.target.value)
                                 }
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setTypeOfReturnErr(false);
-                                  }
-                                }}
+                                // onBlur={(e: any) => {
+                                //   if (e.target.value > 0) {
+                                //     setTypeOfReturnErr(false);
+                                //   }
+                                // }}
                               >
                                 {typeOfReturnDropdownData.map(
                                   (i: any, index: number) => (
@@ -2144,11 +2181,11 @@ const Drawer = ({
                                   )
                                 )}
                               </Select>
-                              {typeOfReturnErr && (
+                              {/* {typeOfReturnErr && (
                                 <FormHelperText>
                                   This is a required field.
                                 </FormHelperText>
-                              )}
+                              )} */}
                             </FormControl>
                           </Grid>
                         )}
@@ -2447,17 +2484,22 @@ const Drawer = ({
                                       );
                                     })}
                                   </div>
-                                  {userId === i.UserId && (
-                                    <button
-                                      type="button"
-                                      className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                      onClick={() =>
-                                        handleEditClick(index, i.Message)
-                                      }
-                                    >
-                                      <EditIcon className="h-4 w-4" />
-                                    </button>
-                                  )}
+                                  {userId === i.UserId &&
+                                    hasPermissionWorklog(
+                                      "Comment",
+                                      "save",
+                                      "WorkLogs"
+                                    ) && (
+                                      <button
+                                        type="button"
+                                        className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
+                                        onClick={() =>
+                                          handleEditClick(index, i.Message)
+                                        }
+                                      >
+                                        <EditIcon className="h-4 w-4" />
+                                      </button>
+                                    )}
                                 </>
                               )}
                             </div>

@@ -541,16 +541,26 @@ const Datatable = ({
   // Table columns
   const columns = [
     {
+      name: "WorkitemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Task ID</span>
+        ),
+      },
+    },
+    {
       name: "EmpolyeeName",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Employees</span>
+          <span className="font-bold text-sm">Employees</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -561,11 +571,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Designation</span>
+          <span className="font-bold text-sm">Designation</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -576,12 +586,12 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">EST. Hours</span>
+          <span className="font-bold text-sm">Est. Hours</span>
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value ? formatTime(value) : "00:00:00"}
             </div>
           );
@@ -594,12 +604,12 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">total hrs</span>
+          <span className="font-bold text-sm">Total Hrs</span>
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value ? formatTime(value) : "00:00:00"}
             </div>
           );
@@ -613,17 +623,17 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold">REVIEW TIMER</span>
+          <span className="font-bold">Review Timer</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
           return (
-            <div className="w-40 h-7 flex items-center ml-5 lg:ml-0">
+            <div className="w-40 h-7 flex items-center">
               <ColorToolTip
                 title={`Estimated Time: ${toHoursAndMinutes(
-                  tableMeta.rowData[3]
+                  tableMeta.rowData[4]
                 )}`}
                 placement="top"
                 arrow
@@ -734,11 +744,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Client</span>
+          <span className="font-bold text-sm">Client</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -749,11 +759,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Project</span>
+          <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -764,12 +774,12 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Process</span>
+          <span className="font-bold text-sm">Process</span>
         ),
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
-            <div className="font-semibold ml-5 lg:ml-0">
+            <div className="font-semibold">
               <ColorToolTip title={value} placement="top">
                 {shortProcessName[0]}
               </ColorToolTip>
@@ -784,11 +794,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Sub Process</span>
+          <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -799,7 +809,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Start Date</span>
+          <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -824,7 +834,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">End Date</span>
+          <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -849,11 +859,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Qty.</span>
+          <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -864,11 +874,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Edited Time</span>
+          <span className="font-bold text-sm">Edited Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value ? formatTime(value) : "00:00:00"}
             </div>
           );
@@ -881,11 +891,11 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Is Manual</span>
+          <span className="font-bold text-sm">Is Manual</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === true ? "Yes" : "No"}</div>
+            <div>{value === true ? "Yes" : "No"}</div>
           );
         },
       },
@@ -897,13 +907,13 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm uppercase">Manager</span>
+          <span className="font-bold text-sm">Manager</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null || value === undefined || value === "") {
-            return <div className="ml-5 lg:ml-0">-</div>;
+            return <div>-</div>;
           } else {
-            return <div className="ml-5 lg:ml-0">{value}</div>;
+            return <div>{value}</div>;
           }
         },
       },

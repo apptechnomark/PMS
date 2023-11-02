@@ -55,26 +55,29 @@ const Home = () => {
           );
         }
         const local: any = await localStorage.getItem("permission");
-        if (response.data.ResponseData.IsClientUser && local.length > 0) {
-          hasPermissionWorklog("", "View", "Report") &&
-            (hasPermissionWorklog("Task", "View", "Report") ||
-              hasPermissionWorklog("Rating", "View", "Report")) &&
-            router.push("/report");
-          hasPermissionWorklog("", "View", "WorkLogs") &&
-            (hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
-              hasPermissionWorklog("Rating", "View", "WorkLogs")) &&
-            router.push("/worklog");
-          hasPermissionWorklog("", "View", "Dashboard") &&
-            router.push("/dashboard");
-        } else {
-          (hasPermissionWorklog("", "View", "WorkLogs") ||
-            hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
-            hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
-            router.push("/worklogs");
-          hasPermissionWorklog("", "View", "Approvals") &&
-            router.push("/approvals");
-          hasPermissionWorklog("", "View", "Settings") &&
-            router.push("/settings");
+        if (local.length > 0) {
+          if (response.data.ResponseData.IsClientUser === true) {
+            hasPermissionWorklog("", "View", "Report") &&
+              (hasPermissionWorklog("Task", "View", "Report") ||
+                hasPermissionWorklog("Rating", "View", "Report")) &&
+              router.push("/report");
+            hasPermissionWorklog("", "View", "WorkLogs") &&
+              (hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
+                hasPermissionWorklog("Rating", "View", "WorkLogs")) &&
+              router.push("/worklog");
+            hasPermissionWorklog("", "View", "Dashboard") &&
+              router.push("/dashboard");
+          }
+          if (response.data.ResponseData.IsClientUser === false) {
+            hasPermissionWorklog("", "View", "WorkLogs") &&
+              (hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
+                hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
+              router.push("/worklogs");
+            hasPermissionWorklog("", "View", "Approvals") &&
+              router.push("/approvals");
+            hasPermissionWorklog("", "View", "Settings") &&
+              router.push("/settings");
+          }
         }
       }
     } catch (error: any) {

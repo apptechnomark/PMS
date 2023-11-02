@@ -203,8 +203,8 @@ const EditDrawer = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const users =
-  assigneeDropdownData?.length > 0 &&
-  assigneeDropdownData.map(
+    assigneeDropdownData?.length > 0 &&
+    assigneeDropdownData.map(
       (i: any) =>
         new Object({
           id: i.value,
@@ -1504,7 +1504,7 @@ const EditDrawer = ({
               setStatus(data.StatusId);
               setPriority(data.Priority);
               setQuantity(data.Quantity);
-              setDescription(data.Description);
+              setDescription(data.Description === null ? "" : data.Description);
               setReceiverDate(data.ReceiverDate);
               setDueDate(data.DueDate);
               setDateOfReview(data.ReviewerDate);
@@ -2411,7 +2411,7 @@ const EditDrawer = ({
                 .map((task: any, index: number) => (
                   <div
                     key={index}
-                    className={`py-2 px-3 text-[15px] ${
+                    className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
                     } cursor-pointer font-semibold hover:text-[#0592C6] text-slatyGrey`}

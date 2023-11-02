@@ -111,13 +111,19 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
   // Table Columns
   const columns = [
     {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+      },
+    },
+    {
       name: "ProjectName",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">PROJECT</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Project</span>,
       },
     },
     {
@@ -125,9 +131,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Task</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task</span>,
       },
     },
     {
@@ -136,7 +140,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Return type</span>
+          <span className="font-bold">Return Type</span>
         ),
         customBodyRender: (value: any) => {
           return <div>{value === null ? "-" : value}</div>;
@@ -149,7 +153,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">type of return</span>
+          <span className="font-bold">Type Of Return</span>
         ),
         customBodyRender: (value: any) => {
           return <div>{value === null ? "-" : value}</div>;
@@ -162,7 +166,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Rating date</span>
+          <span className="font-bold">Rating Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -187,7 +191,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">date submitted</span>
+          <span className="font-bold">Date Submitted</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -212,7 +216,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">hours logged</span>
+          <span className="font-bold">Hours Logged</span>
         ),
       },
     },
@@ -221,9 +225,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Ratings</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Ratings</span>,
         customBodyRender: (value: any) => {
           return <Rating name="read-only" value={value} readOnly />;
         },

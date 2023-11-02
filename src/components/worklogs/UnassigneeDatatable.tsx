@@ -755,17 +755,27 @@ const UnassigneeDatatable = ({
   // Table Columns
   const columns = [
     {
+      name: "WorkitemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Task ID</span>
+        ),
+      },
+    },
+    {
       name: "ClientName",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">CLIENT</span>
+          <span className="font-bold text-sm">Client</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[16];
+          const IsHasErrorlog = tableMeta.rowData[17];
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {IsHasErrorlog && (
                 <div
                   className={
@@ -785,12 +795,12 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PROJECT</span>
+          <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[17];
+          const IsRecurring = tableMeta.rowData[18];
           return (
-            <div className="flex items-center gap-2 ml-5 lg:ml-0">
+            <div className="flex items-center gap-2">
               {value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
@@ -819,12 +829,12 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PROCESS</span>
+          <span className="font-bold text-sm">Process</span>
         ),
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
-            <div className="font-semibold ml-5 lg:ml-0">
+            <div className="font-semibold">
               <ColorToolTip title={value} placement="top">
                 {shortProcessName[0]}
               </ColorToolTip>
@@ -839,11 +849,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">SUB PROCESS</span>
+          <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -860,11 +870,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ASSIGNED TO</span>
+          <span className="font-bold text-sm">Assigned To</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value === null || value === undefined || value === ""
                 ? "-"
                 : value}
@@ -879,7 +889,7 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PRIORITY</span>
+          <span className="font-bold text-sm">Priority</span>
         ),
         customBodyRender: (value: any) => {
           let isHighPriority;
@@ -893,7 +903,7 @@ const UnassigneeDatatable = ({
           }
 
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value === null ? (
                 "-"
               ) : (
@@ -933,12 +943,12 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">STATUS</span>
+          <span className="font-bold text-sm">Status</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[7];
+          const statusColorCode = tableMeta.rowData[8];
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {value === null ? (
                 "-"
               ) : (
@@ -964,11 +974,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">EST. TIME</span>
+          <span className="font-bold text-sm">Est. Time</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -979,11 +989,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">QTY.</span>
+          <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -994,11 +1004,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ACTUAL TIME</span>
+          <span className="font-bold text-sm">Actual Time</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -1009,11 +1019,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">TOTAL EST. TIME</span>
+          <span className="font-bold text-sm">Total Est. Time</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },
@@ -1024,7 +1034,7 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">START DATE</span>
+          <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -1049,7 +1059,7 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">END DATE</span>
+          <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -1074,11 +1084,11 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ASSIGNED BY</span>
+          <span className="font-bold text-sm">Assigned By</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div>{value === null ? "-" : value}</div>
           );
         },
       },

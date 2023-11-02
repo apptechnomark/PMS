@@ -1068,21 +1068,23 @@ const page = () => {
           </div>
         ) : (
           <div className="bg-white flex justify-between items-center">
-            <div className="flex items-center py-[12px]">
+            <div className="flex items-center py-[16px]">
               {visibleTabs
                 .filter((i: any) => i.canView !== false)
                 .map((tab, index, array) => (
                   <label
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id, index)}
-                    className={`text-[14px] cursor-pointer select-none flex items-center justify-center ${
+                    className={`text-[16px] ${
+                      array.length === 8 ? "px-3" : "px-4"
+                    } cursor-pointer select-none flex items-center justify-center ${
                       selectedTabIndex === index
-                        ? "text-[#0592C6] text-[16px] font-[600]"
+                        ? "text-[#0592C6] font-semibold"
                         : "text-slatyGrey"
                     } ${
                       index < array.length - 1
-                        ? "border-r border-r-lightSilver h-3 px-[10px]"
-                        : "pl-2"
+                        ? "border-r border-r-lightSilver h-3"
+                        : "pl-4"
                     }`}
                   >
                     {tab.label}
@@ -1351,7 +1353,9 @@ const page = () => {
                   <span className="mr-2">
                     <AddPlusIcon />
                   </span>
-                  <span>Create {tab === "Permission" ? "Role" : tab}</span>
+                  <span className="uppercase">
+                    Create {tab === "Permission" ? "Role" : tab}
+                  </span>
                 </span>
               </Button>
             </div>

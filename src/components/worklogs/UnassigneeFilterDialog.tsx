@@ -350,12 +350,12 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Due Date"
-                    value={dueDate === null ? null : dayjs(dueDate)}
+                    label="From"
+                    value={startDate === null ? null : dayjs(startDate)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => {
-                      setDueDate(newDate.$d);
+                      setStartDate(newDate.$d);
                     }}
                     slotProps={{
                       textField: {
@@ -370,12 +370,12 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="From"
-                    value={startDate === null ? null : dayjs(startDate)}
+                    label="To"
+                    value={endDate === null ? null : dayjs(endDate)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => {
-                      setStartDate(newDate.$d);
+                      setEndDate(newDate.$d);
                     }}
                     slotProps={{
                       textField: {
@@ -393,12 +393,12 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
               >
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="To"
-                    value={endDate === null ? null : dayjs(endDate)}
+                    label="Due Date"
+                    value={dueDate === null ? null : dayjs(dueDate)}
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
                     onChange={(newDate: any) => {
-                      setEndDate(newDate.$d);
+                      setDueDate(newDate.$d);
                     }}
                     slotProps={{
                       textField: {

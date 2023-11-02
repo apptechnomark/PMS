@@ -351,16 +351,16 @@ const page = () => {
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="bg-white flex justify-between items-center px-[20px]">
-          <div className="flex gap-[20px] items-center py-[6.5px]">
+          <div className="flex gap-[16px] items-center py-[6.5px]">
             <label
               onClick={() => {
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
               }}
-              className={`py-[10px] cursor-pointer select-none ${
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTaskClicked
-                  ? "text-secondary text-[16px] font-semibold"
-                  : "text-slatyGrey text-[14px]"
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
               }`}
             >
               Task
@@ -377,10 +377,10 @@ const page = () => {
                     setIsUnassigneeClicked(true);
                     setIsTaskClicked(false);
                   }}
-                  className={`py-[10px] cursor-pointer select-none ${
+                  className={`py-[10px] text-[16px] cursor-pointer select-none ${
                     isUnassigneeClicked
-                      ? "text-secondary text-[16px] font-semibold"
-                      : "text-slatyGrey text-[14px]"
+                      ? "text-secondary font-semibold"
+                      : "text-slatyGrey"
                   }`}
                 >
                   Unassigned Task

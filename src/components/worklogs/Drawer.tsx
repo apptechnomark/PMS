@@ -666,7 +666,7 @@ const EditDrawer = ({
       processName: validateField(processName),
       subProcess: validateField(subProcess),
       clientTaskName: validateField(clientTaskName),
-      description: validateField(description),
+      // description: validateField(description),
       priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
@@ -701,8 +701,8 @@ const EditDrawer = ({
     setProjectNameErr(fieldValidations.projectName);
     setProcessNameErr(fieldValidations.processName);
     setSubProcessErr(fieldValidations.subProcess);
-    setClientTaskNameErr(fieldValidations.subProcess);
-    setDescriptionErr(fieldValidations.description);
+    setClientTaskNameErr(fieldValidations.clientTaskName);
+    // setDescriptionErr(fieldValidations.description);
     setPriorityErr(fieldValidations.priority);
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
@@ -749,9 +749,9 @@ const EditDrawer = ({
     setClientTaskNameErr(
       clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
     );
-    setDescriptionErr(
-      description.trim().length < 5 || description.trim().length > 500
-    );
+    // setDescriptionErr(
+    //   description.trim().length < 5 || description.trim().length > 500
+    // );
     setQuantityErr(
       quantity.length <= 0 ||
         quantity.length > 4 ||
@@ -774,7 +774,7 @@ const EditDrawer = ({
       subProcess: validateField(subProcess),
       clientTaskName: validateField(clientTaskName),
       status: validateField(status),
-      description: validateField(description),
+      // description: validateField(description),
       priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
@@ -872,13 +872,16 @@ const EditDrawer = ({
       ClientId: clientName,
       WorkTypeId: typeOfWork,
       taskName: clientTaskName,
-      ProjectId: projectName,
-      ProcessId: processName,
-      SubProcessId: subProcess,
+      ProjectId: projectName === 0 ? null : projectName,
+      ProcessId: processName === 0 ? null : processName,
+      SubProcessId: subProcess === 0 ? null : subProcess,
       StatusId: status,
       Priority: priority,
       Quantity: quantity,
-      Description: description.trim(),
+      Description:
+        description.toString().length <= 0
+          ? null
+          : description.toString().trim(),
       ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
       DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
       allInfoDate: allInfoDate === "" ? null : allInfoDate,
@@ -1020,9 +1023,9 @@ const EditDrawer = ({
       !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      description.trim().length > 4 &&
-      description.trim().length < 500 &&
-      !descriptionErr &&
+      // description.trim().length > 4 &&
+      // description.trim().length < 500 &&
+      // !descriptionErr &&
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -1044,9 +1047,9 @@ const EditDrawer = ({
       !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      description.trim().length > 4 &&
-      description.trim().length < 500 &&
-      !descriptionErr &&
+      // description.trim().length > 4 &&
+      // description.trim().length < 500 &&
+      // !descriptionErr &&
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -1084,11 +1087,11 @@ const EditDrawer = ({
       status !== 13 &&
       typeOfWork !== 3 &&
       !hasEditErrors &&
-      !descriptionErr &&
+      // !descriptionErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      description.trim().length > 4 &&
-      description.trim().length < 500 &&
+      // description.trim().length > 4 &&
+      // description.trim().length < 500 &&
       !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -1111,11 +1114,11 @@ const EditDrawer = ({
       status !== 13 &&
       typeOfWork === 3 &&
       !hasEditErrors &&
-      !descriptionErr &&
+      // !descriptionErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      description.trim().length > 4 &&
-      description.trim().length < 500 &&
+      // description.trim().length > 4 &&
+      // description.trim().length < 500 &&
       !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -1630,9 +1633,9 @@ const EditDrawer = ({
           setIsManual(data.IsManual);
           setClientName(data.ClientId);
           setTypeOfWork(data.WorkTypeId);
-          setProjectName(data.ProjectId);
-          setProcessName(data.ProcessId);
-          setSubProcess(data.SubProcessId);
+          setProjectName(data.ProjectId === null ? "" : data.ProjectId);
+          setProcessName(data.ProcessId === null ? "" : data.ProcessId);
+          setSubProcess(data.SubProcessId === null ? "" : data.SubProcessId);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setEditStatus(data.StatusId);
           setStatus(data.StatusId);
@@ -1675,7 +1678,7 @@ const EditDrawer = ({
               );
           setPriority(data.Priority);
           setQuantity(data.Quantity);
-          setDescription(data.Description);
+          setDescription(data.Description === null ? "" : data.Description);
           setReceiverDate(data.ReceiverDate);
           setDueDate(data.DueDate);
           setDateOfReview(data.ReviewerDate);
@@ -2760,7 +2763,7 @@ const EditDrawer = ({
     setStatus(0);
     setStatusErr(false);
     setDescription("");
-    setDescriptionErr(false);
+    // setDescriptionErr(false);
     setPriority(0);
     setPriorityErr(false);
     setEstTime("");
@@ -2926,10 +2929,10 @@ const EditDrawer = ({
                 .map((task: any, index: number) => (
                   <div
                     key={index}
-                    className={`py-2 px-3 text-[15px] ${
+                    className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
-                    } cursor-pointer font-semibold hover:text-[#0592C6] text-slatyGrey`}
+                    } cursor-pointer font-bold hover:text-[#0592C6] text-slatyGrey`}
                     onClick={() => handleTabClick(index)}
                   >
                     {task}
@@ -2977,13 +2980,14 @@ const EditDrawer = ({
                           onChange={(e, value: any) => {
                             value && setClientName(value.value);
                             setTypeOfWorkErr(false);
+                            setProjectName(0);
                             setProjectNameErr(false);
                             setProcessName(0);
                             setProcessNameErr(false);
                             setSubProcess(0);
                             setSubProcessErr(false);
                             setDescription("");
-                            setDescriptionErr(false);
+                            // setDescriptionErr(false);
                             setManager(0);
                             setManagerErr(false);
                             setPriority(0);
@@ -3051,7 +3055,7 @@ const EditDrawer = ({
                               setSubProcess(0);
                               setSubProcessErr(false);
                               setDescription("");
-                              setDescriptionErr(false);
+                              // setDescriptionErr(false);
                               setManager(0);
                               setManagerErr(false);
                               setPriority(0);
@@ -3329,12 +3333,7 @@ const EditDrawer = ({
                       </Grid>
                       <Grid item xs={3} className="pt-4">
                         <TextField
-                          label={
-                            <span>
-                              Description
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
+                          label="Description"
                           fullWidth
                           className="pt-1"
                           value={
@@ -3342,32 +3341,32 @@ const EditDrawer = ({
                           }
                           onChange={(e) => {
                             setDescription(e.target.value);
-                            setDescriptionErr(false);
+                            // setDescriptionErr(false);
                           }}
-                          onBlur={(e: any) => {
-                            if (e.target.value.trim().length > 5) {
-                              setDescriptionErr(false);
-                            }
-                            if (
-                              e.target.value.trim().length > 5 &&
-                              e.target.value.trim().length < 500
-                            ) {
-                              setDescriptionErr(false);
-                            }
-                          }}
-                          error={descriptionErr}
-                          helperText={
-                            descriptionErr &&
-                            description?.trim().length > 0 &&
-                            description?.trim().length < 5
-                              ? "Minimum 5 characters required."
-                              : descriptionErr &&
-                                description?.trim().length > 500
-                              ? "Maximum 500 characters allowed."
-                              : descriptionErr
-                              ? "This is a required field."
-                              : ""
-                          }
+                          // onBlur={(e: any) => {
+                          //   if (e.target.value.trim().length > 5) {
+                          //     setDescriptionErr(false);
+                          //   }
+                          //   if (
+                          //     e.target.value.trim().length > 5 &&
+                          //     e.target.value.trim().length < 500
+                          //   ) {
+                          //     setDescriptionErr(false);
+                          //   }
+                          // }}
+                          // error={descriptionErr}
+                          // helperText={
+                          //   descriptionErr &&
+                          //   description?.trim().length > 0 &&
+                          //   description?.trim().length < 5
+                          //     ? "Minimum 5 characters required."
+                          //     : descriptionErr &&
+                          //       description?.trim().length > 500
+                          //     ? "Maximum 500 characters allowed."
+                          //     : descriptionErr
+                          //     ? "This is a required field."
+                          //     : ""
+                          // }
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, width: 300, mt: -0.5 }}
@@ -3718,7 +3717,11 @@ const EditDrawer = ({
                           )}
                         />
                       </Grid>
-                      <Grid item xs={3} className="pt-4">
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      >
                         <Autocomplete
                           disablePortal
                           id="combo-box-demo"
@@ -3757,7 +3760,11 @@ const EditDrawer = ({
                           )}
                         />
                       </Grid>
-                      <Grid item xs={3} className="pt-4">
+                      <Grid
+                        item
+                        xs={3}
+                        className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      >
                         <Autocomplete
                           disablePortal
                           id="combo-box-demo"
@@ -4022,7 +4029,11 @@ const EditDrawer = ({
                       )}
                       {onEdit > 0 && (
                         <>
-                          <Grid item xs={3} className="pt-4">
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          >
                             <TextField
                               label="Date of Preperation"
                               type={inputTypePreperation}
@@ -4045,7 +4056,11 @@ const EditDrawer = ({
                               }}
                             />
                           </Grid>
-                          <Grid item xs={3} className="pt-4">
+                          <Grid
+                            item
+                            xs={3}
+                            className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          >
                             <TextField
                               label="Date of Review"
                               disabled

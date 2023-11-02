@@ -1304,9 +1304,21 @@ const Datatable = ({
   // Table Columns
   const columns = [
     {
+      name: "WorkitemId",
+      options: {
+        filter: true,
+        sort: true,
+        viewColumns: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Task ID</span>
+        ),
+      },
+    },
+    {
       name: "ClientName",
       options: {
         filter: true,
+        viewColumns: false,
         sort: true,
         // setCellProps: () => ({
         //   style: {
@@ -1326,12 +1338,12 @@ const Datatable = ({
         //   },
         // }),
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">CLIENT</span>
+          <span className="font-bold text-sm">Client</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[17];
+          const IsHasErrorlog = tableMeta.rowData[19];
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               {IsHasErrorlog && (
                 <div
                   className={
@@ -1346,10 +1358,25 @@ const Datatable = ({
       },
     },
     {
+      name: "TaskName",
+      options: {
+        filter: true,
+        sort: true,
+        viewColumns: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Task</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "ProjectName",
       options: {
         filter: true,
         sort: true,
+        display: false,
         // setCellProps: () => ({
         //   style: {
         //     whiteSpace: "nowrap",
@@ -1368,12 +1395,12 @@ const Datatable = ({
         //   },
         // }),
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PROJECT</span>
+          <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[18];
+          const IsRecurring = tableMeta.rowData[20];
           return (
-            <div className="flex items-center gap-2 ml-5 lg:ml-0">
+            <div className="flex items-center gap-2">
               {value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
@@ -1401,13 +1428,14 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        display: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PROCESS</span>
+          <span className="font-bold text-sm">Process</span>
         ),
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
-            <div className="font-semibold ml-5 lg:ml-0">
+            <div className="font-semibold">
               <ColorToolTip title={value} placement="top">
                 {shortProcessName[0]}
               </ColorToolTip>
@@ -1421,13 +1449,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        display: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">SUB PROCESS</span>
+          <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1435,6 +1462,8 @@ const Datatable = ({
       name: "IsManual",
       options: {
         display: false,
+        viewColumns: false,
+        filter: false,
       },
     },
     {
@@ -1442,11 +1471,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">TIMER</span>
+          <span className="font-bold text-sm">Timer</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[13].split(":");
+          const estimatedTime = tableMeta.rowData[15].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +
@@ -1455,7 +1485,7 @@ const Datatable = ({
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
           return (
-            <div className="w-40 h-7 flex items-center ml-5 lg:ml-0">
+            <div className="w-40 h-7 flex items-center">
               <ColorToolTip
                 title={`Estimated Time: ${estimatedTime[0]}:${estimatedTime[1]}:${estimatedTime[2]}`}
                 placement="top"
@@ -1478,7 +1508,7 @@ const Datatable = ({
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 10 &&
+                // tableMeta.rowData[tableMeta.rowData.length - 3] !== 10 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
                 tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
@@ -1606,13 +1636,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ASSIGNED TO</span>
+          <span className="font-bold text-sm">Assigned To</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1621,8 +1650,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PRIORITY</span>
+          <span className="font-bold text-sm">Priority</span>
         ),
         customBodyRender: (value: any) => {
           let isHighPriority;
@@ -1636,7 +1666,7 @@ const Datatable = ({
           }
 
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               <div className="inline-block mr-1">
                 <div
                   className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
@@ -1662,6 +1692,7 @@ const Datatable = ({
         filter: false,
         sort: false,
         display: false,
+        viewColumns: false,
       },
     },
     {
@@ -1669,13 +1700,14 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">STATUS</span>
+          <span className="font-bold text-sm">Status</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
+          const statusColorCode = tableMeta.rowData[10];
           return (
-            <div className="ml-5 lg:ml-0">
+            <div>
               <div className="inline-block mr-1">
                 <div
                   className="w-[10px] h-[10px] rounded-full inline-block mr-2"
@@ -1694,13 +1726,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">EST. TIME</span>
+          <span className="font-bold text-sm">Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1709,13 +1740,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">QTY.</span>
+          <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1724,13 +1754,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ACTUAL TIME</span>
+          <span className="font-bold text-sm">Actual Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1739,13 +1768,12 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">TOTAL EST. TIME</span>
+          <span className="font-bold text-sm">Total Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null ? "-" : value}</div>;
         },
       },
     },
@@ -1754,8 +1782,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">START DATE</span>
+          <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -1779,8 +1808,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">END DATE</span>
+          <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
           if (value === null) {
@@ -1804,12 +1834,17 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
+        viewColumns: false,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">ASSIGNED BY</span>
+          <span className="font-bold text-sm">Assigned By</span>
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-5 lg:ml-0">{value === null ? "-" : value}</div>
+            <div
+            // className="ml-5 lg:ml-0"
+            >
+              {value === null ? "-" : value}
+            </div>
           );
         },
       },
@@ -1818,30 +1853,35 @@ const Datatable = ({
       name: "IsHasErrorlog",
       options: {
         display: false,
+        viewColumns: false,
       },
     },
     {
       name: "IsRecurring",
       options: {
         display: false,
+        viewColumns: false,
       },
     },
     {
       name: "StatusId",
       options: {
         display: false,
+        viewColumns: false,
       },
     },
     {
       name: "State",
       options: {
         display: false,
+        viewColumns: false,
       },
     },
     {
       name: "WorkitemId",
       options: {
         display: false,
+        viewColumns: false,
       },
     },
   ];
@@ -1849,8 +1889,8 @@ const Datatable = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
+    tableBodyHeight: "68vh",
+    viewColumns: true,
     filter: false,
     print: false,
     download: false,

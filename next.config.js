@@ -24,7 +24,7 @@ module.exports = withSentryConfig(
     // Suppresses source map uploading logs during build
     silent: true,
     org: "technomark",
-    project: "pms_frontend",
+    project: "pms_staging",
   },
   {
     // For all available options, see:

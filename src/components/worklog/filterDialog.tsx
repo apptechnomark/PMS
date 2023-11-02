@@ -45,7 +45,7 @@ const initialFilter = {
   WorkTypeId: null,
   StartDate: null,
   EndDate: null,
-  // DueDate: null,
+  DueDate: null,
   AssignedTo: null,
   OverdueBy: null,
   IsSignedOff: false,
@@ -138,12 +138,12 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       PriorityId: priority || null,
       StatusId: status || null,
       WorkTypeId: typeOfWork || null,
-      // DueDate:
-      //   dueDate !== null
-      //     ? new Date(
-      //         new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
-      //       ).toISOString()
-      //     : null,
+      DueDate:
+        dueDate !== null
+          ? new Date(
+              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
+            ).toISOString()
+          : null,
       StartDate:
         startDate !== null
           ? new Date(
@@ -166,7 +166,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     priority,
     status,
     typeOfWork,
-    // dueDate,
+    dueDate,
     startDate,
     endDate,
     assignee,
@@ -468,23 +468,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
 
-              {/* <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Due Date"
-                    shouldDisableDate={isWeekend}
-                    maxDate={dayjs(Date.now())}
-                    value={dueDate === null ? null : dayjs(dueDate)}
-                    onChange={(newDate: any) => setDueDate(newDate.$d)}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      } as Record<string, any>,
-                    }}
-                  />
-                </LocalizationProvider>
-              </div> */}
-
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -501,6 +484,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   />
                 </LocalizationProvider>
               </div>
+
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -519,6 +503,23 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               </div>
             </div>
             <div className="flex gap-[20px]">
+              <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Due Date"
+                    shouldDisableDate={isWeekend}
+                    maxDate={dayjs(Date.now())}
+                    value={dueDate === null ? null : dayjs(dueDate)}
+                    onChange={(newDate: any) => setDueDate(newDate.$d)}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      } as Record<string, any>,
+                    }}
+                  />
+                </LocalizationProvider>
+              </div>
+
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
                 <InputLabel id="assignee-label">Assignee</InputLabel>
                 <Select
@@ -548,6 +549,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   <MenuItem value={3}>LastWeek</MenuItem>
                 </Select>
               </FormControl>
+            </div>
+            <div className="flex gap-[20px]">
               {isCompletedTaskClicked && (
                 <FormControlLabel
                   required
@@ -557,6 +560,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                       onChange={(e) => setIsChecked(e.target.checked)}
                     />
                   }
+                  className="ml-[0.5px]"
                   label="IsSignedOff"
                 />
               )}

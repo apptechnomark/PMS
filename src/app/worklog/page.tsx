@@ -82,7 +82,7 @@ const Worklog = () => {
           AssignedTo: null,
           StartDate: null,
           EndDate: null,
-          // DueDate: null,
+          DueDate: null,
           IsCreatedByClient: null,
           IsCompletedTaskPage: false,
           IsSignedOff: false,
@@ -157,7 +157,7 @@ const Worklog = () => {
           AssignedTo: null,
           StartDate: null,
           EndDate: null,
-          // DueDate: null,
+          DueDate: null,
           IsCreatedByClient: null,
           IsCompletedTaskPage: true,
           IsSignedOff: false,
@@ -276,7 +276,7 @@ const Worklog = () => {
     <Wrapper>
       <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
       <div className="bg-white flex justify-between items-center px-[20px]">
-        <div className="flex gap-[20px] items-center py-[6.5px]">
+        <div className="flex gap-[16px] items-center py-[6.5px]">
           {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
             <label
               onClick={() => {
@@ -284,10 +284,10 @@ const Worklog = () => {
                 setIsCompletedTaskClicked(false);
                 setErrorLog(false);
               }}
-              className={`py-[10px] cursor-pointer select-none ${
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isWorklogClicked
-                  ? "text-secondary text-[16px] font-semibold"
-                  : "text-slatyGrey text-[14px]"
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
               }`}
             >
               Work Logs
@@ -304,10 +304,10 @@ const Worklog = () => {
                 setIsWorklogClicked(false);
                 setErrorLog(true);
               }}
-              className={`py-[10px] cursor-pointer select-none ${
+              className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isCompletedTaskClicked
-                  ? "text-secondary text-[16px] font-semibold"
-                  : "text-slatyGrey text-[14px]"
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
               }`}
             >
               Completed Task
