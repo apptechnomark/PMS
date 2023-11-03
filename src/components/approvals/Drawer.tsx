@@ -933,17 +933,17 @@ const EditDrawer = ({
   }
 
   let Task = [
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "TASK",
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "SUB-TASK",
-    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "CHECKLIST",
-    hasPermissionWorklog("Comment", "View", "WorkLogs") && "COMMENTS",
-    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "RECURRING",
-    (isManual === true || isManual === null) && "MANUAL TIME",
-    isPartiallySubmitted && "REVIEWER MANUAL TIME",
-    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "REMINDER",
-    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "ERROR LOGS",
-    "REVIEWER'S NOTE",
-    "LOGS",
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Sub-Task",
+    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
+    hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
+    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
+    (isManual === true || isManual === null) && "Manual Time",
+    isPartiallySubmitted && "Reviewer Manual Time",
+    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
+    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
+    "Reviewer's Note",
+    // "Logs",
   ];
 
   useEffect(() => {

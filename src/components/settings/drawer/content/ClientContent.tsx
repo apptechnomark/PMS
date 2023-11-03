@@ -976,7 +976,7 @@ const ClientContent = forwardRef<
 
     // common functon for adding additional field's data
     const getFieldValue = (condition: any, value: any) => {
-      return condition && value !== "" ? value : null;
+      return condition && value.trim() !== "" ? value.trim() : null;
     };
 
     try {
@@ -1751,13 +1751,14 @@ const ClientContent = forwardRef<
               </div>
 
               <div className="flex flex-row gap-5">
-                <Text
+                <Tel
                   label="CPA Mobile Number"
                   placeholder="Enter CPA Mobile No."
                   value={cpaMobileNo}
                   getValue={(e) => setCpaMobileNo(e)}
                   getError={() => {}}
                   autoComplete="off"
+                  maxLength={14}
                 />
 
                 <Text
