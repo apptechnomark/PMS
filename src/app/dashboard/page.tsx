@@ -627,7 +627,7 @@ const page = () => {
                 />
               </Card>
 
-              {/* {workType !== 1 && (
+              {workType !== 1 && (
                 <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
                   <Chart_ReturnType
                     onSelectedProjectIds={currentProjectId}
@@ -635,7 +635,7 @@ const page = () => {
                     sendData={handleValueFromReturnType}
                   />
                 </Card>
-              )} */}
+              )}
             </div>
 
             <Card className="w-full h-full">
