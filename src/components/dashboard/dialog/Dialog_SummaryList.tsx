@@ -120,9 +120,7 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
               <Select
                 labelId="Project Staus"
                 id="Project Staus"
-                value={
-                  taskStatusName ? taskStatusName : onSelectedSummaryStatus
-                }
+                value={taskStatusName ? taskStatusName : onSelectedSummaryStatus}
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >

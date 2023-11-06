@@ -34,6 +34,14 @@ import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "./mentionsInputStyle";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import {
+  getCCDropdownData,
+  getProcessDropdownData,
+  getProjectDropdownData,
+  getSubProcessDropdownData,
+  getTypeOfReturnDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 const Drawer = ({
   onOpen,
@@ -1278,253 +1286,53 @@ const Drawer = ({
       getErrorLogData();
     }
 
-    const getClientId = async () => {
-      const clientId = await localStorage.getItem("clientId");
-
-      const getData = async (api: any) => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          let response: any;
-          if (api === "/WorkType/GetDropdown") {
-            response = await axios.post(
-              `${process.env.pms_api_url}${api}`,
-              {
-                clientId: clientId,
-              },
-              {
-                headers: {
-                  Authorization: `bearer ${token}`,
-                  org_token: `${Org_Token}`,
-                },
-              }
-            );
-          } else if (api === "/project/getdropdown") {
-            response = await axios.post(
-              `${process.env.pms_api_url}${api}`,
-              {
-                clientId: clientId,
-              },
-              {
-                headers: {
-                  Authorization: `bearer ${token}`,
-                  org_token: `${Org_Token}`,
-                },
-              }
-            );
-          } else if (api === "/Process/GetDropdownByClient") {
-            response = await axios.post(
-              `${process.env.pms_api_url}${api}`,
-              {
-                clientId: clientId,
-              },
-              {
-                headers: {
-                  Authorization: `bearer ${token}`,
-                  org_token: `${Org_Token}`,
-                },
-              }
-            );
-          }
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              if (api === "/WorkType/GetDropdown") {
-                setTypeOfWorkDropdownData(response.data.ResponseData);
-                response.data.ResponseData.length > 0 &&
-                  onEdit === 0 &&
-                  setTypeOfWork(
-                    response.data.ResponseData.map(
-                      (i: any) => i.value
-                    ).includes(3)
-                      ? 3
-                      : response.data.ResponseData.map(
-                          (i: any) => i.value
-                        ).includes(1)
-                      ? 1
-                      : response.data.ResponseData.map(
-                          (i: any) => i.value
-                        ).includes(2)
-                      ? 2
-                      : 0
-                  );
-                getData("/project/getdropdown");
-              }
-              if (api === "/project/getdropdown") {
-                setProjectDropdownData(response.data.ResponseData.List);
-                response.data.ResponseData.List.length > 0 &&
-                  onEdit === 0 &&
-                  setProjectName(
-                    response.data.ResponseData.List.map((i: any) => i.value)[0]
-                  );
-                getData("/Process/GetDropdownByClient");
-              }
-              if (api === "/Process/GetDropdownByClient") {
-                setProcessDropdownData(
-                  response.data.ResponseData.map(
-                    (i: any) => new Object({ label: i.Name, value: i.Id })
-                  )
-                );
-              }
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      };
-
-      getData("/WorkType/GetDropdown");
-      getTypeOfReturn();
-    };
-
-    const getTypeOfReturn = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.get(
-          `${process.env.worklog_api_url}/workitem/getformtypelist`,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
+    const getData = async () => {
+      const clientId: any = await localStorage.getItem("clientId");
+      const workTypeData: any =
+        clientId > 0 && (await getTypeOfWorkDropdownData(clientId));
+      workTypeData.length > 0 && setTypeOfWorkDropdownData(workTypeData);
+      workTypeData.length > 0 &&
+        onEdit === 0 &&
+        setTypeOfWork(
+          workTypeData.map((i: any) => i.value).includes(3)
+            ? 3
+            : workTypeData.map((i: any) => i.value).includes(1)
+            ? 1
+            : workTypeData.map((i: any) => i.value).includes(2)
+            ? 2
+            : 0
         );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setTypeOfReturnDropdownData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
+      const projectData: any =
+        clientId > 0 && (await getProjectDropdownData(clientId));
+      projectData.length > 0 && setProjectDropdownData(projectData);
+      projectData.length > 0 &&
+        onEdit === 0 &&
+        setProjectName(projectData.map((i: any) => i.value)[0]);
+      const processData: any =
+        clientId > 0 && (await getProcessDropdownData(clientId));
+      setProcessDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
+      setTypeOfReturnDropdownData(await getTypeOfReturnDropdownData());
+      setCCDropdownData(await getCCDropdownData());
     };
 
-    const getCCData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.get(
-          `${process.env.api_url}/user/getdropdown`,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setCCDropdownData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    onOpen && getClientId();
-    onEdit > 0 && getCCData();
+    onOpen && getData();
   }, [onOpen, onEdit]);
 
   useEffect(() => {
     const getData = async () => {
-      const clientId = await localStorage.getItem("clientId");
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.pms_api_url}/Process/GetDropdownByClient`,
-          {
-            clientId: clientId,
-            processId: processName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
+      const clientId: any = await localStorage.getItem("clientId");
+      const data: any =
+        processName !== 0 &&
+        (await getSubProcessDropdownData(clientId, processName));
+      data.length > 0 &&
+        setSubProcessDropdownData(
+          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
         );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setSubProcessDropdownData(
-              response.data.ResponseData.map(
-                (i: any) => new Object({ label: i.Name, value: i.Id })
-              )
-            );
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
     };
-    processName !== 0 && getData();
+
+    getData();
   }, [processName]);
 
   useEffect(() => {
@@ -1732,7 +1540,10 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                             options={projectDropdownData}
                             value={
@@ -1772,7 +1583,10 @@ const Drawer = ({
                             sx={{ width: 300, mt: -0.3 }}
                             // error={typeOfWorkErr}
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -1815,7 +1629,10 @@ const Drawer = ({
                             sx={{ width: 300, mt: -0.3 }}
                             // error={priorityErr}
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                           >
                             <InputLabel id="demo-simple-select-standard-label">
@@ -1851,7 +1668,10 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                             options={processDropdownData}
                             value={
@@ -1892,7 +1712,10 @@ const Drawer = ({
                             id="combo-box-demo"
                             options={subProcessDropdownData}
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                             value={
                               subProcessDropdownData.find(
@@ -1934,6 +1757,12 @@ const Drawer = ({
                                   &nbsp;*
                                 </span>
                               </span>
+                            }
+                            disabled={
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                             fullWidth
                             value={
@@ -1986,7 +1815,10 @@ const Drawer = ({
                               <DatePicker
                                 label="Received Date"
                                 disabled={
-                                  !isCreatedByClient || isCompletedTaskClicked
+                                  !isCreatedByClient ||
+                                  (isCompletedTaskClicked &&
+                                    onEdit > 0 &&
+                                    !isCreatedByClient)
                                 }
                                 onError={() => setStartDateErr(false)}
                                 shouldDisableDate={isWeekend}
@@ -2061,7 +1893,10 @@ const Drawer = ({
                           <TextField
                             label="Quantity"
                             disabled={
-                              !isCreatedByClient || isCompletedTaskClicked
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient)
                             }
                             onFocus={(e) =>
                               e.target.addEventListener(
@@ -2115,7 +1950,10 @@ const Drawer = ({
                               sx={{ width: 300 }}
                               // error={returnTypeErr}
                               disabled={
-                                !isCreatedByClient || isCompletedTaskClicked
+                                !isCreatedByClient ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClient)
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -2153,7 +1991,10 @@ const Drawer = ({
                               sx={{ width: 300 }}
                               // error={typeOfReturnErr}
                               disabled={
-                                !isCreatedByClient || isCompletedTaskClicked
+                                !isCreatedByClient ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClient)
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">

@@ -46,6 +46,7 @@ import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "./mentionsInputStyle";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
+  days,
   getAssigneeDropdownData,
   getCCDropdownData,
   getClientDropdownData,
@@ -57,6 +58,8 @@ import {
   getSubProcessDropdownData,
   getTypeOfReturnDropdownData,
   getTypeOfWorkDropdownData,
+  hours,
+  months,
 } from "@/utils/commonDropdownApiCall";
 
 const EditDrawer = ({
@@ -278,76 +281,6 @@ const EditDrawer = ({
       setSelectedDays([...selectedDays, index]);
     }
   };
-
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
-  const months = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-    { label: "5", value: 5 },
-    { label: "6", value: 6 },
-    { label: "7", value: 7 },
-    { label: "8", value: 8 },
-    { label: "9", value: 9 },
-    { label: "10", value: 10 },
-    { label: "11", value: 11 },
-    { label: "12", value: 12 },
-    { label: "13", value: 13 },
-    { label: "14", value: 14 },
-    { label: "15", value: 15 },
-    { label: "16", value: 16 },
-    { label: "17", value: 17 },
-    { label: "18", value: 18 },
-    { label: "19", value: 19 },
-    { label: "20", value: 20 },
-    { label: "21", value: 21 },
-    { label: "22", value: 22 },
-    { label: "23", value: 23 },
-    { label: "24", value: 24 },
-    { label: "25", value: 25 },
-    { label: "26", value: 26 },
-    { label: "27", value: 27 },
-    { label: "28", value: 28 },
-    { label: "29", value: 29 },
-    { label: "Last Day of Month", value: -1 },
-  ];
-
-  const Hours = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-    { label: "5", value: 5 },
-    { label: "6", value: 6 },
-    { label: "7", value: 7 },
-    { label: "8", value: 8 },
-    { label: "9", value: 9 },
-    { label: "10", value: 10 },
-    { label: "11", value: 11 },
-    { label: "12", value: 12 },
-    { label: "13", value: 13 },
-    { label: "14", value: 14 },
-    { label: "15", value: 15 },
-    { label: "16", value: 16 },
-    { label: "17", value: 17 },
-    { label: "18", value: 18 },
-    { label: "19", value: 19 },
-    { label: "20", value: 20 },
-    { label: "21", value: 21 },
-    { label: "22", value: 22 },
-    { label: "23", value: 23 },
-    { label: "24", value: 24 },
-  ];
 
   const currentYear = new Date().getFullYear();
   const Years = [];
@@ -3566,7 +3499,11 @@ const EditDrawer = ({
                           disabled
                           margin="normal"
                           variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.9 }}
+                          sx={{
+                            mx: 0.75,
+                            maxWidth: 300,
+                            mt: typeOfWork === 3 ? -0.9 : -0.8,
+                          }}
                         />
                       </Grid>
                       <Grid item xs={3} className="pt-4">
@@ -5443,7 +5380,7 @@ const EditDrawer = ({
                             }
                           }}
                         >
-                          {Hours.map((i: any, index: number) => (
+                          {hours.map((i: any, index: number) => (
                             <MenuItem value={i.value} key={index}>
                               {i.label}
                             </MenuItem>

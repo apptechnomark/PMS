@@ -1787,6 +1787,7 @@ const ClientContent = forwardRef<
                 <Text
                   label="Zip"
                   placeholder="Enter Zip"
+                  type="number"
                   value={zip}
                   getValue={(e) => setZip(e)}
                   getError={() => {}}

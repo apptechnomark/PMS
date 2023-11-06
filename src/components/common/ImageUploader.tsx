@@ -1,24 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import FileIcon from "@/assets/icons/worklogs/FileIcon";
-interface ImageUploaderProps {
-  getData: (name: string, fileName: string) => void;
-}
 
-export default function ImageUploader({ getData, onClose }: any) {
-  const [fileData, setFileData] = useState<any>(null);
-  const [selectedFileDisplay, setSelectedFileDisplay] = useState<any>("");
-
-  useEffect(() => {
-    setFileData(null);
-    setSelectedFileDisplay("");
-  }, [onClose]);
-
+export default function ImageUploader({ getData }: any) {
   const handleImageChange = async (event: any) => {
     const fileData = event.target.files[0];
-    console.log(fileData)
     if (fileData) {
       try {
         const reader = new FileReader();
@@ -26,8 +10,7 @@ export default function ImageUploader({ getData, onClose }: any) {
         reader.onloadend = async () => {
           let base64Image: any;
           if (reader.result) {
-            base64Image = reader.result as string;
-            // setFileData(base64Image);
+            base64Image = reader.result;
           }
           const uuidv4 = () => {
             return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
@@ -41,27 +24,21 @@ export default function ImageUploader({ getData, onClose }: any) {
             );
           };
           const fileName = uuidv4().slice(0, 32);
+          // fetch("/api/upload", {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //   },
+          //   body: JSON.stringify({ base64Image:base64Image, fileName:fileName }),
+          // })
+          //   .then((response) => response.json())
+          //   .then((data) => console.log("data", data))
+          //   .catch((error) => console.error("Error:", error));
           await axios
             .post("/api/upload", { base64Image, fileName })
             .then(async (res) => {
               if (res.status === 200) {
-                setSelectedFileDisplay(fileData);
-                getData(fileData.name, fileName);
-                await fetch("/api/getupload", {
-                  method: "POST",
-                  body: JSON.stringify({
-                    fileName: fileName,
-                  }),
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }).then(async (res) => {
-                  if (res.status === 200) {
-                    const data = await res.json();
-                    console.log(data.data);
-                    setFileData(data.data);
-                  }
-                });
+                // getData(fileData.name, fileName);
               }
             })
             .catch((error) => {
@@ -74,53 +51,14 @@ export default function ImageUploader({ getData, onClose }: any) {
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const renderFileContent = () => {
-    if (selectedFileDisplay) {
-      if (selectedFileDisplay.type?.includes("image")) {
-        return (
-          <img
-            src={fileData}
-            alt="Image Preview"
-            style={{ maxWidth: "200px" }}
-          />
-        );
-      } else if (selectedFileDisplay.name.endsWith(".pdf")) {
-        return (
-          <embed
-            src={fileData}
-            width="100%"
-            height="300px"
-            type="application/pdf"
-          />
-        );
-      } else {
-        return <p>Unsupported File Type: {selectedFileDisplay.name}</p>;
-      }
-    } else {
-      return <p>No file selected</p>;
-    }
-  };
-
   return (
-    <div className="flex gap-2">
-      {/* <input type="file" accept="image/*,.pdf" onChange={handleImageChange} /> */}
-      <span
-        className="text-white cursor-pointer max-w-1"
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <FileIcon />
-        <input
-          type="file"
-          accept="image/*,.pdf"
-          ref={fileInputRef}
-          multiple
-          className="input-field hidden"
-          onChange={handleImageChange}
-        />
-      </span>
-      <div>{fileData && renderFileContent()}</div>
+    <div>
+      <input type="file" accept="image/*" onChange={handleImageChange} />
+      {/* <img
+        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgLTk2MCA5NjAgOTYwIiB3aWR0aD0iMjQiPjxwYXRoIGQ9Ik0xMjAtMTYwdi02NDBsNzYwIDMyMC03NjAgMzIwWm04MC0xMjAgNDc0LTIwMC00NzQtMjAwdjE0MGwyNDAgNjAtMjQwIDYwdjE0MFptMCAwdi00MDAgNDAwWiIvPjwvc3ZnPg=="
+        alt=""
+      /> */}
+      {/* <button onClick={handleImageUpload}>Upload Image to storage account</button> */}
     </div>
   );
 }
