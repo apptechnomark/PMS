@@ -621,11 +621,6 @@ const Drawer = ({
       isSolved: false,
     },
   ]);
-  const [errorTypeErr, setErrorTypeErr] = useState([false]);
-  const [rootCauseErr, setRootCauseErr] = useState([false]);
-  const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
-  const [errorCountErr, setErrorCountErr] = useState([false]);
-  const [natureOfErr, setNatureOfErr] = useState([false]);
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
@@ -655,10 +650,6 @@ const Drawer = ({
         isSolved: false,
       },
     ]);
-    setRootCauseErr([...rootCauseErr, false]);
-    setErrorLogPriorityErr([...errorLogPriorityErr, false]);
-    setErrorCountErr([...errorCountErr, false]);
-    setNatureOfErr([...natureOfErr, false]);
     setRemarkErr([...remarkErr, false]);
     setAttachmentsErr([...attachmentsErr, false]);
   };
@@ -668,64 +659,12 @@ const Drawer = ({
     const newErrorLogFields = [...errorLogFields];
     newErrorLogFields.splice(index, 1);
     setErrorLogFields(newErrorLogFields);
-    const newErrorTypeErrors = [...errorTypeErr];
-    newErrorTypeErrors.splice(index, 1);
-    setErrorTypeErr(newErrorTypeErrors);
-    const newRootCauseErrors = [...rootCauseErr];
-    newRootCauseErrors.splice(index, 1);
-    setRootCauseErr(newRootCauseErrors);
-    const newPriorityErrors = [...errorLogPriorityErr];
-    newPriorityErrors.splice(index, 1);
-    setErrorLogPriorityErr(newPriorityErrors);
-    const newErrorCountErrors = [...errorCountErr];
-    newErrorCountErrors.splice(index, 1);
-    setErrorCountErr(newErrorCountErrors);
-    const newNatureOfErrErrors = [...natureOfErr];
-    newNatureOfErrErrors.splice(index, 1);
-    setNatureOfErr(newNatureOfErrErrors);
     const newRemarkErrors = [...remarkErr];
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
     const newAttachmentErrors = [...attachmentsErr];
     newAttachmentErrors.splice(index, 1);
     setAttachmentsErr(newAttachmentErrors);
-  };
-
-  const handleRootCauseChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].RootCause = e.target.value;
-    setErrorLogFields(newFields);
-    const newErrors = [...rootCauseErr];
-    newErrors[index] = e.target.value === 0;
-    setRootCauseErr(newErrors);
-  };
-
-  const handleNatureOfErrorChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].NatureOfError = e.target.value;
-    setErrorLogFields(newFields);
-    const newErrors = [...natureOfErr];
-    newErrors[index] = e.target.value === 0;
-    setNatureOfErr(newErrors);
-  };
-
-  const handlePriorityChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].Priority = e.target.value;
-    setErrorLogFields(newFields);
-    const newErrors = [...errorLogPriorityErr];
-    newErrors[index] = e.target.value === 0;
-    setErrorLogPriorityErr(newErrors);
-  };
-
-  const handleErrorCountChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].ErrorCount = e.target.value;
-    setErrorLogFields(newFields);
-    const newErrors = [...errorCountErr];
-    newErrors[index] =
-      e.target.value < 0 || e.target.value.toString().length > 4;
-    setErrorCountErr(newErrors);
   };
 
   const handleRemarksChange = (e: any, index: number) => {
@@ -749,22 +688,6 @@ const Drawer = ({
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     let hasErrorLogErrors = false;
-    const newRootCauseErrors = errorLogFields.map(
-      (field) => field.RootCause === 0
-    );
-    setRootCauseErr(newRootCauseErrors);
-    const newNatureOfErrors = errorLogFields.map(
-      (field) => field.NatureOfError === 0
-    );
-    setNatureOfErr(newNatureOfErrors);
-    const newPriorityErrors = errorLogFields.map(
-      (field) => field.Priority === 0
-    );
-    setErrorLogPriorityErr(newPriorityErrors);
-    const newErrorCountErrors = errorLogFields.map(
-      (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
-    );
-    setErrorCountErr(newErrorCountErrors);
     const newRemarkErrors = errorLogFields.map(
       (field) =>
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
@@ -775,10 +698,6 @@ const Drawer = ({
     // );
     // setAttachmentsErr(newAttachmentsErrors);
     hasErrorLogErrors =
-      newRootCauseErrors.some((error) => error) ||
-      newNatureOfErrors.some((error) => error) ||
-      newPriorityErrors.some((error) => error) ||
-      newErrorCountErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error);
     // ||
     // newAttachmentsErrors.some((error) => error);
@@ -796,11 +715,11 @@ const Drawer = ({
                   new Object({
                     ErrorLogId: i.ErrorLogId,
                     ErrorType: 2,
-                    RootCause: i.RootCause,
-                    Priority: i.Priority,
-                    ErrorCount: i.ErrorCount,
-                    NatureOfError: i.NatureOfError,
-                    CC: null,
+                    RootCause: 0,
+                    Priority: 0,
+                    ErrorCount: 0,
+                    NatureOfError: 0,
+                    CC: [],
                     Remark: i.Remark,
                     Attachments: null,
                     // [
@@ -1464,10 +1383,10 @@ const Drawer = ({
         isSolved: false,
       },
     ]);
-    setRootCauseErr([false]);
-    setErrorLogPriorityErr([false]);
-    setErrorCountErr([false]);
-    setNatureOfErr([false]);
+    // setRootCauseErr([false]);
+    // setErrorLogPriorityErr([false]);
+    // setErrorCountErr([false]);
+    // setNatureOfErr([false]);
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
@@ -2455,203 +2374,6 @@ const Drawer = ({
                                 <span className="ml-3">{field.SubmitedOn}</span>
                               </div>
                             )}
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Error Type
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                disabled
-                                value={2}
-                              >
-                                <MenuItem value={1}>Internal</MenuItem>
-                                <MenuItem value={2}>External</MenuItem>
-                              </Select>
-                            </FormControl>
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
-                              error={rootCauseErr[index]}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Root Cause
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  field.RootCause === 0 ? "" : field.RootCause
-                                }
-                                disabled={field.isSolved}
-                                onChange={(e) =>
-                                  handleRootCauseChange(e, index)
-                                }
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    const newRootCauseErrors = [
-                                      ...rootCauseErr,
-                                    ];
-                                    newRootCauseErrors[index] = false;
-                                    setRootCauseErr(newRootCauseErrors);
-                                  }
-                                }}
-                              >
-                                <MenuItem value={1}>Procedural</MenuItem>
-                                <MenuItem value={2}>DataEntry</MenuItem>
-                              </Select>
-                              {rootCauseErr[index] && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 250 }}
-                              error={natureOfErr[index]}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Nature of Error
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  field.NatureOfError === 0
-                                    ? ""
-                                    : field.NatureOfError
-                                }
-                                disabled={field.isSolved}
-                                onChange={(e) =>
-                                  handleNatureOfErrorChange(e, index)
-                                }
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    const newNatureOfErrorErrors = [
-                                      ...natureOfErr,
-                                    ];
-                                    newNatureOfErrorErrors[index] = false;
-                                    setNatureOfErr(newNatureOfErrorErrors);
-                                  }
-                                }}
-                              >
-                                <MenuItem value={1}>
-                                  Memo/Decriprion Not Updated
-                                </MenuItem>
-                                <MenuItem value={2}>
-                                  Forget To Enter Vendor/PayeeName
-                                </MenuItem>
-                                <MenuItem value={3}>
-                                  Wrong Categorization Incorrect GST/Sales Tex
-                                </MenuItem>
-                                <MenuItem value={4}>
-                                  Deleted Reconciled Transaction
-                                </MenuItem>
-                                <MenuItem value={5}>
-                                  File/Report Not Updated Correctly
-                                </MenuItem>
-                                <MenuItem value={6}>TAT Missed</MenuItem>
-                                <MenuItem value={7}>
-                                  ABC Not Prepared Correctly
-                                </MenuItem>
-                                <MenuItem value={8}>
-                                  OSI Not Prepared Correctly
-                                </MenuItem>
-                                <MenuItem value={9}>
-                                  Review Check List Not Prepared
-                                </MenuItem>
-                                <MenuItem value={10}>Other</MenuItem>
-                              </Select>
-                              {natureOfErr[index] && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                            <FormControl
-                              variant="standard"
-                              sx={{ mx: 0.75, minWidth: 230 }}
-                              error={errorLogPriorityErr[index]}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Priority
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  field.Priority === 0 ? "" : field.Priority
-                                }
-                                disabled={field.isSolved}
-                                onChange={(e) => handlePriorityChange(e, index)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    const newPriorityErrors = [
-                                      ...errorLogPriorityErr,
-                                    ];
-                                    newPriorityErrors[index] = false;
-                                    setErrorLogPriorityErr(newPriorityErrors);
-                                  }
-                                }}
-                              >
-                                <MenuItem value={1}>High</MenuItem>
-                                <MenuItem value={2}>Medium</MenuItem>
-                                <MenuItem value={3}>Low</MenuItem>
-                              </Select>
-                              {errorLogPriorityErr[index] && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                            <TextField
-                              label={
-                                <span>
-                                  Error Count
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              type="number"
-                              fullWidth
-                              value={
-                                field.ErrorCount === 0 ? "" : field.ErrorCount
-                              }
-                              disabled={field.isSolved}
-                              onChange={(e) => handleErrorCountChange(e, index)}
-                              onBlur={(e: any) => {
-                                if (e.target.value.length > 0) {
-                                  const newErrorCountErrors = [
-                                    ...errorCountErr,
-                                  ];
-                                  newErrorCountErrors[index] = false;
-                                  setErrorCountErr(newErrorCountErrors);
-                                }
-                              }}
-                              error={errorCountErr[index]}
-                              helperText={
-                                errorCountErr[index] && field.ErrorCount < 0
-                                  ? "Add valid number."
-                                  : errorCountErr[index] &&
-                                    field.ErrorCount.toString().length > 4
-                                  ? "Maximum 4 numbers allowed."
-                                  : errorCountErr[index]
-                                  ? "This is a required field."
-                                  : ""
-                              }
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 180, mt: 0 }}
-                            />
                             <div className="flex !ml-0">
                               <TextField
                                 label={

@@ -111,7 +111,6 @@ const EditDrawer = ({
   const [description, setDescription] = useState<string>("");
   const [descriptionErr, setDescriptionErr] = useState(false);
   const [priority, setPriority] = useState<string | number>(0);
-  const [priorityErr, setPriorityErr] = useState(false);
   const [estTime, setEstTime] = useState<string>("");
   const [estTimeErr, setEstTimeErr] = useState(false);
   const [quantity, setQuantity] = useState<any>(1);
@@ -135,18 +134,9 @@ const EditDrawer = ({
   const [userId, setUserId] = useState(0);
 
   // Selected Taxation
-  const [returnType, setReturnType] = useState<string | number>(0);
-  const [returnTypeErr, setReturnTypeErr] = useState(false);
-  const [typeOfReturn, setTypeOfReturn] = useState<string | number>(0);
-  const [typeOfReturnErr, setTypeOfReturnErr] = useState(false);
   const [returnYear, setReturnYear] = useState<string | number>(0);
   const [returnYearErr, setReturnYearErr] = useState(false);
-  const [complexity, setComplexity] = useState<string | number>(0);
-  const [complexityErr, setComplexityErr] = useState(false);
-  const [countYear, setCountYear] = useState<string | number>(0);
-  const [countYearErr, setCountYearErr] = useState(false);
   const [noOfPages, setNoOfPages] = useState<any>(0);
-  const [noOfPagesErr, setNoOfPagesErr] = useState(false);
   const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
   const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
 
@@ -285,7 +275,7 @@ const EditDrawer = ({
   const currentYear = new Date().getFullYear();
   const Years = [];
 
-  for (let year = 2010; year <= currentYear; year++) {
+  for (let year = 2010; year <= currentYear + 1; year++) {
     Years.push({ label: String(year), value: year });
   }
 
@@ -599,20 +589,13 @@ const EditDrawer = ({
       processName: validateField(processName),
       subProcess: validateField(subProcess),
       clientTaskName: validateField(clientTaskName),
-      // description: validateField(description),
-      priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
       manager: validateField(manager),
-      returnType: typeOfWork === 3 && validateField(returnType),
-      typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
-      complexity: typeOfWork === 3 && validateField(complexity),
-      countYear: typeOfWork === 3 && validateField(countYear),
-      noOfPages: typeOfWork === 3 && validateField(noOfPages),
       checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
       recurringStartDate: recurringSwitch && validateField(recurringStartDate),
       recurringEndDate: recurringSwitch && validateField(recurringEndDate),
@@ -635,19 +618,13 @@ const EditDrawer = ({
     setProcessNameErr(fieldValidations.processName);
     setSubProcessErr(fieldValidations.subProcess);
     setClientTaskNameErr(fieldValidations.clientTaskName);
-    // setDescriptionErr(fieldValidations.description);
-    setPriorityErr(fieldValidations.priority);
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
     setDueDateErr(fieldValidations.dueDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
     setManagerErr(fieldValidations.manager);
-    typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
-    typeOfWork === 3 && setTypeOfReturnErr(fieldValidations.typeOfReturn);
     typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
-    typeOfWork === 3 && setComplexityErr(fieldValidations.complexity);
-    typeOfWork === 3 && setCountYearErr(fieldValidations.countYear);
     typeOfWork === 3 &&
       setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
     onEdit === 0 &&
@@ -682,19 +659,11 @@ const EditDrawer = ({
     setClientTaskNameErr(
       clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
     );
-    // setDescriptionErr(
-    //   description.trim().length < 5 || description.trim().length > 500
-    // );
     setQuantityErr(
       quantity.length <= 0 ||
         quantity.length > 4 ||
         quantity <= 0 ||
         quantity.toString().includes(".")
-    );
-    setNoOfPagesErr(
-      (typeOfWork === 3 && noOfPages.toString().length <= 0) ||
-        (typeOfWork === 3 && noOfPages.toString().length > 4) ||
-        (typeOfWork === 3 && noOfPages <= 0)
     );
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
@@ -707,20 +676,13 @@ const EditDrawer = ({
       subProcess: validateField(subProcess),
       clientTaskName: validateField(clientTaskName),
       status: validateField(status),
-      // description: validateField(description),
-      priority: validateField(priority),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
       dueDate: validateField(dueDate),
       assignee: validateField(assignee),
       reviewer: validateField(reviewer),
       manager: validateField(manager),
-      returnType: typeOfWork === 3 && validateField(returnType),
-      typeOfReturn: typeOfWork === 3 && validateField(typeOfReturn),
       returnYear: typeOfWork === 3 && validateField(returnYear),
-      complexity: typeOfWork === 3 && validateField(complexity),
-      countYear: typeOfWork === 3 && validateField(countYear),
-      noOfPages: typeOfWork === 3 && validateField(noOfPages),
       checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
     };
 
@@ -809,7 +771,7 @@ const EditDrawer = ({
       ProcessId: processName === 0 ? null : processName,
       SubProcessId: subProcess === 0 ? null : subProcess,
       StatusId: status,
-      Priority: priority,
+      Priority: priority === 0 ? 0 : priority,
       Quantity: quantity,
       Description:
         description.toString().length <= 0
@@ -821,15 +783,14 @@ const EditDrawer = ({
       AssignedId: assignee,
       ReviewerId: reviewer,
       managerId: manager,
-      TaxReturnType: returnType === 0 ? null : returnType,
-      TypeOfReturnId: typeOfReturn === 0 ? null : typeOfReturn,
+      TaxReturnType: null,
       TaxCustomFields:
-        typeOfReturn === 0
+        typeOfWork !== 3
           ? null
           : {
               ReturnYear: returnYear,
-              Complexity: complexity,
-              CountYear: countYear,
+              Complexity: null,
+              CountYear: null,
               NoOfPages: noOfPages,
             },
       checklistWorkpaper:
@@ -956,9 +917,6 @@ const EditDrawer = ({
       !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      // description.trim().length > 4 &&
-      // description.trim().length < 500 &&
-      // !descriptionErr &&
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -970,6 +928,7 @@ const EditDrawer = ({
         toast.error("User don't have permission to Create Task.");
       }
     }
+    console.log(fieldValidations);
 
     if (
       onEdit === 0 &&
@@ -980,16 +939,10 @@ const EditDrawer = ({
       !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      // description.trim().length > 4 &&
-      // description.trim().length < 500 &&
-      // !descriptionErr &&
       !quantityErr &&
       quantity > 0 &&
       quantity < 10000 &&
-      !quantity.toString().includes(".") &&
-      !noOfPagesErr &&
-      noOfPages > 0 &&
-      noOfPages < 10000
+      !quantity.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -1020,11 +973,8 @@ const EditDrawer = ({
       status !== 13 &&
       typeOfWork !== 3 &&
       !hasEditErrors &&
-      // !descriptionErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      // description.trim().length > 4 &&
-      // description.trim().length < 500 &&
       !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
@@ -1047,19 +997,13 @@ const EditDrawer = ({
       status !== 13 &&
       typeOfWork === 3 &&
       !hasEditErrors &&
-      // !descriptionErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      // description.trim().length > 4 &&
-      // description.trim().length < 500 &&
       !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
       !quantityErr &&
-      !quantity.toString().includes(".") &&
-      !noOfPagesErr &&
-      noOfPages > 0 &&
-      noOfPages < 10000
+      !quantity.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -1609,7 +1553,7 @@ const EditDrawer = ({
                   )
                   .filter((i: any) => i !== "")
               );
-          setPriority(data.Priority);
+          setPriority(data.Priority === null ? 0 : data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
           setReceiverDate(data.ReceiverDate);
@@ -1619,16 +1563,8 @@ const EditDrawer = ({
           setAssignee(data.AssignedId);
           setReviewer(data.ReviewerId);
           setManager(data.ManagerId === null ? 0 : data.ManagerId);
-          setReturnType(data.TaxReturnType);
-          setTypeOfReturn(data.TypeOfReturnId);
           setReturnYear(
             data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.ReturnYear
-          );
-          setComplexity(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.Complexity
-          );
-          setCountYear(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.CountYear
           );
           setNoOfPages(
             data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.NoOfPages
@@ -2173,23 +2109,23 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      const assigneeData = await getAssigneeDropdownData(
+      setAssigneeDropdownData(
+        await getAssigneeDropdownData(clientName, typeOfWork)
+      );
+      const reviewerData = await getReviewerDropdownData(
         clientName,
         typeOfWork
       );
-      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
-      const UserId: any = localStorage.getItem("UserId");
-      assigneeData.length > 0 &&
-        setAssignee(
-          assigneeData
+      reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
+      const UserId: any = await localStorage.getItem("UserId");
+      reviewerData.length > 0 &&
+        setReviewer(
+          reviewerData
             .map((i: any) =>
               i.value === parseInt(UserId) ? i.value : undefined
             )
             .filter((i: any) => i !== undefined)[0]
         );
-      setReviewerDropdownData(
-        await getReviewerDropdownData(clientName, typeOfWork)
-      );
     };
 
     const getTypeOfReturn = async () => {
@@ -2696,9 +2632,7 @@ const EditDrawer = ({
     setStatus(0);
     setStatusErr(false);
     setDescription("");
-    // setDescriptionErr(false);
     setPriority(0);
-    setPriorityErr(false);
     setEstTime("");
     setEstTimeErr(false);
     setQuantity(1);
@@ -2710,7 +2644,6 @@ const EditDrawer = ({
     setDueDate("");
     setDueDateErr(false);
     setAllInfoDate("");
-    // setAllInfoDateErr(false);
     setAssignee(0);
     setAssigneeErr(false);
     setAssigneeDisable(true);
@@ -2722,18 +2655,9 @@ const EditDrawer = ({
     setEstTimeData([]);
 
     // Taxation selected
-    setReturnType(0);
-    setReturnTypeErr(false);
-    setTypeOfReturn(0);
-    setTypeOfReturnErr(false);
     setReturnYear(0);
     setReturnYearErr(false);
-    setComplexity(0);
-    setComplexityErr(false);
-    setCountYear(0);
-    setCountYearErr(false);
     setNoOfPages(0);
-    setNoOfPagesErr(false);
     setChecklistWorkpaper(0);
     setChecklistWorkpaperErr(false);
 
@@ -2920,11 +2844,9 @@ const EditDrawer = ({
                             setSubProcess(0);
                             setSubProcessErr(false);
                             setDescription("");
-                            // setDescriptionErr(false);
                             setManager(0);
                             setManagerErr(false);
                             setPriority(0);
-                            setPriorityErr(false);
                             setQuantity(1);
                             setQuantityErr(false);
                             setReceiverDate("");
@@ -2988,11 +2910,9 @@ const EditDrawer = ({
                               setSubProcess(0);
                               setSubProcessErr(false);
                               setDescription("");
-                              // setDescriptionErr(false);
                               setManager(0);
                               setManagerErr(false);
                               setPriority(0);
-                              setPriorityErr(false);
                               setQuantity(1);
                               setQuantityErr(false);
                               setReceiverDate("");
@@ -3006,11 +2926,7 @@ const EditDrawer = ({
                               setTypeOfWork(e.target.value);
                               setDateOfReview("");
                               setDateOfPreperation("");
-                              setReturnType(0);
-                              setTypeOfReturn(0);
                               setReturnYear(0);
-                              setComplexity(0);
-                              setCountYear(0);
                               setNoOfPages(0);
                             }}
                             onBlur={(e: any) => {
@@ -3272,34 +3188,7 @@ const EditDrawer = ({
                           value={
                             description?.trim().length <= 0 ? "" : description
                           }
-                          onChange={(e) => {
-                            setDescription(e.target.value);
-                            // setDescriptionErr(false);
-                          }}
-                          // onBlur={(e: any) => {
-                          //   if (e.target.value.trim().length > 5) {
-                          //     setDescriptionErr(false);
-                          //   }
-                          //   if (
-                          //     e.target.value.trim().length > 5 &&
-                          //     e.target.value.trim().length < 500
-                          //   ) {
-                          //     setDescriptionErr(false);
-                          //   }
-                          // }}
-                          // error={descriptionErr}
-                          // helperText={
-                          //   descriptionErr &&
-                          //   description?.trim().length > 0 &&
-                          //   description?.trim().length < 5
-                          //     ? "Minimum 5 characters required."
-                          //     : descriptionErr &&
-                          //       description?.trim().length > 500
-                          //     ? "Maximum 500 characters allowed."
-                          //     : descriptionErr
-                          //     ? "This is a required field."
-                          //     : ""
-                          // }
+                          onChange={(e) => setDescription(e.target.value)}
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, width: 300, mt: -0.5 }}
@@ -3309,68 +3198,22 @@ const EditDrawer = ({
                         <FormControl
                           variant="standard"
                           sx={{ mx: 0.75, width: 300, mt: -1.2 }}
-                          error={priorityErr}
                         >
                           <InputLabel id="demo-simple-select-standard-label">
                             Priority
-                            <span className="text-defaultRed">&nbsp;*</span>
                           </InputLabel>
                           <Select
                             labelId="demo-simple-select-standard-label"
                             id="demo-simple-select-standard"
                             value={priority === 0 ? "" : priority}
                             onChange={(e) => setPriority(e.target.value)}
-                            onBlur={(e: any) => {
-                              if (e.target.value > 0) {
-                                setPriorityErr(false);
-                              }
-                            }}
                           >
                             <MenuItem value={1}>High</MenuItem>
                             <MenuItem value={2}>Medium</MenuItem>
                             <MenuItem value={3}>Low</MenuItem>
                           </Select>
-                          {priorityErr && (
-                            <FormHelperText>
-                              This is a required field.
-                            </FormHelperText>
-                          )}
                         </FormControl>
                       </Grid>
-                      {typeOfWork === 3 && (
-                        <Grid item xs={3} className="pt-4">
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, width: 300, mt: -1.2 }}
-                            error={complexityErr}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Complexity
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={complexity === 0 ? "" : complexity}
-                              onChange={(e) => setComplexity(e.target.value)}
-                              onBlur={(e: any) => {
-                                if (e.target.value > 0) {
-                                  setComplexityErr(false);
-                                }
-                              }}
-                            >
-                              <MenuItem value={1}>Moderate</MenuItem>
-                              <MenuItem value={2}>Intermediate</MenuItem>
-                              <MenuItem value={3}>Complex</MenuItem>
-                            </Select>
-                            {complexityErr && (
-                              <FormHelperText>
-                                This is a required field.
-                              </FormHelperText>
-                            )}
-                          </FormControl>
-                        </Grid>
-                      )}
                       <Grid item xs={3} className="pt-4">
                         <TextField
                           label="Estimated Time"
@@ -3671,7 +3514,11 @@ const EditDrawer = ({
                           onChange={(e, value: any) => {
                             value && setReviewer(value.value);
                           }}
-                          sx={{ width: 300, mt: -1, mx: 0.75 }}
+                          sx={{
+                            width: 300,
+                            mt: typeOfWork === 3 ? 0.2 : -1,
+                            mx: 0.75,
+                          }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -3714,7 +3561,11 @@ const EditDrawer = ({
                           onChange={(e, value: any) => {
                             value && setManager(value.value);
                           }}
-                          sx={{ width: 300, mt: -1, mx: 0.75 }}
+                          sx={{
+                            width: 300,
+                            mt: typeOfWork === 3 ? 0.2 : -1,
+                            mx: 0.75,
+                          }}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -3742,81 +3593,6 @@ const EditDrawer = ({
                       </Grid>
                       {typeOfWork === 3 && (
                         <>
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -1.4, mx: 0.75 }}
-                              error={returnTypeErr}
-                              disabled={
-                                isCreatedByClient && editData.TaxReturnType > 0
-                              }
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Return Type
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={returnType === 0 ? "" : returnType}
-                                onChange={(e) => setReturnType(e.target.value)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setReturnTypeErr(false);
-                                  }
-                                }}
-                              >
-                                <MenuItem value={1}>Individual Return</MenuItem>
-                                <MenuItem value={2}>Business Return</MenuItem>
-                              </Select>
-                              {returnTypeErr && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                          </Grid>
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-                              error={typeOfReturnErr}
-                              disabled={
-                                isCreatedByClient && editData.TypeOfReturnId > 0
-                              }
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Type of Return
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={typeOfReturn === 0 ? "" : typeOfReturn}
-                                onChange={(e) =>
-                                  setTypeOfReturn(e.target.value)
-                                }
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setTypeOfReturnErr(false);
-                                  }
-                                }}
-                              >
-                                {typeOfReturnDropdownData.map(
-                                  (i: any, index: number) => (
-                                    <MenuItem value={i.value} key={index}>
-                                      {i.label}
-                                    </MenuItem>
-                                  )
-                                )}
-                              </Select>
-                              {typeOfReturnErr && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                          </Grid>
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
@@ -3852,74 +3628,12 @@ const EditDrawer = ({
                             </FormControl>
                           </Grid>
                           <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-                              error={countYearErr}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Current Year
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={countYear === 0 ? "" : countYear}
-                                onChange={(e) => setCountYear(e.target.value)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setCountYearErr(false);
-                                  }
-                                }}
-                              >
-                                {Years.map((i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              {countYearErr && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                          </Grid>
-                          <Grid item xs={3} className="pt-4">
                             <TextField
-                              label={
-                                <span>
-                                  No of Pages
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
+                              label="No of Pages"
                               type="number"
                               fullWidth
                               value={noOfPages === 0 ? "" : noOfPages}
-                              onChange={(e) => {
-                                setNoOfPages(e.target.value);
-                                setNoOfPagesErr(false);
-                              }}
-                              onBlur={(e: any) => {
-                                if (
-                                  e.target.value.trim().length > 0 &&
-                                  e.target.value.trim().length < 5
-                                ) {
-                                  setNoOfPagesErr(false);
-                                }
-                              }}
-                              error={noOfPagesErr}
-                              helperText={
-                                noOfPagesErr && noOfPages < 0
-                                  ? "Add valid number."
-                                  : noOfPagesErr && noOfPages.length > 4
-                                  ? "Maximum 4 numbers allowed."
-                                  : noOfPagesErr
-                                  ? "This is a required field."
-                                  : ""
-                              }
+                              onChange={(e) => setNoOfPages(e.target.value)}
                               margin="normal"
                               variant="standard"
                               sx={{ width: 300, mt: 0, mx: 0.75 }}
