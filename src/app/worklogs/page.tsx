@@ -57,6 +57,7 @@ const page = () => {
   const [filterApplied, setFilterApplied] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
+  const [hasId, setHasId] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -127,12 +128,14 @@ const page = () => {
     setHasEdit(0);
     setHasRecurring(false);
     setHasComment(false);
+    setHasId("");
   };
 
   // To Toggle Drawer for Edit
-  const handleEdit = (rowData: any) => {
+  const handleEdit = (rowData: any, Id: any) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
+    setHasId(Id);
   };
 
   // To Toggle Drawer for Recurring
@@ -601,6 +604,7 @@ const page = () => {
           onEdit={hasEdit}
           onRecurring={hasRecurring}
           onComment={hasComment}
+          onHasId={hasId}
         />
         <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
 
