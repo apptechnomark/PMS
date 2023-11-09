@@ -1488,7 +1488,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Timer</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[15].split(":");
+          const estimatedTime = tableMeta.rowData[12].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +

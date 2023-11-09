@@ -465,7 +465,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">btc time</span>
+          <span className="font-bold text-sm capitalize">BTC time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (

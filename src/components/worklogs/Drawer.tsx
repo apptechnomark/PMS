@@ -591,7 +591,6 @@ const EditDrawer = ({
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
   const [errorCountErr, setErrorCountErr] = useState([false]);
   const [natureOfErr, setNatureOfErr] = useState([false]);
-  const [ccErr, setCCErr] = useState([false]);
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
@@ -641,10 +640,6 @@ const EditDrawer = ({
     const newFields = [...errorLogFields];
     newFields[index].CC = newValue;
     setErrorLogFields(newFields);
-
-    const newErrors = [...ccErr];
-    newErrors[index] = newValue.length === 0;
-    setCCErr(newErrors);
   };
 
   const handleAttachmentsChange = (e: any, index: number) => {
@@ -683,8 +678,6 @@ const EditDrawer = ({
       (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
     );
     setErrorCountErr(newErrorCountErrors);
-    const newCCErrors = errorLogFields.map((field) => field.CC.length <= 0);
-    setCCErr(newCCErrors);
     const newRemarkErrors = errorLogFields.map(
       (field) =>
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
@@ -701,7 +694,6 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newCCErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error);
     // ||
     // newAttachmentsErrors.some((error) => error);
@@ -3009,7 +3001,6 @@ const EditDrawer = ({
     setErrorLogPriorityErr([false]);
     setErrorCountErr([false]);
     setNatureOfErr([false]);
-    setCCErr([false]);
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
@@ -5679,22 +5670,9 @@ const EditDrawer = ({
                                   style={{ width: 500 }}
                                   renderInput={(params) => (
                                     <TextField
-                                      label={
-                                        <span>
-                                          cc
-                                          <span className="text-defaultRed">
-                                            &nbsp;*
-                                          </span>
-                                        </span>
-                                      }
+                                      label="cc"
                                       {...params}
                                       variant="standard"
-                                      error={ccErr[index]}
-                                      helperText={
-                                        ccErr[index]
-                                          ? "This is a required field."
-                                          : ""
-                                      }
                                     />
                                   )}
                                   sx={{ maxWidth: 230, mt: 0.3 }}

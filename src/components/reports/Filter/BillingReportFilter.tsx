@@ -618,7 +618,7 @@ const BillingReportFilter = ({
                     control={
                       <Checkbox checked={isBTC} onChange={handleIsBTCChange} />
                     }
-                    label="Is BTC"
+                    label="Is Invoice Raised"
                   />
                 </FormControl>
               </div>

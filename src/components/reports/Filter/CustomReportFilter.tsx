@@ -1,5 +1,5 @@
 import axios from "axios";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
