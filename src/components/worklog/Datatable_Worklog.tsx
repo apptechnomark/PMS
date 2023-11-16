@@ -775,9 +775,10 @@ const Datatable_Worklog = ({
                         ? "bg-yellowColor"
                         : isLowPriority
                         ? "bg-primary"
-                        : ""
+                        : "bg-lightSilver"
                     }`}
                   ></div>
+                  {value}
                 </div>
               )}
             </div>
@@ -803,6 +804,7 @@ const Datatable_Worklog = ({
                     className="w-[10px] h-[10px] rounded-full inline-block mr-2"
                     style={{ backgroundColor: statusColorCode }}
                   ></div>
+                  {value}
                 </div>
               )}
             </div>

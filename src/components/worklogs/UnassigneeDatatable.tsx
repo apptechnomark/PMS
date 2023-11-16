@@ -909,22 +909,20 @@ const UnassigneeDatatable = ({
               {value === null || value === "" ? (
                 "-"
               ) : (
-                <>
-                  <div className="inline-block mr-1">
-                    <div
-                      className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                        isHighPriority
-                          ? "bg-defaultRed"
-                          : isMediumPriority
-                          ? "bg-yellowColor"
-                          : isLowPriority
-                          ? "bg-primary"
-                          : "bg-lightSilver"
-                      }`}
-                    ></div>
-                  </div>
+                <div className="inline-block mr-1">
+                  <div
+                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                      isHighPriority
+                        ? "bg-defaultRed"
+                        : isMediumPriority
+                        ? "bg-yellowColor"
+                        : isLowPriority
+                        ? "bg-primary"
+                        : "bg-lightSilver"
+                    }`}
+                  ></div>
                   {value}
-                </>
+                </div>
               )}
             </div>
           );
@@ -954,15 +952,13 @@ const UnassigneeDatatable = ({
               {value === null || value === "" ? (
                 "-"
               ) : (
-                <>
-                  <div className="inline-block mr-1">
-                    <div
-                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                      style={{ backgroundColor: statusColorCode }}
-                    ></div>
-                  </div>
+                <div className="inline-block mr-1">
+                  <div
+                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                    style={{ backgroundColor: statusColorCode }}
+                  ></div>
                   {value}
-                </>
+                </div>
               )}
             </div>
           );

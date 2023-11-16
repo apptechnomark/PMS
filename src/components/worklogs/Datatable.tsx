@@ -1562,23 +1562,21 @@ const Datatable = ({
                   <ColorToolTip title="Stop" placement="top" arrow>
                     <span
                       className="cursor-pointer mt-[2px]"
-                      onClick={
-                        () => {
-                          handleSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          // setRowId(tableMeta.rowIndex);
-                          setStopTimerDialog(true);
-                          value > estimatedTimeInSeconds
-                            ? setIsTimeExceed(true)
-                            : setIsTimeExceed(false);
+                      onClick={() => {
+                        handleSync(
+                          tableMeta.rowData[tableMeta.rowData.length - 1]
+                        );
+                        setRunning(
+                          tableMeta.rowData[tableMeta.rowData.length - 1]
+                        );
+                        // setRowId(tableMeta.rowIndex);
+                        setStopTimerDialog(true);
+                        value > estimatedTimeInSeconds
+                          ? setIsTimeExceed(true)
+                          : setIsTimeExceed(false);
 
-                          handleClearSelection();
-                        }
-                      }
+                        handleClearSelection();
+                      }}
                     >
                       <StopButton />
                     </span>

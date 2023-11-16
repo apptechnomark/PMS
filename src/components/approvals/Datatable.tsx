@@ -30,6 +30,7 @@ import AcceptNote from "@/assets/icons/worklogs/AcceptNote";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import Priority from "@/assets/icons/worklogs/Priority";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import EditUserIcon from "@/assets/icons/EditUserIcon";
 
 // Internal component Imports
 import EditDialog from "./EditDialog";
@@ -410,6 +411,128 @@ const Datatable = ({
     }
   };
 
+  // API for get Assignee with all conditions
+  useEffect(() => {
+    if (
+      selectedRowClientId.length > 0 &&
+      selectedRowWorkTypeId.length > 0 &&
+      areAllValuesSame(selectedRowClientId) &&
+      areAllValuesSame(selectedRowWorkTypeId)
+    ) {
+      const getAssignee = async () => {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.api_url}/user/GetReviewerDropdown`,
+            {
+              ClientIds: selectedRowClientId,
+              WorktypeId: selectedRowWorkTypeId[0],
+              IsAll: selectedRowClientId.length > 0 ? true : false,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              setReviewer(response.data.ResponseData);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Error duplicating task.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      // calling function
+      getAssignee();
+    }
+  }, [selectedRowClientId, selectedRowWorkTypeId]);
+
+  // API for update Assignee
+  const updateReviewer = async (id: number[], reviewerId: number) => {
+    if (
+      selectedRowsCount === 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9))
+    ) {
+      toast.warning(
+        "Cannot change Reviewer for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+      );
+    } else {
+      if (
+        selectedRowsCount > 1 &&
+        (selectedRowStatusId.includes(7) ||
+          selectedRowStatusId.includes(8) ||
+          selectedRowStatusId.includes(9))
+      ) {
+        toast.warning(
+          "Cannot change Reviewer for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        );
+      }
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
+          {
+            workitemIds: id,
+            ReviewerId: reviewerId,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Reviewer has been updated successfully.");
+            handleClearSelection();
+            getReviewList();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   // actions for priority popup
   const handleOptionPriority = (id: any) => {
     updatePriority(selectedWorkItemIds, id);
@@ -419,6 +542,11 @@ const Datatable = ({
   const handleOptionAssignee = (id: any) => {
     updateAssignee(selectedWorkItemIds, id);
     handleCloseAssignee();
+  };
+
+  const handleOptionReviewer = (id: any) => {
+    updateReviewer(selectedWorkItemIds, id);
+    handleCloseReviewer();
   };
 
   useEffect(() => {
@@ -1088,20 +1216,24 @@ const Datatable = ({
 
           return (
             <div>
-              <div className="inline-block mr-1">
-                <div
-                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                    isHighPriority
-                      ? "bg-defaultRed"
-                      : isMediumPriority
-                      ? "bg-yellowColor"
-                      : isLowPriority
-                      ? "bg-primary"
-                      : "bg-lightSilver"
-                  }`}
-                ></div>
-              </div>
-              {value === null || value === "" ? "-" : value}
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <div className="inline-block mr-1">
+                  <div
+                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                      isHighPriority
+                        ? "bg-defaultRed"
+                        : isMediumPriority
+                        ? "bg-yellowColor"
+                        : isLowPriority
+                        ? "bg-primary"
+                        : "bg-lightSilver"
+                    }`}
+                  ></div>
+                  {value}
+                </div>
+              )}
             </div>
           );
         },
@@ -1129,13 +1261,17 @@ const Datatable = ({
           const statusColorCode = tableMeta.rowData[8];
           return (
             <div>
-              <div className="inline-block mr-1">
-                <div
-                  className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                  style={{ backgroundColor: statusColorCode }}
-                ></div>
-              </div>
-              {value === null || value === "" ? "-" : value}
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <div className="inline-block mr-1">
+                  <div
+                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                    style={{ backgroundColor: statusColorCode }}
+                  ></div>
+                  {value}
+                </div>
+              )}
             </div>
           );
         },
@@ -1603,23 +1739,23 @@ const Datatable = ({
                 {/* Update Reviewer */}
                 {areAllValuesSame(selectedRowClientId) &&
                   areAllValuesSame(selectedRowWorkTypeId) && (
-                    <ColorToolTip title="Assignee" arrow>
+                    <ColorToolTip title="Reviewer" arrow>
                       <span
-                        aria-describedby={idAssignee}
-                        onClick={handleClickAssignee}
-                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idReviewer}
+                        onClick={handleClickReviewer}
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300 mt-[1px]"
                       >
-                        <Assignee />
+                        <EditUserIcon />
                       </span>
                     </ColorToolTip>
                   )}
 
-                {/* Assignee Popover */}
+                {/* Reviewer Popover */}
                 <Popover
-                  id={idAssignee}
-                  open={openAssignee}
-                  anchorEl={anchorElAssignee}
-                  onClose={handleCloseAssignee}
+                  id={idReviewer}
+                  open={openReviewer}
+                  anchorEl={anchorElReviewer}
+                  onClose={handleCloseReviewer}
                   anchorOrigin={{
                     vertical: "top",
                     horizontal: "center",
@@ -1631,7 +1767,7 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {filteredAssignees.map((assignee: any, index: any) => {
+                      {filteredReviewer.map((reviewer: any, index: any) => {
                         return (
                           <span
                             key={index}
@@ -1640,14 +1776,14 @@ const Datatable = ({
                             <span
                               className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
                               onClick={() =>
-                                handleOptionAssignee(assignee.value)
+                                handleOptionReviewer(reviewer.value)
                               }
                             >
                               <Avatar
                                 sx={{ width: 32, height: 32, fontSize: 14 }}
                               >
-                                {assignee.label
-                                  .split(" ")
+                                {reviewer.label
+                                  ?.split(" ")
                                   .map((word: any) =>
                                     word.charAt(0).toUpperCase()
                                   )
@@ -1655,7 +1791,7 @@ const Datatable = ({
                               </Avatar>
 
                               <span className="pt-[0.8px]">
-                                {assignee.label}
+                                {reviewer.label}
                               </span>
                             </span>
                           </span>
@@ -1676,8 +1812,8 @@ const Datatable = ({
                           <InputBase
                             placeholder="Search"
                             inputProps={{ "aria-label": "search" }}
-                            value={searchQuery}
-                            onChange={handleSearchChange}
+                            value={searchQueryRW}
+                            onChange={handleSearchChangeRW}
                             style={{ fontSize: "13px" }}
                           />
                         </span>
