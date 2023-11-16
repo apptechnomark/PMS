@@ -154,7 +154,11 @@ const Audit = () => {
             <div>
               {value === null || value === 0 || value === "0"
                 ? "00:00:00"
-                : value.split("T")[0]}
+                : 
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>}
             </div>
           );
         },
@@ -173,7 +177,11 @@ const Audit = () => {
             <div>
               {value === null || value === 0 || value === "0"
                 ? "-"
-                : value.split("T")[0]}
+                : 
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>}
             </div>
           );
         },

@@ -157,9 +157,14 @@ const UserLogs = ({ filteredData }: any) => {
         customBodyRender: (value: any) => {
           return (
             <div>
-              {value === 0 || value === "0" || value === null
-                ? "-"
-                : value.split("T")[0]}
+              {value === 0 || value === "0" || value === null ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },
@@ -176,9 +181,14 @@ const UserLogs = ({ filteredData }: any) => {
         customBodyRender: (value: any) => {
           return (
             <div>
-              {value === 0 || value === "0" || value === null
-                ? "-"
-                : value.split("T")[0]}
+              {value === 0 || value === "0" || value === null ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },
