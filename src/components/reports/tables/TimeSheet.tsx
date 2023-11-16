@@ -615,7 +615,7 @@ const TimeSheet = ({ filteredData }: any) => {
         },
       },
     },
-    ...dates.slice(-5).map(
+    ...dates.map(
       (date: any) =>
         new Object({
           name: "DateWiseLogs",
@@ -675,8 +675,19 @@ const TimeSheet = ({ filteredData }: any) => {
         columns={columns}
         data={timesheetData}
         title={undefined}
-        options={options}
+        options={{
+          ...options,
+          // tableBodyHeight:""
+        }}
       />
+      {/* <div className="w-full h-10">
+        <div>
+          <div className="flex gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-green-800"></span>
+            <span></span>
+          </div>
+        </div>
+      </div> */}
       <TablePagination
         component="div"
         count={tableDataCount}

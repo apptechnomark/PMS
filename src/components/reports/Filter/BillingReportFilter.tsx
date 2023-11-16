@@ -18,6 +18,9 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import { Transition } from "./Transition/Transition";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
@@ -54,6 +57,8 @@ const BillingReportFilter = ({
   const [noOfPages, setNoOfPages] = useState<number | string>("");
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const isBTCRef_ForPreviousValue = useRef<boolean>(false);
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
 
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
@@ -102,6 +107,16 @@ const BillingReportFilter = ({
     }
   };
 
+  const getFormattedDate = (newValue: any) => {
+    if (newValue !== "") {
+      return `${newValue.$y}-${
+        (newValue.$M + 1).toString().length > 1
+          ? newValue.$M + 1
+          : `0${newValue.$M + 1}`
+      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }
+  };
+
   const handleIsBTCChange = (e: any) => {
     isBTCRef_ForPreviousValue.current = isBTC;
     setIsBTC(e.target.checked);
@@ -116,6 +131,8 @@ const BillingReportFilter = ({
     setNoOfPages("");
     setResetting(true);
     setIsBTC(false);
+    setStartDate("");
+    setEndDate("");
 
     sendFilterToPage({
       ...billingreport_InitialFilter,
@@ -126,6 +143,8 @@ const BillingReportFilter = ({
       typeofReturnId: null,
       numberOfPages: null,
       IsBTC: false,
+      startDate: null,
+      endDate: null,
     });
   };
 
@@ -142,6 +161,8 @@ const BillingReportFilter = ({
     setTypeOfReturn(0);
     setNoOfPages("");
     setIsBTC(false);
+    setStartDate("");
+    setEndDate("");
   };
 
   const handleFilterApply = () => {
@@ -154,6 +175,14 @@ const BillingReportFilter = ({
       typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
       numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
       IsBTC: isBTC,
+      startDate:
+        startDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(startDate),
+      endDate:
+        endDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(endDate),
     });
 
     onDialogClose(false);
@@ -171,6 +200,8 @@ const BillingReportFilter = ({
           typeofReturnId: savedFilters[index].AppliedFilter.typeofReturnId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           IsBTC: savedFilters[index].AppliedFilter.IsBTC,
+          startDate: savedFilters[index].AppliedFilter.startDate,
+          endDate: savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -196,6 +227,14 @@ const BillingReportFilter = ({
             numberOfPages:
               noOfPages.toString().trim().length > 0 ? noOfPages : null,
             IsBTC: isBTC,
+            startDate:
+              startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDate),
+            endDate:
+              endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDate),
           },
           type: billingReport,
         },
@@ -242,7 +281,9 @@ const BillingReportFilter = ({
       reviewer !== 0 ||
       typeOfReturn !== 0 ||
       noOfPages.toString().trim().length > 0 ||
-      isBTC !== isBTCRef_ForPreviousValue.current;
+      isBTC !== isBTCRef_ForPreviousValue.current ||
+      startDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
@@ -255,6 +296,8 @@ const BillingReportFilter = ({
     typeOfReturn,
     noOfPages,
     isBTC,
+    startDate,
+    endDate,
   ]);
 
   useEffect(() => {
@@ -320,6 +363,8 @@ const BillingReportFilter = ({
     setReviewer(savedFilters[index].AppliedFilter.reviewerId);
     setTypeOfReturn(savedFilters[index].AppliedFilter.typeofReturnId);
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages);
+    setStartDate(savedFilters[index].AppliedFilter.startDate);
+    setEndDate(savedFilters[index].AppliedFilter.endDate);
 
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
@@ -590,6 +635,31 @@ const BillingReportFilter = ({
                     onChange={handleNoOfPageChange}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Start Date"
+                      value={startDate === "" ? null : dayjs(startDate)}
+                      onChange={(newValue: any) => setStartDate(newValue)}
+                    />
+                  </LocalizationProvider>
+                </div>
+
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="End Date"
+                      value={endDate === "" ? null : dayjs(endDate)}
+                      onChange={(newValue: any) => setEndDate(newValue)}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
               <div className="flex gap-[20px]">
                 <FormControl

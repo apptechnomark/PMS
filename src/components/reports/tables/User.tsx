@@ -154,7 +154,7 @@ const User = ({ filteredData }: any) => {
         },
       },
     },
-    ...dates.slice(-7).map(
+    ...dates.map(
       (date: any) =>
         new Object({
           name: "DateTimeLogs",
@@ -286,7 +286,10 @@ const User = ({ filteredData }: any) => {
         columns={columns}
         data={userData}
         title={undefined}
-        options={options}
+        options={{
+          ...options,
+          // tableBodyHeight:""
+        }}
       />
       <TablePagination
         component="div"

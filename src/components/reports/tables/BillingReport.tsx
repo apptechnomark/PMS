@@ -45,6 +45,7 @@ const getMuiTheme = () =>
 const BillingReport = ({
   filteredData,
   hasBTCData,
+  hasRaisedInvoiceData,
   isSavingBTCData,
   onSaveBTCDataComplete,
 }: any) => {
@@ -182,14 +183,7 @@ const BillingReport = ({
                   btcValue: toSeconds(
                     `${newValue.$H}:${newValue.$m}:${newValue.$s}`
                   ),
-                  IsBTC:
-                    raisedInvoice.length > 0
-                      ? raisedInvoice.filter(
-                          (data: any, index: number) =>
-                            data.workItemId ===
-                            billingReportData[index].WorkItemId
-                        )[0].IsBTC
-                      : null,
+                  // IsBTC: false,
                 }
               : obj
           );
@@ -202,18 +196,12 @@ const BillingReport = ({
               btcValue: toSeconds(
                 `${newValue.$H}:${newValue.$m}:${newValue.$s}`
               ),
-              IsBTC:
-                raisedInvoice.length > 0
-                  ? raisedInvoice.filter(
-                      (data: any, index: number) =>
-                        data.workItemId === billingReportData[index].WorkItemId
-                    )[0].IsBTC
-                  : null,
+              IsBTC: false,
             },
           ];
         }
       });
-      setRaisedInvoice([]);
+      // setRaisedInvoice([]);
     } else {
       setBTCTime("0000-00-00T00:00:00");
     }
@@ -223,17 +211,20 @@ const BillingReport = ({
     getData(billingreport_InitialFilter);
   }, []);
 
-  useEffect(() => hasBTCData(btcData.length > 0), [btcData]);
+  useEffect(
+    () => hasBTCData(btcData.length > 0 && raisedInvoice.length === 0),
+    [btcData]
+  );
 
-  // useEffect(() => isRaisingInvoice(raisedInvoice.length > 0), [raisedInvoice]);
+  useEffect(
+    () => hasRaisedInvoiceData(raisedInvoice.length > 0),
+    [raisedInvoice]
+  );
 
   useEffect(() => {
     if (isSavingBTCData) {
       if (btcData.length > 0) {
         saveBTCData(btcData);
-      }
-      if (raisedInvoice.length > 0) {
-        saveBTCData(raisedInvoice);
       }
     }
   }, [isSavingBTCData]);
@@ -243,6 +234,28 @@ const BillingReport = ({
       getData(filteredData);
     }
   }, [filteredData]);
+
+  useEffect(() => {
+    const updatedData = billingReportData
+      .map((data: any) =>
+        raisedInvoice.includes(data.WorkItemId)
+          ? {
+              workItemId: data.WorkItemId,
+              btcValue:
+                btcData.filter(
+                  (data: any) => data.workItemId === data.WorkItemId
+                )[0]?.btcValue === undefined
+                  ? data.BTC
+                  : btcData.filter(
+                      (data: any) => data.workItemId === data.WorkItemId
+                    )[0]?.btcValue,
+              IsBTC: true,
+            }
+          : undefined
+      )
+      .filter((data: any) => data !== undefined);
+    setBTCData(updatedData);
+  }, [raisedInvoice]);
 
   const columns: any[] = [
     {
@@ -349,7 +362,14 @@ const BillingReport = ({
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex items-center gap-2">
-              {value === null || "" ? "-" : value.split("T")[1]}
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },
@@ -366,7 +386,14 @@ const BillingReport = ({
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex items-center gap-2">
-              {value === null || "" ? "-" : value.split("T")[1]}
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },
@@ -565,20 +592,9 @@ const BillingReport = ({
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
             if (selectedRowsIndex.length > 0) {
               const data = selectedRowsIndex.map(
-                (d: any) =>
-                  new Object({
-                    workItemId: billingReportData[d].WorkItemId,
-                    btcValue:
-                      btcData.length > 0
-                        ? btcData.filter(
-                            (data: any) =>
-                              data.workItemId ===
-                              billingReportData[d].WorkItemId
-                          )[0].btcValue
-                        : billingReportData[d].BTC,
-                    IsBTC: true,
-                  })
+                (d: any) => billingReportData[d].WorkItemId
               );
+
               setRaisedInvoice(data);
             } else {
               setRaisedInvoice([]);

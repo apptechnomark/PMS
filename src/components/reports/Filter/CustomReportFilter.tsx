@@ -62,7 +62,7 @@ const getFormattedDate = (newValue: any) => {
       (newValue.$M + 1).toString().length > 1
         ? newValue.$M + 1
         : `0${newValue.$M + 1}`
-    }- ${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
   }
 };
 
@@ -534,6 +534,11 @@ const CustomReportFilter = ({
     }
   };
 
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
+  };
+
   return (
     <>
       {savedFilters.length > 0 && !defaultFilter ? (
@@ -881,7 +886,14 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Received Date"
                       value={receivedDate === "" ? null : dayjs(receivedDate)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(dueDate)}
                       onChange={(newValue: any) => setReceivedDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
@@ -892,7 +904,15 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Due Date"
                       value={dueDate === "" ? null : dayjs(dueDate)}
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(receivedDate)}
+                      maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setDueDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

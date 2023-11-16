@@ -43,6 +43,7 @@ import TimesheetFilter from "@/components/reports/Filter/TimesheetFilter";
 import BillingReportFilter from "@/components/reports/Filter/BillingReportFilter";
 import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
+import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 
 const visibleTabs = [
   { label: "project", value: 1 },
@@ -53,7 +54,7 @@ const visibleTabs = [
   { label: "audit", value: 6 },
   { label: "billing", value: 7 },
   { label: "custom", value: 8 },
-  // { label: "rating", value: 9 },
+  { label: "rating", value: 9 },
 ];
 
 const page = () => {
@@ -66,6 +67,8 @@ const page = () => {
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
   const [hasBTC, setHasBTC] = useState<boolean>(false);
+  const [hasRaisedInvoiceData, setHasRaisedInvoiceData] =
+    useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
@@ -92,15 +95,21 @@ const page = () => {
         router.push("/");
       } else {
         setActiveTabs(
-          visibleTabs.map((tab: any) =>
-            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          visibleTabs.map(
+            (tab: any) =>
+              // hasPermissionWorklog(tab.label, "view", "report") ?
+              tab
+            // : false
           )
         );
 
         setActiveTab(
           visibleTabs
-            .map((tab: any) =>
-              hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+            .map(
+              (tab: any) =>
+                // hasPermissionWorklog(tab.label, "view", "report") ?
+                tab
+              // : false
             )
             .filter((tab: any) => tab !== false)[0].value
         );
@@ -248,8 +257,8 @@ const page = () => {
                   type="submit"
                   variant="contained"
                   color="info"
-                  disabled={!hasBTC}
-                  className={`${hasBTC ? "!bg-secondary" : ""}`}
+                  disabled={!hasRaisedInvoiceData}
+                  className={`${hasRaisedInvoiceData ? "!bg-secondary" : ""}`}
                   onClick={() => setSaveBTCData(true)}
                 >
                   Raise Invoice
@@ -281,6 +290,7 @@ const page = () => {
           <BillingReport
             filteredData={filteredData}
             hasBTCData={(arg1: any) => setHasBTC(arg1)}
+            hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
           />
@@ -347,6 +357,13 @@ const page = () => {
       )}
       {activeTab === 8 && (
         <CustomReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 9 && (
+        <RatingReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

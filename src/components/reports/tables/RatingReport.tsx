@@ -50,7 +50,7 @@ const RatingReport = ({ filteredData }: any) => {
 
     try {
       const response = await axios.post(
-        `${process.env.report_api_url}/report/client/rating`,
+        `${process.env.report_api_url}/report/admin/rating`,
         { ...arg1 },
         { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
       );
@@ -128,6 +128,17 @@ const RatingReport = ({ filteredData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "ClientName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Client</span>,
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;
         },

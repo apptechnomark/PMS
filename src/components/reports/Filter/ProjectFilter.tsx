@@ -16,6 +16,9 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import { Transition } from "./Transition/Transition";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
@@ -58,6 +61,8 @@ const ProjectFilter = ({
   const [projectName, setProjectName] = useState<number | string>(0);
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
 
   const [workTypeDropdown, setWorkTypeDropdown] = useState<any[]>([]);
   const [billingTypeDropdown, setBillingTypeDropdown] = useState<any[]>([]);
@@ -81,12 +86,24 @@ const ProjectFilter = ({
     setSearchValue(e.target.value);
   };
 
+  const getFormattedDate = (newValue: any) => {
+    if (newValue !== "") {
+      return `${newValue.$y}-${
+        (newValue.$M + 1).toString().length > 1
+          ? newValue.$M + 1
+          : `0${newValue.$M + 1}`
+      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }
+  };
+
   const handleResetAll = () => {
     setClientName(0);
     setProjectName(0);
     setTypeOfWork(0);
     setBillingType(0);
     setResetting(true);
+    setStartDate("");
+    setEndDate("");
 
     sendFilterToPage({
       ...project_InitialFilter,
@@ -94,6 +111,8 @@ const ProjectFilter = ({
       projects: [],
       typeOfWork: null,
       billType: null,
+      startDate: null,
+      endDate: null,
     });
   };
 
@@ -106,6 +125,8 @@ const ProjectFilter = ({
     setProjectName(0);
     setTypeOfWork(0);
     setBillingType(0);
+    setStartDate("");
+    setEndDate("");
   };
 
   const handleFilterApply = () => {
@@ -115,6 +136,14 @@ const ProjectFilter = ({
       projects: projectName === 0 || projectName === "" ? [] : [projectName],
       typeOfWork: typeOfWork === 0 || typeOfWork === "" ? null : typeOfWork,
       billType: billingType === 0 || billingType === "" ? null : billingType,
+      startDate:
+        startDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(startDate),
+      endDate:
+        endDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(endDate),
     });
 
     onDialogClose(false);
@@ -129,6 +158,8 @@ const ProjectFilter = ({
           projects: savedFilters[index].AppliedFilter.projects,
           typeOfWork: savedFilters[index].AppliedFilter.TypeOfWork,
           billType: savedFilters[index].AppliedFilter.BillingType,
+          startDate: savedFilters[index].AppliedFilter.startDate,
+          endDate: savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -150,6 +181,14 @@ const ProjectFilter = ({
             projects: projectName === 0 ? [] : [projectName],
             TypeOfWork: typeOfWork === 0 ? null : typeOfWork,
             BillingType: billingType === 0 ? null : billingType,
+            startDate:
+              startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDate),
+            endDate:
+              endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDate),
           },
           type: project,
         },
@@ -197,12 +236,14 @@ const ProjectFilter = ({
       clientName !== 0 ||
       projectName !== 0 ||
       typeOfWork !== 0 ||
-      billingType !== 0;
+      billingType !== 0 ||
+      startDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [typeOfWork, billingType, clientName, projectName]);
+  }, [typeOfWork, billingType, clientName, projectName, startDate, endDate]);
 
   useEffect(() => {
     // handleFilterApply();
@@ -270,6 +311,8 @@ const ProjectFilter = ({
     setProjectName(savedFilters[index].AppliedFilter.projects[0]);
     setTypeOfWork(savedFilters[index].AppliedFilter.TypeOfWork);
     setBillingType(savedFilters[index].AppliedFilter.BillingType);
+    setStartDate(savedFilters[index].AppliedFilter.startDate);
+    setEndDate(savedFilters[index].AppliedFilter.endDate);
   };
 
   const handleSavedFilterDelete = async () => {
@@ -493,6 +536,29 @@ const ProjectFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Start Date"
+                      value={startDate === "" ? null : dayjs(startDate)}
+                      onChange={(newValue: any) => setStartDate(newValue)}
+                    />
+                  </LocalizationProvider>
+                </div>
+
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="End Date"
+                      value={endDate === "" ? null : dayjs(endDate)}
+                      onChange={(newValue: any) => setEndDate(newValue)}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
             </div>
           </DialogContent>
