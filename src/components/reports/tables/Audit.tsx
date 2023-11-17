@@ -33,7 +33,7 @@ const getMuiTheme = () =>
     },
   });
 
-const Audit = () => {
+const Audit = ({ filteredData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [auditData, setAuditData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -99,6 +99,12 @@ const Audit = () => {
     getData(audit_InitialFilter);
   }, []);
 
+  useEffect(() => {
+    if (filteredData !== null) {
+      getData(filteredData);
+    }
+  }, [filteredData]);
+
   const columns: any[] = [
     {
       name: "UserName",
@@ -152,13 +158,14 @@ const Audit = () => {
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div>
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : 
+              {value === null || value === 0 || value === "0" ? (
+                "00:00:00"
+              ) : (
                 <>
                   {value.split("T")[0]}&nbsp;
                   {value.split("T")[1]}
-                </>}
+                </>
+              )}
             </div>
           );
         },
@@ -175,13 +182,14 @@ const Audit = () => {
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div>
-              {value === null || value === 0 || value === "0"
-                ? "-"
-                : 
+              {value === null || value === 0 || value === "0" ? (
+                "-"
+              ) : (
                 <>
                   {value.split("T")[0]}&nbsp;
                   {value.split("T")[1]}
-                </>}
+                </>
+              )}
             </div>
           );
         },

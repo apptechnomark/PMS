@@ -209,7 +209,7 @@ const Workload = ({ filteredData }: any) => {
       },
     },
     {
-      name: "TotalQuantity",
+      name: "TotalCount",
       options: {
         sort: true,
         filter: true,

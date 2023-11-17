@@ -44,6 +44,7 @@ import BillingReportFilter from "@/components/reports/Filter/BillingReportFilter
 import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
+import AuditFilter from "@/components/reports/Filter/AuditFilter";
 
 const visibleTabs = [
   { label: "project", value: 1 },
@@ -217,21 +218,14 @@ const page = () => {
             </div> */}
           </div>
           <div className="h-full flex items-center gap-5">
-            {!(
-              activeTab ===
-              visibleTabs.filter(
-                (tab: any) => tab.label.toLowerCase() === "audit"
-              )[0].value
-            ) && (
-              <span
-                className="cursor-pointer relative"
-                onClick={() => {
-                  setIsFiltering(true);
-                }}
-              >
-                <FilterIcon />
-              </span>
-            )}
+            <span
+              className="cursor-pointer relative"
+              onClick={() => {
+                setIsFiltering(true);
+              }}
+            >
+              <FilterIcon />
+            </span>
             <span
               className={`${
                 isExporting ? "cursor-default" : "cursor-pointer"
@@ -285,7 +279,7 @@ const page = () => {
         {activeTab === 3 && <TimeSheet filteredData={filteredData} />}
         {activeTab === 4 && <Workload filteredData={filteredData} />}
         {activeTab === 5 && <UserLogs filteredData={filteredData} />}
-        {activeTab === 6 && <Audit />}
+        {activeTab === 6 && <Audit filteredData={filteredData} />}
         {activeTab === 7 && (
           <BillingReport
             filteredData={filteredData}
@@ -342,6 +336,14 @@ const page = () => {
 
       {activeTab === 5 && (
         <UserLogsFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+
+      {activeTab === 6 && (
+        <AuditFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

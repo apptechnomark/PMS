@@ -51,7 +51,7 @@ const RatingReportFilter = ({
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -169,7 +169,7 @@ const RatingReportFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             Clients: clientName.length > 0 ? clientName : [],
@@ -312,6 +312,7 @@ const RatingReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -548,6 +549,7 @@ const RatingReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
+                      setProjectName(0);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -569,6 +571,7 @@ const RatingReportFilter = ({
                     id="project_Name"
                     value={projectName === 0 ? "" : projectName}
                     onChange={(e) => setProjectName(e.target.value)}
+                    disabled={clientName.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={index}>
@@ -618,7 +621,7 @@ const RatingReportFilter = ({
                 <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="From"
+                      label="Start Date"
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={startDate === null ? null : dayjs(startDate)}
@@ -635,7 +638,7 @@ const RatingReportFilter = ({
                 <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="To"
+                      label="End Date"
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={endDate === null ? null : dayjs(endDate)}

@@ -84,7 +84,7 @@ const BillingReportFilter = ({
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -110,13 +110,20 @@ const BillingReportFilter = ({
   };
 
   const getFormattedDate = (newValue: any) => {
-    if (newValue !== "") {
+    if (
+      newValue &&
+      newValue.$y !== undefined &&
+      newValue.$M !== undefined &&
+      newValue.$D !== undefined
+    ) {
       return `${newValue.$y}-${
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
           : `0${newValue.$M + 1}`
       }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
     }
+
+    return null;
   };
 
   const handleIsBTCChange = (e: any) => {
@@ -220,7 +227,7 @@ const BillingReportFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             clients: clientName.length > 0 ? clientName : [],
@@ -321,6 +328,10 @@ const BillingReportFilter = ({
     }
   }, [clientName]);
 
+  useEffect(() => {
+    getFilterList();
+  }, []);
+
   const getFilterList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -363,7 +374,7 @@ const BillingReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setClientName(savedFilters[index].AppliedFilter.clients[0]);
+    setClientName(savedFilters[index].AppliedFilter.clients);
     setProjectName(savedFilters[index].AppliedFilter.projects[0]);
     setAssignee(savedFilters[index].AppliedFilter.assigneeId);
     setReviewer(savedFilters[index].AppliedFilter.reviewerId);
@@ -398,6 +409,7 @@ const BillingReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -418,6 +430,11 @@ const BillingReportFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -526,7 +543,7 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
                 >
                   {/* <InputLabel id="clientName">Client Name</InputLabel>
                   <Select
@@ -550,6 +567,7 @@ const BillingReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
+                      setProjectName(0);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -563,7 +581,7 @@ const BillingReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="projectName">Project Name</InputLabel>
                   <Select
@@ -571,6 +589,7 @@ const BillingReportFilter = ({
                     id="projectName"
                     value={projectName === 0 ? "" : projectName}
                     onChange={(e) => setProjectName(e.target.value)}
+                    disabled={clients.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={index}>
@@ -581,7 +600,7 @@ const BillingReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="assignee">Prepared/Assignee</InputLabel>
                   <Select
@@ -601,7 +620,7 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="reviewer">Reviewer</InputLabel>
                   <Select
@@ -619,7 +638,7 @@ const BillingReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="typeOfReturn">Type of Return</InputLabel>
                   <Select
@@ -637,7 +656,7 @@ const BillingReportFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mt: 0.35, mx: 0.75, minWidth: 200 }}
+                  sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}
                 >
                   {/* <InputLabel id="department">Department</InputLabel> */}
                   {/* <Select
@@ -663,25 +682,40 @@ const BillingReportFilter = ({
               </div>
               <div className="flex gap-[20px]">
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
 
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
                       onChange={(newValue: any) => setEndDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

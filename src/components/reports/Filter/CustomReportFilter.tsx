@@ -139,7 +139,7 @@ const CustomReportFilter = ({
   ]);
 
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -289,7 +289,7 @@ const CustomReportFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             clientIdsJSON: clientName.length > 0 ? clientName : [],
@@ -519,6 +519,7 @@ const CustomReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -675,6 +676,8 @@ const CustomReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
+                      setProjectName(0);
+                      setProcessName(0);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -696,6 +699,7 @@ const CustomReportFilter = ({
                     id="projectName"
                     value={projectName === 0 ? "" : projectName}
                     onChange={(e) => setProjectName(e.target.value)}
+                    disabled={clients.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={index}>
@@ -714,6 +718,7 @@ const CustomReportFilter = ({
                     id="processName"
                     value={processName === 0 ? "" : processName}
                     onChange={(e) => setProcessName(e.target.value)}
+                    disabled={clients.length > 1}
                   >
                     {processDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.Id} key={index}>
@@ -951,6 +956,11 @@ const CustomReportFilter = ({
                       label="All Info Date"
                       value={allInfoDate === "" ? null : dayjs(allInfoDate)}
                       onChange={(newValue: any) => setAllInfoDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

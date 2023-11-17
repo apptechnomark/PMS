@@ -71,7 +71,7 @@ const ProjectFilter = ({
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -178,7 +178,7 @@ const ProjectFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             clients: clientName.length > 0 ? clientName : [],
@@ -288,6 +288,7 @@ const ProjectFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          console.log(response.data.ResponseData);
           setSavedFilters(response.data.ResponseData);
         } else {
           const data = response.data.Message;
@@ -316,12 +317,36 @@ const ProjectFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
-    setClientName(savedFilters[index].AppliedFilter.clients);
-    setProjectName(savedFilters[index].AppliedFilter.projects[0]);
-    setTypeOfWork(savedFilters[index].AppliedFilter.TypeOfWork);
-    setBillingType(savedFilters[index].AppliedFilter.BillingType);
-    setStartDate(savedFilters[index].AppliedFilter.startDate);
-    setEndDate(savedFilters[index].AppliedFilter.endDate);
+    setClientName(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : savedFilters[index].AppliedFilter.clients
+    );
+    setProjectName(
+      savedFilters[index].AppliedFilter.projects[0] === null
+        ? 0
+        : savedFilters[index].AppliedFilter.projects[0]
+    );
+    setTypeOfWork(
+      savedFilters[index].AppliedFilter.TypeOfWork === null
+        ? 0
+        : savedFilters[index].AppliedFilter.TypeOfWork
+    );
+    setBillingType(
+      savedFilters[index].AppliedFilter.BillingType === null
+        ? 0
+        : savedFilters[index].AppliedFilter.BillingType
+    );
+    setStartDate(
+      savedFilters[index].AppliedFilter.startDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.startDate
+    );
+    setEndDate(
+      savedFilters[index].AppliedFilter.endDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.endDate
+    );
   };
 
   const handleSavedFilterDelete = async () => {
@@ -344,6 +369,7 @@ const ProjectFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -364,6 +390,11 @@ const ProjectFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -472,22 +503,8 @@ const ProjectFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
                 >
-                  {/* <InputLabel id="client_Name">Client Name</InputLabel>
-                  <Select
-                    labelId="client_Name"
-                    id="client_Name"
-                    multiple
-                    value={clientName}
-                    onChange={(e: any) => setClientName(e.target.value)}
-                  >
-                    {clientDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <Autocomplete
                     multiple
                     id="tags-standard"
@@ -496,6 +513,7 @@ const ProjectFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
+                      setProjectName(0);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -509,13 +527,14 @@ const ProjectFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="project_Name">Project Name</InputLabel>
                   <Select
                     labelId="project_Name"
                     id="project_Name"
                     value={projectName === 0 ? "" : projectName}
+                    disabled={clientName.length > 1}
                     onChange={(e) => setProjectName(e.target.value)}
                   >
                     {projectDropdown.map((i: any, index: number) => (
@@ -527,7 +546,7 @@ const ProjectFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="typeOfWork">Type Of Work</InputLabel>
                   <Select
@@ -547,7 +566,7 @@ const ProjectFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="billingType">Billing Type</InputLabel>
                   <Select
@@ -564,25 +583,40 @@ const ProjectFilter = ({
                   </Select>
                 </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
 
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
                       onChange={(newValue: any) => setEndDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

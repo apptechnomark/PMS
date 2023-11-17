@@ -51,7 +51,7 @@ const UserFilter = ({
   const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -145,7 +145,7 @@ const UserFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             users: userNames.length > 0 ? userNames : [],
@@ -264,8 +264,26 @@ const UserFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setUserNames(savedFilters[index].AppliedFilter.users);
-    setDept(savedFilters[index].AppliedFilter.Department);
+    setUserNames(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : savedFilters[index].AppliedFilter.users
+    );
+    setDept(
+      savedFilters[index].AppliedFilter.Department === null
+        ? 0
+        : savedFilters[index].AppliedFilter.Department
+    );
+    setStartDate(
+      savedFilters[index].AppliedFilter.startDate === null
+        ? 0
+        : savedFilters[index].AppliedFilter.startDate
+    );
+    setEndDate(
+      savedFilters[index].AppliedFilter.endDate === null
+        ? 0
+        : savedFilters[index].AppliedFilter.endDate
+    );
     setDefaultFilter(true);
     setSaveFilter(true);
   };
@@ -290,6 +308,7 @@ const UserFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -310,6 +329,11 @@ const UserFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -418,9 +442,9 @@ const UserFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 300 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">User</InputLabel>
+                  <InputLabel id="billingType">User Name</InputLabel>
                   <Select
                     multiple
                     labelId="billingType"
@@ -437,7 +461,7 @@ const UserFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 300 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="department">Department</InputLabel>
                   <Select
@@ -453,30 +477,42 @@ const UserFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                  className={`inline-flex mx-[6px] -mt-[1px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
-                      maxDate={endDate ? dayjs(endDate) : null}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
-
+              </div>
+              <div className="flex gap-[20px]">
                 <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
                       onChange={(newValue: any) => setEndDate(newValue)}
-                      minDate={startDate ? dayjs(startDate) : null}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

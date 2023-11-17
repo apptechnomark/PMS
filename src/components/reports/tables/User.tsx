@@ -306,7 +306,9 @@ const User = ({ filteredData }: any) => {
         </div>
         <div className="my-4 flex gap-2 items-center">
           <span className="h-2.5 w-2.5 rounded-full bg-[#FF9F43]"></span>
-          <span className="text-sm font-normal capitalize">overtime</span>
+          <span className="text-sm font-normal capitalize">
+            Incomplete hours
+          </span>
         </div>
       </div>
       <TablePagination
