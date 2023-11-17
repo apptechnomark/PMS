@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -71,7 +72,8 @@ const CustomReportFilter = ({
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [processName, setProcessName] = useState<number | string>(0);
   const [assignByName, setAssignByName] = useState<number | string>(0);
@@ -163,7 +165,8 @@ const CustomReportFilter = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setProcessName(0);
     setAssignByName(0);
@@ -190,7 +193,8 @@ const CustomReportFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
     // resetting filter fields
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setProcessName(0);
     setAssignByName(0);
@@ -211,7 +215,7 @@ const CustomReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...customreport_InitialFilter,
-      clientIdsJSON: clientName === 0 || clientName === "" ? [] : [clientName],
+      clientIdsJSON: clientName.length > 0 ? clientName : [],
       projectIdsJSON:
         projectName === 0 || projectName === "" ? [] : [projectName],
       processIdsJSON:
@@ -288,8 +292,7 @@ const CustomReportFilter = ({
           filterId: currentFilterId ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            clientIdsJSON:
-              clientName === 0 || clientName === "" ? [] : [clientName],
+            clientIdsJSON: clientName.length > 0 ? clientName : [],
             projectIdsJSON:
               projectName === 0 || projectName === "" ? [] : [projectName],
             processIdsJSON:
@@ -373,7 +376,7 @@ const CustomReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
+      clientName.length > 0 ||
       projectName !== 0 ||
       processName !== 0 ||
       assignByName !== 0 ||
@@ -415,14 +418,18 @@ const CustomReportFilter = ({
     // handleFilterApply();
     const customDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
-      setProjectDropdown(await getProjectDropdownData(clientName));
-      setProcessDropdown(await getProcessDropdownData(clientName));
+      setProjectDropdown(
+        await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
+      );
+      setProcessDropdown(
+        await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
+      );
       setUserDropdown(await getUserData());
       setTypeOfReturnDropdown(await getTypeOfReturnDropdownData());
     };
     customDropdowns();
 
-    if (parseInt(clientName.toString()) > 0 || resetting) {
+    if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
@@ -645,9 +652,9 @@ const CustomReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.5, minWidth: 200 }}
                 >
-                  <InputLabel id="clientName">Client Name</InputLabel>
+                  {/* <InputLabel id="clientName">Client Name</InputLabel>
                   <Select
                     labelId="clientName"
                     id="clientName"
@@ -659,7 +666,25 @@ const CustomReportFilter = ({
                         {i.label}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={clientDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
+                    }}
+                    value={clients}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Client Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"

@@ -677,17 +677,23 @@ const TimeSheet = ({ filteredData }: any) => {
         title={undefined}
         options={{
           ...options,
-          // tableBodyHeight:""
+          tableBodyHeight: "66vh",
         }}
       />
-      {/* <div className="w-full h-10">
-        <div>
-          <div className="flex gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-green-800"></span>
-            <span></span>
-          </div>
+      <div className="w-full gap-5 flex items-center justify-center">
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#0CC6AA]"></span>
+          <span className="text-sm font-normal capitalize">Tracker Time</span>
         </div>
-      </div> */}
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FDB663]"></span>
+          <span className="text-sm font-normal capitalize">manual time</span>
+        </div>
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#2323434D]"></span>
+          <span className="text-sm font-normal capitalize">break time</span>
+        </div>
+      </div>
       <TablePagination
         component="div"
         count={tableDataCount}

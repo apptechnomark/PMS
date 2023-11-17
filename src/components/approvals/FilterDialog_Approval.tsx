@@ -34,7 +34,7 @@ const initialFilter = {
   userId: null,
   ProjectId: null,
   ProcessId: null,
-  // StatusId: null,
+  StatusId: 6,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
@@ -212,12 +212,13 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
           setStatusDropdownData(
             response.data.ResponseData.filter(
               (i: any) =>
-                i.Type !== "Accept" &&
-                i.Type !== "AcceptWithNotes" &&
                 i.Type !== "Errorlogs" &&
-                i.Type !== "Reject" &&
+                i.Type !== "InProgress" &&
                 i.Type !== "NotStarted" &&
-                i.Type !== "SignedOff"
+                i.Type !== "PartialSubmitted" &&
+                i.Type !== "Reject" &&
+                i.Type !== "Rework" &&
+                i.Type !== "Stop"
             )
           );
         } else {
@@ -298,11 +299,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       clientName !== 0 ||
       userName !== 0 ||
       projectName !== 0 ||
-      // status !== 0 ||
+      status !== 0 ||
       processName !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, userName, projectName, processName]);
+  }, [clientName, userName, projectName, processName, status]);
 
   // Set state values based on applied filter data
   useEffect(() => {
@@ -316,7 +317,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
         setClientName(ClientId > 0 ? ClientId : "");
         setUser(userId > 0 ? userId : "");
         setProjectName(ProjectId > 0 ? ProjectId : "");
-        // setStatus(StatusId > 0 ? StatusId : "");
+        setStatus(StatusId > 0 ? StatusId : "");
         setProcessName(ProcessId > 0 ? ProcessId : "");
       }
     }
@@ -327,11 +328,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       ClientId: clientName || null,
       userId: userName || null,
       ProjectId: projectName || null,
-      // StatusId: status || null,
+      StatusId: status || null,
       ProcessId: processName || null,
     };
     setCurrSelectedFileds(selectedFields);
-  }, [clientName, userName, projectName, processName]);
+  }, [clientName, userName, projectName, processName, status]);
 
   return (
     <div>
@@ -348,6 +349,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
             Reset all
           </Button>
         </DialogTitle>
+
         <DialogContent>
           <div className="flex flex-col gap-[20px] pt-[15px]">
             <div className="flex gap-[20px]">
@@ -399,8 +401,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
             </div>
+
             <div className="flex gap-[20px]">
-              {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="status">Status</InputLabel>
                 <Select
                   labelId="status"
@@ -414,7 +417,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl> */}
+              </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="processName">Process</InputLabel>

@@ -31,6 +31,7 @@ import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import Priority from "@/assets/icons/worklogs/Priority";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import EditUserIcon from "@/assets/icons/EditUserIcon";
+import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
 
 // Internal component Imports
 import EditDialog from "./EditDialog";
@@ -117,11 +118,11 @@ const Datatable = ({
   const [isEditOpen, setisEditOpen] = useState<boolean>(false);
   const [isAcceptOpen, setisAcceptOpen] = useState<boolean>(false);
   const [isRejectOpen, setisRejectOpen] = useState<boolean>(false);
-  const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
   const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
   const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<
     number[] | any
   >([]);
+  const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [workitemId, setWorkitemId] = useState(0);
   const [id, setId] = useState(0);
   const [note, setNote] = useState<string>("");
@@ -493,7 +494,7 @@ const Datatable = ({
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
         const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
+          `${process.env.worklog_api_url}/workitem/UpdateReviewer`,
           {
             workitemIds: id,
             ReviewerId: reviewerId,
@@ -533,6 +534,156 @@ const Datatable = ({
     }
   };
 
+  // API for status dropdown in Filter Popup
+  const getAllStatus = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.get(
+        `${process.env.pms_api_url}/status/GetDropdown`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setAllStatus(
+            response.data.ResponseData.map((i: any) =>
+              i.Type === "OnHoldFromClient" || i.Type === "WithDraw" ? i : ""
+            ).filter((i: any) => i !== "")
+          );
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Error duplicating task.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update status
+  const updateStatus = async (id: number[], statusId: number) => {
+    if (
+      selectedRowsCount === 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
+    ) {
+      toast.warning(
+        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+      );
+    }
+    if (
+      reviewList
+        .map((item: any) =>
+          id.includes(item.WorkitemId)
+            ? item.TimelogId !== null
+              ? item.WorkitemId
+              : false
+            : undefined
+        )
+        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== false).length > 0
+    ) {
+      toast.warning("Cannot change status for running task.");
+    }
+    if (
+      selectedRowsCount > 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
+    ) {
+      toast.warning(
+        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+      );
+    }
+    if (
+      reviewList
+        .map((item: any) =>
+          id.includes(item.WorkitemId)
+            ? item.TimelogId === null
+              ? item.WorkitemId
+              : false
+            : undefined
+        )
+        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== false).length > 0
+    ) {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/UpdateStatus`,
+          {
+            workitemIds: reviewList
+              .map((item: any) =>
+                id.includes(item.WorkitemId)
+                  ? item.TimelogId === null &&
+                    item.StatusId !== 7 &&
+                    item.StatusId !== 8 &&
+                    item.StatusId !== 9 &&
+                    item.StatusId !== 13
+                    ? item.WorkitemId
+                    : false
+                  : undefined
+              )
+              .filter((i: any) => i !== undefined)
+              .filter((i: any) => i !== false),
+            statusId: statusId,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Status has been updated successfully.");
+            handleClearSelection();
+            getReviewList();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   // actions for priority popup
   const handleOptionPriority = (id: any) => {
     updatePriority(selectedWorkItemIds, id);
@@ -547,6 +698,11 @@ const Datatable = ({
   const handleOptionReviewer = (id: any) => {
     updateReviewer(selectedWorkItemIds, id);
     handleCloseReviewer();
+  };
+
+  const handleOptionStatus = (id: any) => {
+    updateStatus(selectedRowIds, id);
+    handleCloseStatus();
   };
 
   useEffect(() => {
@@ -637,6 +793,14 @@ const Datatable = ({
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
+
+    // adding all selected row's status Ids in an array
+    const selectedWorkItemStatusIds =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
+        : [];
+
+    setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -729,7 +893,7 @@ const Datatable = ({
               ? response.data.ResponseData
               : -1
           );
-          setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
+          setRunning((prev) => (workitemId !== prev ? workitemId : -1));
           getReviewList();
         } else {
           const data = response.data.Message;
@@ -987,6 +1151,7 @@ const Datatable = ({
     };
     fetchData();
     getReviewList();
+    getAllStatus();
   }, []);
 
   // Table columns
@@ -1561,7 +1726,7 @@ const Datatable = ({
                       <span
                         className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
                         onClick={() => {
-                          onEdit(selectedRowId);
+                          onEdit(workitemId);
                         }}
                       >
                         <EditIcon />
@@ -1650,19 +1815,62 @@ const Datatable = ({
                   </nav>
                 </Popover>
 
-                {/* if the selected client Ids and worktype ids are same then only the Assignee icon will show */}
-                {areAllValuesSame(selectedRowClientId) &&
-                  areAllValuesSame(selectedRowWorkTypeId) && (
-                    <ColorToolTip title="Assignee" arrow>
-                      <span
-                        aria-describedby={idAssignee}
-                        onClick={handleClickAssignee}
-                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
-                      >
-                        <Assignee />
-                      </span>
-                    </ColorToolTip>
-                  )}
+                {/* Status Popover */}
+                <ColorToolTip title="Status" arrow>
+                  <span
+                    aria-describedby={idStatus}
+                    onClick={handleClickStatus}
+                    className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                  >
+                    <DetectorStatus />
+                  </span>
+                </ColorToolTip>
+
+                <Popover
+                  id={idStatus}
+                  open={openStatus}
+                  anchorEl={anchorElStatus}
+                  onClose={handleCloseStatus}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <List>
+                      {allStatus.map((option: any, index: any) => {
+                        return (
+                          <span
+                            key={index}
+                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                          >
+                            <span
+                              className="p-1 cursor-pointer"
+                              onClick={() => handleOptionStatus(option.value)}
+                            >
+                              {option.label}
+                            </span>
+                          </span>
+                        );
+                      })}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* update assignee option */}
+                <ColorToolTip title="Assignee" arrow>
+                  <span
+                    aria-describedby={idAssignee}
+                    onClick={handleClickAssignee}
+                    className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                  >
+                    <Assignee />
+                  </span>
+                </ColorToolTip>
 
                 {/* Assignee Popover */}
                 <Popover
@@ -1736,19 +1944,16 @@ const Datatable = ({
                   </nav>
                 </Popover>
 
-                {/* Update Reviewer */}
-                {areAllValuesSame(selectedRowClientId) &&
-                  areAllValuesSame(selectedRowWorkTypeId) && (
-                    <ColorToolTip title="Reviewer" arrow>
-                      <span
-                        aria-describedby={idReviewer}
-                        onClick={handleClickReviewer}
-                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300 mt-[1px]"
-                      >
-                        <EditUserIcon />
-                      </span>
-                    </ColorToolTip>
-                  )}
+                {/* Update Reviewer option */}
+                <ColorToolTip title="Reviewer" arrow>
+                  <span
+                    aria-describedby={idReviewer}
+                    onClick={handleClickReviewer}
+                    className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300 mt-[1px]"
+                  >
+                    <EditUserIcon />
+                  </span>
+                </ColorToolTip>
 
                 {/* Reviewer Popover */}
                 <Popover
@@ -1827,7 +2032,7 @@ const Datatable = ({
                     <ColorToolTip title="Comments" arrow>
                       <span
                         className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
-                        onClick={() => onComment(true, selectedRowId)}
+                        onClick={() => onComment(true, workitemId)}
                       >
                         <Comments />
                       </span>
@@ -1929,7 +2134,7 @@ const Datatable = ({
       <EditDialog
         onOpen={isEditOpen}
         onClose={closeModal}
-        onSelectWorkItemId={selectedRowId}
+        onSelectWorkItemId={workitemId}
         onSelectedSubmissionId={id}
         onReviewerDataFetch={getReviewList}
         onClearSelection={handleClearSelection}

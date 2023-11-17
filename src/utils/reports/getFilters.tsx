@@ -73,14 +73,15 @@ export const userLogs_InitialFilter: any = {
 };
 
 export const audit_InitialFilter: any = {
-  pageNo: 1,
-  pageSize: 10,
-  sortColumn: "",
-  isDesc: true,
-  globalSearch: "",
-  startDate: null,
-  endDate: null,
-  isDownload: false,
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
 };
 
 export const billingreport_InitialFilter = {
@@ -129,7 +130,6 @@ export const customreport_InitialFilter = {
   isDownload: false,
 };
 
-const Data = new Date();
 export const rating_InitialFilter: any = {
   PageNo: 1,
   PageSize: 10,
@@ -143,8 +143,8 @@ export const rating_InitialFilter: any = {
   Clients: [],
   DepartmentId: null,
   DateSubmitted: null,
-  StartDate: new Date(Data.getFullYear(), Data.getMonth(), 1),
-  EndDate: Data,
+  StartDate: null,
+  EndDate: null,
 };
 
 export const getCurrentTabDetails = (
@@ -177,6 +177,6 @@ export const getCurrentTabDetails = (
     return getBody ? customreport_InitialFilter : "custom";
   }
   if (activeTab === 9) {
-    return getBody ? customreport_InitialFilter : "rating";
+    return getBody ? rating_InitialFilter : "admin/rating";
   }
 };

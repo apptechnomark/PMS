@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FilterType } from "./types/ReportsFilterType";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -34,7 +35,8 @@ const RatingReportFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [returnType, setReturnType] = useState<null | number>(0);
   const [typeOfReturn, setTypeOfReturn] = useState<any>(0);
@@ -67,7 +69,8 @@ const RatingReportFilter = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
+    setClients([]);
+    setClientName([]);
     setProjectName(0);
     setReturnType(0);
     setTypeOfReturn(0);
@@ -93,7 +96,8 @@ const RatingReportFilter = ({
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setReturnType(0);
     setTypeOfReturn(0);
@@ -105,7 +109,7 @@ const RatingReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...rating_InitialFilter,
-      Clients: clientName === 0 || clientName === "" ? [] : [clientName],
+      Clients: clientName.length > 0 ? clientName : [],
       Projects: projectName === 0 || projectName === "" ? [] : [projectName],
       ReturnTypeId: returnType || null,
       TypeofReturnId: typeOfReturn || null,
@@ -168,7 +172,7 @@ const RatingReportFilter = ({
           filterId: currentFilterId ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            Clients: clientName === 0 || clientName === "" ? [] : [clientName],
+            Clients: clientName.length > 0 ? clientName : [],
             Projects:
               projectName === 0 || projectName === "" ? [] : [projectName],
             ReturnTypeId: returnType || null,
@@ -336,7 +340,7 @@ const RatingReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
+      clientName.length > 0 ||
       projectName !== 0 ||
       returnType !== 0 ||
       ratings !== 0 ||
@@ -360,12 +364,14 @@ const RatingReportFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
-      setProjectDropdown(await getProjectData(clientName));
+      setProjectDropdown(
+        await getProjectData(clientName.length > 0 ? clientName[0] : 0)
+      );
     };
     filterDropdowns();
     getReturnTypeData();
 
-    if (parseInt(clientName.toString()) > 0 || resetting) {
+    if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
@@ -520,7 +526,7 @@ const RatingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="client_Name">Client Name</InputLabel>
+                  {/* <InputLabel id="client_Name">Client Name</InputLabel>
                   <Select
                     // multiple
                     labelId="client_Name"
@@ -533,7 +539,25 @@ const RatingReportFilter = ({
                         {i.label}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={clientDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
+                    }}
+                    value={clients}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Client Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"

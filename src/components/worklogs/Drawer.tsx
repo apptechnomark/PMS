@@ -116,7 +116,6 @@ const EditDrawer = ({
   const [receiverDateErr, setReceiverDateErr] = useState(false);
   const [dueDate, setDueDate] = useState<any>("");
   const [allInfoDate, setAllInfoDate] = useState<any>("");
-  // const [allInfoDateErr, setAllInfoDateErr] = useState(false);
   const [assignee, setAssignee] = useState<any>([]);
   const [assigneeErr, setAssigneeErr] = useState(false);
   const [reviewer, setReviewer] = useState<any>([]);
@@ -3679,9 +3678,7 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker

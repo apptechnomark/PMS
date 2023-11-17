@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Checkbox,
   Dialog,
@@ -49,7 +50,8 @@ const BillingReportFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [assignee, setAssignee] = useState<number | string>(0);
   const [reviewer, setReviewer] = useState<number | string>(0);
@@ -123,7 +125,8 @@ const BillingReportFilter = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setAssignee(0);
     setReviewer(0);
@@ -154,7 +157,8 @@ const BillingReportFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
 
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setAssignee(0);
     setReviewer(0);
@@ -168,7 +172,7 @@ const BillingReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...billingreport_InitialFilter,
-      clients: clientName !== 0 ? [clientName] : [],
+      clients: clientName.length > 0 ? clientName : [],
       projects: projectName !== 0 ? [projectName] : [],
       assigneeId: assignee !== 0 ? assignee : null,
       reviewerId: reviewer !== 0 ? reviewer : null,
@@ -219,7 +223,7 @@ const BillingReportFilter = ({
           filterId: currentFilterId ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            clients: clientName !== 0 ? [clientName] : [],
+            clients: clientName.length > 0 ? clientName : [],
             projects: projectName !== 0 ? [projectName] : [],
             assigneeId: assignee !== 0 ? assignee : null,
             reviewerId: reviewer !== 0 ? reviewer : null,
@@ -275,7 +279,7 @@ const BillingReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
+      clientName.length > 0 ||
       projectName !== 0 ||
       assignee !== 0 ||
       reviewer !== 0 ||
@@ -304,13 +308,15 @@ const BillingReportFilter = ({
     // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
-      setProjectDropdown(await getProjectData(clientName));
+      setProjectDropdown(
+        await getProjectData(clientName.length > 0 ? clientName[0] : 0)
+      );
       setAssigneeDropdown(await getUserData());
       setReviewerDropdown(await getUserData());
     };
     filterDropdowns();
 
-    if (parseInt(clientName.toString()) > 0 || resetting) {
+    if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
@@ -520,10 +526,11 @@ const BillingReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 200 }}
                 >
-                  <InputLabel id="clientName">Client Name</InputLabel>
+                  {/* <InputLabel id="clientName">Client Name</InputLabel>
                   <Select
+                  
                     labelId="clientName"
                     id="clientName"
                     value={clientName === 0 ? "" : clientName}
@@ -534,7 +541,25 @@ const BillingReportFilter = ({
                         {i.label}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={clientDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
+                    }}
+                    value={clients}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Client Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"

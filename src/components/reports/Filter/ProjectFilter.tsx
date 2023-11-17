@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -57,7 +58,8 @@ const ProjectFilter = ({
   const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
   const [billingType, setBillingType] = useState<string | number>(0);
 
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -97,7 +99,8 @@ const ProjectFilter = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setTypeOfWork(0);
     setBillingType(0);
@@ -121,7 +124,8 @@ const ProjectFilter = ({
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setTypeOfWork(0);
     setBillingType(0);
@@ -132,7 +136,7 @@ const ProjectFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...project_InitialFilter,
-      clients: clientName === 0 || clientName === "" ? [] : [clientName],
+      clients: clientName.length > 0 ? clientName : [],
       projects: projectName === 0 || projectName === "" ? [] : [projectName],
       typeOfWork: typeOfWork === 0 || typeOfWork === "" ? null : typeOfWork,
       billType: billingType === 0 || billingType === "" ? null : billingType,
@@ -177,7 +181,7 @@ const ProjectFilter = ({
           filterId: currentFilterId ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            clients: clientName === 0 ? [] : [clientName],
+            clients: clientName.length > 0 ? clientName : [],
             projects: projectName === 0 ? [] : [projectName],
             TypeOfWork: typeOfWork === 0 ? null : typeOfWork,
             BillingType: billingType === 0 ? null : billingType,
@@ -202,6 +206,7 @@ const ProjectFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          // handleFilterApply();
           toast.success("Filter has been successully saved.");
           getFilterList();
           setSaveFilter(false);
@@ -233,7 +238,7 @@ const ProjectFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
+      clientName.length > 0 ||
       projectName !== 0 ||
       typeOfWork !== 0 ||
       billingType !== 0 ||
@@ -249,13 +254,17 @@ const ProjectFilter = ({
     // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
-      setProjectDropdown(await getProjectData(clientName));
-      setWorkTypeDropdown(await getWorkTypeData(clientName));
+      setProjectDropdown(
+        await getProjectData(clientName.length > 0 ? clientName[0] : 0)
+      );
+      setWorkTypeDropdown(
+        await getWorkTypeData(clientName.length > 0 ? clientName[0] : 0)
+      );
       setBillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
 
-    if (parseInt(clientName.toString()) > 0 || resetting) {
+    if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
@@ -307,7 +316,7 @@ const ProjectFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
-    setClientName(savedFilters[index].AppliedFilter.clients[0]);
+    setClientName(savedFilters[index].AppliedFilter.clients);
     setProjectName(savedFilters[index].AppliedFilter.projects[0]);
     setTypeOfWork(savedFilters[index].AppliedFilter.TypeOfWork);
     setBillingType(savedFilters[index].AppliedFilter.BillingType);
@@ -463,22 +472,40 @@ const ProjectFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 200 }}
                 >
-                  <InputLabel id="client_Name">Client Name</InputLabel>
+                  {/* <InputLabel id="client_Name">Client Name</InputLabel>
                   <Select
-                    // multiple
                     labelId="client_Name"
                     id="client_Name"
-                    value={clientName === 0 ? "" : clientName}
-                    onChange={(e) => setClientName(e.target.value)}
+                    multiple
+                    value={clientName}
+                    onChange={(e: any) => setClientName(e.target.value)}
                   >
                     {clientDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={index}>
                         {i.label}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={clientDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
+                    }}
+                    value={clients}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Client Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"

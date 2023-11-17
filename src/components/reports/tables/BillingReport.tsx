@@ -235,27 +235,27 @@ const BillingReport = ({
     }
   }, [filteredData]);
 
-  useEffect(() => {
-    const updatedData = billingReportData
-      .map((data: any) =>
-        raisedInvoice.includes(data.WorkItemId)
-          ? {
-              workItemId: data.WorkItemId,
-              btcValue:
-                btcData.filter(
-                  (data: any) => data.workItemId === data.WorkItemId
-                )[0]?.btcValue === undefined
-                  ? data.BTC
-                  : btcData.filter(
-                      (data: any) => data.workItemId === data.WorkItemId
-                    )[0]?.btcValue,
-              IsBTC: true,
-            }
-          : undefined
-      )
-      .filter((data: any) => data !== undefined);
-    setBTCData(updatedData);
-  }, [raisedInvoice]);
+  // useEffect(() => {
+  //   const updatedData = billingReportData
+  //     .map((data: any) =>
+  //       raisedInvoice.includes(data.WorkItemId)
+  //         ? {
+  //             workItemId: data.WorkItemId,
+  //             btcValue:
+  //               btcData.filter(
+  //                 (data: any) => data.workItemId === data.WorkItemId
+  //               )[0]?.btcValue === undefined
+  //                 ? data.BTC
+  //                 : btcData.filter(
+  //                     (data: any) => data.workItemId === data.WorkItemId
+  //                   )[0]?.btcValue,
+  //             IsBTC: true,
+  //           }
+  //         : undefined
+  //     )
+  //     .filter((data: any) => data !== undefined);
+  //   setBTCData(updatedData);
+  // }, [raisedInvoice]);
 
   const columns: any[] = [
     {
