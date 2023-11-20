@@ -17,7 +17,7 @@ import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
 import { toSeconds } from "@/utils/timerFunctions";
 import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 const getMuiTheme = () =>
   createTheme({
@@ -48,6 +48,7 @@ const BillingReport = ({
   hasRaisedInvoiceData,
   isSavingBTCData,
   onSaveBTCDataComplete,
+  onBillingReportSearchData,
 }: any) => {
   const [page, setPage] = useState<number>(0);
   const [btcData, setBTCData] = useState<any>([]);
@@ -62,6 +63,15 @@ const BillingReport = ({
   const [tableDataCount, setTableDataCount] = useState<number>(0);
   const [editingRowIndex, setEditingRowIndex] = useState<number[]>([]);
   const [billingReportData, setBiliingReportData] = useState<any>([]);
+
+  // getting Billing Report Data by Search
+  useEffect(() => {
+    if (onBillingReportSearchData) {
+      setBiliingReportData(onBillingReportSearchData);
+    } else {
+      getData(billingreport_InitialFilter);
+    }
+  }, [onBillingReportSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -581,13 +591,15 @@ const BillingReport = ({
                   <TimeField
                     label="BTC Time"
                     value={btcTime}
-                    inputProps={<TextField placeholder="00:00:00" />}
-                    onChange={(newValue: any) =>
+                    // inputProps={<TextField placeholder="00:00:00" />}
+                    onChange={(newValue: any) => {
+                      setBTCTime(newValue);
                       handleBTCData(
                         newValue,
                         billingReportData[tableMeta.rowIndex].WorkItemId
-                      )
-                    }
+                      );
+                    }}
+                    onBlur={() => setEditingRowIndex([])}
                     format="HH:mm:ss"
                     variant="standard"
                   />
@@ -598,11 +610,14 @@ const BillingReport = ({
                     format="HH:mm:ss"
                     variant="standard"
                     value={
+                      // btcTime
                       value === null || value === 0
                         ? dayjs("0000-00-00T00:00:00")
                         : dayjs(`0000-00-00T${value}`)
                     }
-                    onChange={(newValue: any) => setBTCTime(newValue)}
+                    onChange={(newValue: any) => {
+                      setBTCTime(newValue);
+                    }}
                     onClick={() =>
                       setEditingRowIndex([
                         ...editingRowIndex,

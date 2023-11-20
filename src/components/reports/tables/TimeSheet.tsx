@@ -282,20 +282,26 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           }
         </span>
         {data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-          .AttendanceColor === 3 && (
-          <>
-            <BorderLinearProgress variant="determinate" />
-            <div className="flex items-center justify-between">
-              <span>
-                {
-                  data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                    .TotalTimeSpentForDay
-                }
-              </span>
-              <ChevronDownIcon />
-            </div>
-          </>
-        )}
+          .AttendanceColor === 1 ||
+          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            .AttendanceColor === 2 ||
+          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            .AttendanceColor === 3 ||
+          (data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            .AttendanceColor === 4 && (
+            <>
+              <BorderLinearProgress variant="determinate" />
+              <div className="flex items-center justify-between">
+                <span>
+                  {
+                    data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                      .TotalTimeSpentForDay
+                  }
+                </span>
+                <ChevronDownIcon />
+              </div>
+            </>
+          ))}
       </div>
       {showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex && (
         <div
@@ -343,7 +349,7 @@ const getMuiTheme = () =>
     },
   });
 
-const TimeSheet = ({ filteredData }: any) => {
+const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [dates, setDates] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -354,6 +360,15 @@ const TimeSheet = ({ filteredData }: any) => {
     useState<HTMLButtonElement | null>(null);
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
+
+  // getting timesheet data by search
+  useEffect(() => {
+    if (onTimesheetSearchData) {
+      setTimesheetData(onTimesheetSearchData);
+    } else {
+      getData(timeSheet_InitialFilter);
+    }
+  }, [onTimesheetSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");

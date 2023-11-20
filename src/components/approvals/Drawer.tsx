@@ -2066,9 +2066,9 @@ const EditDrawer = ({
                   // [
                   //   {
                   //     AttachmentId: 0,
-                  //     UserFileName: "Attachment300.txt",
-                  //     SystemFileName: "Attachment3_system.txt",
-                  //     AttachmentPath: "/path/to/attachment300.txt",
+                  //     UserFileName: "",
+                  //     SystemFileName: "",
+                  //     AttachmentPath: "dev/attachment",
                   //   },
                   // ],
                   isSolved: false,
@@ -2093,14 +2093,6 @@ const EditDrawer = ({
                       ).filter(Boolean),
                       Remark: i.Remark,
                       Attachments: "",
-                      // [
-                      //   {
-                      //     AttachmentId: 0,
-                      //     UserFileName: "Attachment300.txt",
-                      //     SystemFileName: "Attachment3_system.txt",
-                      //     AttachmentPath: "/path/to/attachment300.txt",
-                      //   },
-                      // ],
                       isSolved: i.IsSolved,
                     })
                 )
@@ -2370,9 +2362,9 @@ const EditDrawer = ({
       // [
       //   {
       //     AttachmentId: 0,
-      //     UserFileName: "Attachment300.txt",
-      //     SystemFileName: "Attachment3_system.txt",
-      //     AttachmentPath: "/path/to/attachment300.txt",
+      //     UserFileName: "",
+      //     SystemFileName: "",
+      //     AttachmentPath: "dev/attachment",
       //   },
       // ],
       isSolved: false,
@@ -2405,9 +2397,9 @@ const EditDrawer = ({
         // [
         //   {
         //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
+        //     UserFileName: "",
+        //     SystemFileName: "",
+        //     AttachmentPath: "dev/attachment",
         //   },
         // ],
         isSolved: false,
@@ -2453,9 +2445,9 @@ const EditDrawer = ({
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
 
-    const newAttachmentErrors = [...attachmentsErr];
-    newAttachmentErrors.splice(index, 1);
-    setAttachmentsErr(newAttachmentErrors);
+    // const newAttachmentErrors = [...attachmentsErr];
+    // newAttachmentErrors.splice(index, 1);
+    // setAttachmentsErr(newAttachmentErrors);
   };
 
   const handleErrorTypeChange = (e: any, index: number) => {
@@ -2525,13 +2517,21 @@ const EditDrawer = ({
     setRemarkErr(newErrors);
   };
 
-  const handleAttachmentsChange = (e: any, index: number) => {
+  const handleAttachmentsChange = (data1: any, data2: any, index: number) => {
     const newFields = [...errorLogFields];
-    newFields[index].Attachments = e.target.value;
+    newFields[index].Attachments = "",
+    // [
+    //   {
+    //     AttachmentId: 0,
+    //     UserFileName: data1,
+    //     SystemFileName: data2,
+    //     AttachmentPath: "dev/attachment",
+    //   },
+    // ];
     setErrorLogFields(newFields);
 
     const newErrors = [...attachmentsErr];
-    newErrors[index] = e.target.value.trim().length <= 0;
+    newErrors[index] = data1.trim().length <= 0 || data2.trim().length <= 0;
     setAttachmentsErr(newErrors);
   };
 
@@ -2576,8 +2576,8 @@ const EditDrawer = ({
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error);
-    // ||
-    // newAttachmentsErrors.some((error) => error);
+      //  ||
+      // newAttachmentsErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -2599,15 +2599,7 @@ const EditDrawer = ({
                     NatureOfError: i.NatureOfError,
                     CC: i.CC.map((j: any) => j.value),
                     Remark: i.Remark,
-                    Attachments: null,
-                    // [
-                    //   {
-                    //     AttachmentId: 0,
-                    //     UserFileName: "Attachment300.txt",
-                    //     SystemFileName: "Attachment3_system.txt",
-                    //     AttachmentPath: "/path/to/attachment300.txt",
-                    //   },
-                    // ],
+                    Attachments: "",
                   })
               ),
               IsClientWorklog: false,
@@ -2908,9 +2900,9 @@ const EditDrawer = ({
         // [
         //   {
         //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
+        //     UserFileName: "",
+        //     SystemFileName: "",
+        //     AttachmentPath: "dev/attachment",
         //   },
         // ],
         isSolved: false,
@@ -2949,10 +2941,6 @@ const EditDrawer = ({
       }
     }
     onClose();
-  };
-
-  const getAttachmentData = (data1: any, data2: any) => {
-    // console.log(data1, data2);
   };
 
   const isWeekend = (date: any) => {
@@ -5775,7 +5763,12 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
                             />
-                            <ImageUploader getData={getAttachmentData} />
+                            {/* <ImageUploader
+                              getData={(data1: any, data2: any) =>
+                                handleAttachmentsChange(data1, data2, index)
+                              }
+                              sendData={field.Attachments}
+                            /> */}
                             {/* <TextField
                               label={
                                 <span>

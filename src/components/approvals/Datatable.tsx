@@ -1718,7 +1718,7 @@ const Datatable = ({
         <div className="flex items-center justify-start ml-12">
           <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg w-[65%] h-[8%] bottom-12 -translate-y-1/2">
             <div className="flex flex-row w-full">
-              <div className="pt-1 pl-2 flex w-[30%]">
+              <div className="pt-1 pl-2 flex w-[40%]">
                 <span className="cursor-pointer" onClick={handleClearSelection}>
                   <Minus />
                 </span>

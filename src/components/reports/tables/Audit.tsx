@@ -33,11 +33,20 @@ const getMuiTheme = () =>
     },
   });
 
-const Audit = ({ filteredData }: any) => {
+const Audit = ({ filteredData, onAuditSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [auditData, setAuditData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
+
+  // getting data by search
+  useEffect(() => {
+    if (onAuditSearchData) {
+      setAuditData(onAuditSearchData);
+    } else {
+      getData(audit_InitialFilter);
+    }
+  }, [onAuditSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");

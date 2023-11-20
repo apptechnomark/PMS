@@ -4,17 +4,20 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
-import { Popover } from "@mui/material";
+import { Button, Popover } from "@mui/material";
 import { Transition } from "../reports/Filter/Transition/Transition";
 
-export default function ImageUploader({ getData, onClose }: any) {
+export default function ImageUploader({ getData, onClose, sendData }: any) {
   const [fileData, setFileData] = useState<any>(null);
   const [selectedFileDisplay, setSelectedFileDisplay] = useState<any>("");
+  const [originalFileDisplay, setOriginalFileDisplay] = useState<any>("");
   const [isExpanded, setIsExpanded] = useState(false);
+  // console.log(sendData)
 
   useEffect(() => {
     setFileData(null);
     setSelectedFileDisplay("");
+    setOriginalFileDisplay("");
   }, [onClose]);
 
   const handleImageChange = async (event: any) => {
@@ -31,6 +34,7 @@ export default function ImageUploader({ getData, onClose }: any) {
       );
     };
     const fileName = uuidv4().slice(0, 32);
+    setOriginalFileDisplay(fileData.name);
     if (fileData) {
       await uploadFileToBlob(fileData, fileName);
     }
@@ -57,7 +61,10 @@ export default function ImageUploader({ getData, onClose }: any) {
         .uploadData(file, {
           blobHTTPHeaders: { blobContentType: file.type },
         })
-        .then(async (res) => getFileFromBlob(newFileName))
+        .then(async (res) => {
+          getFileFromBlob(newFileName);
+          getData(file.name, newFileName);
+        })
         .catch((err) => console.log("err", err));
     },
     []
@@ -129,7 +136,7 @@ export default function ImageUploader({ getData, onClose }: any) {
     <div className="flex gap-2">
       {/* <input type="file" accept="image/*,.pdf" onChange={handleImageChange} /> */}
       <span
-        className="text-white cursor-pointer max-w-1"
+        className="text-white cursor-pointer max-w-1 mt-6"
         onClick={() => fileInputRef.current?.click()}
       >
         <FileIcon />
@@ -142,8 +149,8 @@ export default function ImageUploader({ getData, onClose }: any) {
           onChange={handleImageChange}
         />
       </span>
-      <div onClick={() => setIsExpanded(true)}>
-        {selectedFileDisplay.length > 0 && selectedFileDisplay}
+      <div onClick={() => setIsExpanded(true)} className="mt-6">
+        {originalFileDisplay.length > 0 && originalFileDisplay}
       </div>
 
       <Popover
@@ -162,7 +169,7 @@ export default function ImageUploader({ getData, onClose }: any) {
       >
         <div className="px-5 w-full flex flex-col items-center justify-center">
           <div className="flex items-center justify-between gap-20">
-            <div className="my-5 flex items-center">{selectedFileDisplay}</div>
+            <div className="my-5 flex items-center">{originalFileDisplay}</div>
             <div
               className="cursor-pointer"
               onClick={() => setIsExpanded(false)}
@@ -170,21 +177,22 @@ export default function ImageUploader({ getData, onClose }: any) {
               <CloseIcon />
             </div>
           </div>
-          <div>
+          <div className="w-[80%] h-[150px] bg-gray-200 border rounded-lg flex items-center justify-center mt-6 mb-2">
             <svg
               stroke="currentColor"
               fill="currentColor"
               strokeWidth="0"
               viewBox="0 0 640 512"
-              height="1em"
-              width="1em"
+              height="6rem"
+              width="6rem"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7.1 5.4.2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4zm-132.9 88.7L299.3 420.7c-6.2 6.2-16.4 6.2-22.6 0L171.3 315.3c-10.1-10.1-2.9-27.3 11.3-27.3H248V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16v112h65.4c14.2 0 21.4 17.2 11.3 27.3z"></path>
             </svg>
           </div>
-          <div
-            className="my-5 flex items-center gap-2"
+          <Button
+            className="my-5 flex items-center gap-2 bg-secondary"
+            variant="contained"
             onClick={() => {
               const a = document.createElement("a");
               a.href = fileData;
@@ -195,18 +203,7 @@ export default function ImageUploader({ getData, onClose }: any) {
             }}
           >
             DOWNLOAD
-            <svg
-              stroke="currentColor"
-              fill="currentColor"
-              strokeWidth="0"
-              viewBox="0 0 640 512"
-              height="24px"
-              width="24px"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7.1 5.4.2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4zm-132.9 88.7L299.3 420.7c-6.2 6.2-16.4 6.2-22.6 0L171.3 315.3c-10.1-10.1-2.9-27.3 11.3-27.3H248V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16v112h65.4c14.2 0 21.4 17.2 11.3 27.3z"></path>
-            </svg>
-          </div>
+          </Button>
         </div>
       </Popover>
       {/* <div>{fileData && renderFileContent()}</div> */}

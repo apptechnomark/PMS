@@ -288,7 +288,6 @@ const ProjectFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          console.log(response.data.ResponseData);
           setSavedFilters(response.data.ResponseData);
         } else {
           const data = response.data.Message;

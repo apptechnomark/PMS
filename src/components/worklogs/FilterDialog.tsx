@@ -393,7 +393,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: onCurrentFilterId ? onCurrentFilterId : null,
+          filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
           name: filterName,
           AppliedFilter: {
             ClientId: clientName || 0,

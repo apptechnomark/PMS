@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
-import { Box, Button, CircularProgress } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
@@ -13,10 +13,11 @@ import { ToastContainer, toast } from "react-toastify";
 
 //icons
 import LineIcon from "@/assets/icons/reports/LineIcon";
-// import MoreIcon from "@/assets/icons/reports/MoreIcon";
+import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
 // Tabs components
 import Client from "@/components/reports/tables/Client";
@@ -33,6 +34,17 @@ import CustomReport from "@/components/reports/tables/CustomReport";
 import { getCurrentTabDetails } from "@/utils/reports/getFilters";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 
+// filter body for reports
+import { client_project_InitialFilter } from "@/utils/reports/getFilters";
+import { user_InitialFilter } from "@/utils/reports/getFilters";
+import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
+import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
+import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
+import { audit_InitialFilter } from "@/utils/reports/getFilters";
+import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
+import { customreport_InitialFilter } from "@/utils/reports/getFilters";
+import { rating_InitialFilter } from "@/utils/reports/getFilters";
+
 //filter components
 import ClientFilter from "@/components/reports/Filter/ClientFilter";
 import ProjectFilter from "@/components/reports/Filter/ProjectFilter";
@@ -46,25 +58,29 @@ import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
 
-const visibleTabs = [
+const primaryTabs = [
   { label: "project", value: 1 },
   { label: "user", value: 2 },
   { label: "timesheet", value: 3 },
   { label: "workload", value: 4 },
-  { label: "user log", value: 5 },
-  { label: "audit", value: 6 },
   { label: "billing", value: 7 },
   { label: "custom", value: 8 },
+];
+
+const secondaryTabs = [
+  { label: "user log", value: 5 },
+  { label: "audit", value: 6 },
   { label: "rating", value: 9 },
 ];
 
 const page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
-  const [activeTabs, setActiveTabs] = useState<any[]>(visibleTabs);
+  const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
+  const [moreTabs, setMoreTabs] = useState<any[]>(secondaryTabs);
   const [activeTab, setActiveTab] = useState<number>(1);
-  // const [lastTab, setLastTab] = useState<string>("billing report");
-  // const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
+  const [lastTab, setLastTab] = useState<string>("billing report");
+  const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
   const [hasBTC, setHasBTC] = useState<boolean>(false);
@@ -78,6 +94,41 @@ const page = () => {
   const handleUserDetailsFetch = (getData: () => void) => {
     setGetOrgDetailsFunction(() => getData);
   };
+
+  const [projectSearchValue, setProjectSearchValue] = useState("");
+  const [projectSearchData, setProjectSearchData] = useState([]);
+  const [userSeachValue, setUserSearchValue] = useState("");
+  const [userSearchData, setUserSearchData] = useState([]);
+  const [timesheetSearchValue, setTimesheetSeachValue] = useState("");
+  const [timesheetSearchData, setTimesheetSeachData] = useState([]);
+  const [workloadSearchValue, setWorkloadSearchValue] = useState("");
+  const [workloadSearchData, setWorkloadSearchData] = useState([]);
+  const [userLogSearchValue, setUserLogSearchValue] = useState("");
+  const [userLogSearchData, setUserLogSearchData] = useState([]);
+  const [auditSearchValue, setAuditSearchValue] = useState("");
+  const [auditSeachData, setAuditSearchData] = useState([]);
+  const [billingReportSearchValue, setBillingReportSearchValue] = useState("");
+  const [billingReportSearchData, setBillingReportSearchData] = useState([]);
+  const [customReportSearchValue, setCustomReportSearchValue] = useState("");
+  const [customReportSearchData, setCustomReportSearchData] = useState([]);
+  const [ratingSearchValue, setRatingSearchValue] = useState("");
+  const [ratingSearchData, setRatingSearchData] = useState([]);
+
+  console.log(billingReportSearchValue);
+  //handling outside click for moreTabs
+  useEffect(() => {
+    const handleOutsideClick = (event: any) => {
+      if (moreTabsRef.current && !moreTabsRef.current.contains(event.target)) {
+        setShowMoreTabs(false);
+      }
+    };
+
+    window.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   //handle routing & permission
   useEffect(() => {
@@ -96,21 +147,21 @@ const page = () => {
         router.push("/");
       } else {
         setActiveTabs(
-          visibleTabs.map(
-            (tab: any) =>
-              // hasPermissionWorklog(tab.label, "view", "report") ?
-              tab
-            // : false
+          primaryTabs.map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          )
+        );
+
+        setMoreTabs(
+          secondaryTabs.map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
         );
 
         setActiveTab(
-          visibleTabs
-            .map(
-              (tab: any) =>
-                // hasPermissionWorklog(tab.label, "view", "report") ?
-                tab
-              // : false
+          primaryTabs
+            .map((tab: any) =>
+              hasPermissionWorklog(tab.label, "view", "report") ? tab : false
             )
             .filter((tab: any) => tab !== false)[0].value
         );
@@ -124,6 +175,35 @@ const page = () => {
   const handleTabChange = (tabId: number) => {
     setActiveTab(tabId);
     setFilteredData(null);
+  };
+
+  //handling more tabs
+  const handleMoreTabsClick = (tab: any, index: number) => {
+    //index of clicked tab in moreTab section
+    const clickedIndex = index;
+
+    //object of last present in activeTabs
+    const lastVisibleTab = activeTabs[activeTabs.length - 1];
+
+    //closing the more tabs section
+    setShowMoreTabs(false);
+
+    //handling tab change
+    handleTabChange(tab.value);
+
+    //updating the activeTabs state with the newly clicked tab
+    setActiveTabs((prevTabs) =>
+      prevTabs.map((tab: any, index: number) =>
+        index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
+      )
+    );
+
+    //updating the moreTabs state with the last tab present in activeTabs
+    setMoreTabs((prevTabs) =>
+      prevTabs.map((tab: any, index: number) =>
+        index === clickedIndex ? lastVisibleTab : tab
+      )
+    );
   };
 
   const handleFilterData = (arg1: any) => {
@@ -179,6 +259,436 @@ const page = () => {
     }
   };
 
+  // getting project data by search
+  const getProjectSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/project`,
+        { ...client_project_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setProjectSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (projectSearchValue.length > 3) {
+      getProjectSearchData(projectSearchValue);
+    } else {
+      getProjectSearchData("");
+    }
+  }, [projectSearchValue]);
+
+  // getting User data by search
+  const getUserSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/user`,
+        { ...user_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setUserSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (userSeachValue.length > 3) {
+      getUserSearchData(userSeachValue);
+    } else {
+      getUserSearchData("");
+    }
+  }, [userSeachValue]);
+
+  // getting timesheet data by search
+  const getTimesheetSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/timesheet`,
+        { ...timeSheet_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_Token: Org_Token,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setTimesheetSeachData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else toast.error(data);
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else toast.error(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (timesheetSearchValue.length > 3) {
+      getTimesheetSearchData(timesheetSearchValue);
+    } else {
+      getTimesheetSearchData("");
+    }
+  }, [timesheetSearchValue]);
+
+  // getting Workload data by search
+  const getWorkloadSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/workLoad`,
+        { ...workLoad_InitialFilter, globalSearch: seachValue },
+        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setWorkloadSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later");
+          } else toast.error(data);
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later");
+        } else toast.error(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (workloadSearchValue.length > 3) {
+      getWorkloadSearchData(workloadSearchValue);
+    } else {
+      getWorkloadSearchData("");
+    }
+  }, [workloadSearchValue]);
+
+  // getting User Log data by search
+  const getUserLogSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/userLog`,
+        { ...userLogs_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: Org_Token,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setUserLogSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later");
+          } else toast.error(data);
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later");
+        } else toast.error(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (userLogSearchValue.length > 3) {
+      getUserLogSearchData(userLogSearchValue);
+    } else {
+      getUserLogSearchData("");
+    }
+  }, [userLogSearchValue]);
+
+  // getting Audit Data by search
+  const getAuditReportData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/audit`,
+        { ...audit_InitialFilter, globalSearch: seachValue },
+        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setAuditSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else toast.error(data);
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else toast.error(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (auditSearchValue.length > 3) {
+      getAuditReportData(auditSearchValue);
+    } else {
+      getAuditReportData("");
+    }
+  }, [auditSearchValue]);
+
+  // getting Billing Report Data by search
+  const getBillingReportData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/billing`,
+        { ...billingreport_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setBillingReportSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (billingReportSearchValue.length > 3) {
+      getBillingReportData(billingReportSearchValue);
+    } else {
+      getBillingReportData("");
+    }
+  }, [billingReportSearchValue]);
+
+  // getting Custom Rport Data by search
+  const getCustomReportData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/custom`,
+        { ...customreport_InitialFilter, globalSearch: seachValue },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setCustomReportSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (customReportSearchValue.length > 3) {
+      getCustomReportData(customReportSearchValue);
+    } else {
+      getCustomReportData("");
+    }
+  }, [customReportSearchValue]);
+
+  // getting Rating Data by search
+  const getRatingSearchData = async (seachValue: string) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/report/admin/rating`,
+        { ...rating_InitialFilter, GlobalSearch: seachValue },
+        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
+      );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setRatingSearchData(response.data.ResponseData.List);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else toast.error(data);
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else toast.error(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (ratingSearchValue.length > 3) {
+      getRatingSearchData(ratingSearchValue);
+    } else {
+      getRatingSearchData("");
+    }
+  }, [ratingSearchValue]);
+
+  const MoreTabs = () => {
+    return (
+      <div
+        style={{
+          boxShadow: "0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
+        }}
+        className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
+      >
+        {moreTabs
+          .filter((tab: any) => tab !== false)
+          .map((tab: any, index: number) => (
+            <div
+              className={`py-2 w-full hover:bg-[#0000000e] ${
+                index === 0 ? "rounded-t" : ""
+              } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
+              onClick={() => handleMoreTabsClick(tab, index)}
+            >
+              <label
+                className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
+              >
+                {tab.label}
+                {tab.label.toLowerCase() === "billing" ||
+                tab.label.toLowerCase() === "custom" ||
+                tab.label.toLowerCase() === "rating"
+                  ? " report"
+                  : ""}
+              </label>
+            </div>
+          ))}
+      </div>
+    );
+  };
+
   return (
     <Wrapper>
       <div>
@@ -198,16 +708,18 @@ const page = () => {
                       }`}
                       onClick={() => handleTabChange(tab.value)}
                     >
-                      {tab.label} {index === 6 || index === 7 ? "report" : ""}
+                      {tab.label}
+                      {tab.label.toLowerCase() === "billing" ||
+                      tab.label.toLowerCase() === "custom" ||
+                      tab.label.toLowerCase() === "rating"
+                        ? " report"
+                        : ""}
                     </label>
-                    {!(
-                      index ===
-                      activeTabs.filter((tab: any) => tab !== false).length - 1
-                    ) && <LineIcon />}
+                    <LineIcon />
                   </Fragment>
                 ))}
             </div>
-            {/* <div className="cursor-pointer relative">
+            <div className="cursor-pointer relative">
               <div
                 ref={moreTabsRef}
                 onClick={() => setShowMoreTabs(!showMoreTabs)}
@@ -215,9 +727,137 @@ const page = () => {
                 <MoreIcon />
               </div>
               {showMoreTabs && <MoreTabs />}
-            </div> */}
+            </div>
           </div>
+
           <div className="h-full flex items-center gap-5">
+            {activeTab === 1 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={projectSearchValue}
+                  onChange={(e) => setProjectSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 2 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={userSeachValue}
+                  onChange={(e) => setUserSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 3 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={timesheetSearchValue}
+                  onChange={(e) => setTimesheetSeachValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 4 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={workloadSearchValue}
+                  onChange={(e) => setWorkloadSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 5 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={userLogSearchValue}
+                  onChange={(e) => setUserLogSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 6 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={auditSearchValue}
+                  onChange={(e) => setAuditSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 7 && (
+              <div className="flex items-center relative">
+                <TextField
+                  className="w-[130px]"
+                  placeholder="Search"
+                  variant="standard"
+                  value={billingReportSearchValue}
+                  onChange={(e) => setBillingReportSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 8 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={customReportSearchValue}
+                  onChange={(e) => setCustomReportSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
+            {activeTab === 9 && (
+              <div className="flex items-center relative">
+                <TextField
+                  placeholder="Search"
+                  variant="standard"
+                  value={ratingSearchValue}
+                  onChange={(e) => setRatingSearchValue(e.target.value)}
+                />
+                <span className="absolute right-1 py-1 pl-1">
+                  <SearchIcon />
+                </span>
+              </div>
+            )}
+
             <span
               className="cursor-pointer relative"
               onClick={() => {
@@ -274,12 +914,39 @@ const page = () => {
 
         {/* tabs */}
         {activeTab === 0 && <Client filteredData={filteredData} />}
-        {activeTab === 1 && <Project filteredData={filteredData} />}
-        {activeTab === 2 && <User filteredData={filteredData} />}
-        {activeTab === 3 && <TimeSheet filteredData={filteredData} />}
-        {activeTab === 4 && <Workload filteredData={filteredData} />}
-        {activeTab === 5 && <UserLogs filteredData={filteredData} />}
-        {activeTab === 6 && <Audit filteredData={filteredData} />}
+        {activeTab === 1 && (
+          <Project
+            filteredData={filteredData}
+            onProjectSearchData={projectSearchData}
+          />
+        )}
+        {activeTab === 2 && (
+          <User filteredData={filteredData} onUserSearchData={userSearchData} />
+        )}
+        {activeTab === 3 && (
+          <TimeSheet
+            filteredData={filteredData}
+            onTimesheetSearchData={timesheetSearchData}
+          />
+        )}
+        {activeTab === 4 && (
+          <Workload
+            filteredData={filteredData}
+            onWorkloadSearchData={workloadSearchData}
+          />
+        )}
+        {activeTab === 5 && (
+          <UserLogs
+            filteredData={filteredData}
+            onUserLogSearchData={userLogSearchData}
+          />
+        )}
+        {activeTab === 6 && (
+          <Audit
+            filteredData={filteredData}
+            onAuditSearchData={auditSeachData}
+          />
+        )}
         {activeTab === 7 && (
           <BillingReport
             filteredData={filteredData}
@@ -287,10 +954,21 @@ const page = () => {
             hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
+            onBillingReportSearchData={billingReportSearchData}
           />
         )}
-        {activeTab === 8 && <CustomReport filteredData={filteredData} />}
-        {activeTab === 9 && <RatingReport filteredData={filteredData} />}
+        {activeTab === 8 && (
+          <CustomReport
+            filteredData={filteredData}
+            onCustomReportSearchData={customReportSearchData}
+          />
+        )}
+        {activeTab === 9 && (
+          <RatingReport
+            filteredData={filteredData}
+            onRatingSearchData={ratingSearchData}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
