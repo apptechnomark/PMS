@@ -1183,6 +1183,20 @@ const Datatable = ({
       },
     },
     {
+      name: "TaskName",
+      options: {
+        filter: true,
+        sort: true,
+        // display: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Task</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "Role",
       options: {
         filter: true,
@@ -1258,6 +1272,7 @@ const Datatable = ({
               {reviewList.length > 0 &&
                 (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
                   reviewList[tableMeta.rowIndex].ReviewerIsManual === false) &&
+                reviewList[tableMeta.rowIndex].StatusId === 6 &&
                 reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                 tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                 tableMeta.rowData[tableMeta.rowData.length - 1] !== isRunning &&

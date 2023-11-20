@@ -708,6 +708,17 @@ const Datatable_Worklog = ({
   // Table Columns
   const columns = [
     {
+      name: "ProjectId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Task Id</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "ProjectName",
       options: {
         filter: true,

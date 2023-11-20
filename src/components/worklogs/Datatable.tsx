@@ -1353,11 +1353,25 @@ const Datatable = ({
       },
     },
     {
+      name: "ProjectName",
+      options: {
+        filter: true,
+        sort: true,
+        // display: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Project</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "TaskName",
       options: {
         filter: true,
         sort: true,
-        viewColumns: true,
+        // viewColumns: true,
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Task</span>
         ),
@@ -1385,6 +1399,7 @@ const Datatable = ({
                       </svg>
                     </span>
                   )}
+                  {value}
                 </>
               )}
             </div>
@@ -1393,25 +1408,11 @@ const Datatable = ({
       },
     },
     {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        display: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Project</span>
-        ),
-        customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
-        },
-      },
-    },
-    {
       name: "ProcessName",
       options: {
         filter: true,
         sort: true,
-        display: false,
+        // display: false,
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Process</span>
         ),
@@ -1436,7 +1437,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        display: false,
+        // display: false,
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Sub Process</span>
         ),
@@ -1861,7 +1862,7 @@ const Datatable = ({
     filterType: "checkbox",
     responsive: "standard",
     tableBodyHeight: "68vh",
-    viewColumns: true,
+    viewColumns: false,
     filter: false,
     print: false,
     download: false,

@@ -302,7 +302,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               i.Type === "Accept" ||
               i.Type === "AcceptWithNotes" ||
               i.Type === "Errorlogs" ||
-              i.Type === "Reject" ||
               i.Type === "SignedOff"
                 ? i
                 : ""

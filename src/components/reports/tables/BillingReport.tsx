@@ -475,31 +475,12 @@ const BillingReport = ({
       },
     },
     {
-      name: "TotalTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">actual time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === ""
-                ? "00:00:00"
-                : value}
-            </div>
-          );
-        },
-      },
-    },
-    {
       name: "PreparationTime",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Preparor Time</span>
+          <span className="font-bold text-sm capitalize">Preparation Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
@@ -519,6 +500,25 @@ const BillingReport = ({
         sort: true,
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">Reviewer Time</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="flex items-center gap-2">
+              {value === null || value === 0 || value === ""
+                ? "00:00:00"
+                : value}
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: "TotalTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">Total time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
