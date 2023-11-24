@@ -909,65 +909,70 @@ const page = () => {
   ]);
 
   // Common function for exporting data
+  // const exportData = async (
+  //   endpoint: string,
+  //   filename: string,
+  //   searchValue: any
+  // ) => {
+  //   setIsExporting(true);
+  //   const token = await localStorage.getItem("token");
+  //   const Org_Token = await localStorage.getItem("Org_Token");
+
+  //   try {
+  //     const response = await axios.post(
+  //       `${process.env.pms_api_url}/${endpoint}/export`,
+  //       {
+  //         GlobalSearch: searchValue,
+  //         SortColumn: null,
+  //         IsDesc: false,
+  //         PageNo: 1,
+  //         PageSize: 50000,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `bearer ${token}`,
+  //           org_token: `${Org_Token}`,
+  //         },
+  //         responseType: "blob",
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       const blob = new Blob([response.data], {
+  //         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //       });
+  //       const url = window.URL.createObjectURL(blob);
+  //       const a = document.createElement("a");
+  //       a.href = url;
+  //       a.download = `${filename}.xlsx`;
+  //       document.body.appendChild(a);
+  //       a.click();
+  //       window.URL.revokeObjectURL(url);
+  //       setIsExporting(false);
+  //       Toast.success("Data exported successfully.");
+  //     } else {
+  //       setIsExporting(false);
+  //       Toast.error("Please try again later.");
+  //     }
+  //   } catch (error) {
+  //     setIsExporting(false);
+  //     Toast.error("Error exporting data.");
+  //   }
+  // };
+
+  // API for exporting User Data
   const exportData = async (
     endpoint: string,
     filename: string,
     searchValue: any
   ) => {
-    setIsExporting(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      setIsExporting(true);
       const response = await axios.post(
-        `${process.env.pms_api_url}/${endpoint}/export`,
-        {
-          GlobalSearch: searchValue,
-          SortColumn: null,
-          IsDesc: false,
-          PageNo: 1,
-          PageSize: 50000,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-          responseType: "blob",
-        }
-      );
-
-      if (response.status === 200) {
-        const blob = new Blob([response.data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        });
-        // const url = window.URL.createObjectURL(blob);
-        // const a = document.createElement("a");
-        // a.href = url;
-        // a.download = `${filename}.xlsx`;
-        // document.body.appendChild(a);
-        // a.click();
-        // window.URL.revokeObjectURL(url);
-        setIsExporting(false);
-        Toast.success("Data exported successfully.");
-      } else {
-        setIsExporting(false);
-        Toast.error("Please try again later.");
-      }
-    } catch (error) {
-      setIsExporting(false);
-      Toast.error("Error exporting data.");
-    }
-  };
-
-  // API for exporting User Data
-  const exportUserData = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.api_url}/user/export`,
+        `${process.env.api_url}/${endpoint}/export`,
         {
           GlobalSearch: searchValue,
           SortColumn: null,
@@ -991,21 +996,18 @@ const page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `user_data.xlsx`;
+        a.download = `${filename}.xlsx`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         Toast.success("Data exported successfully.");
+        setIsExporting(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          Toast.error("Please try again later.");
-        } else {
-          Toast.error(data);
-        }
+        setIsExporting(false);
+        Toast.error("Please try again later.");
       }
     } catch (error) {
-      console.error(error);
+      setIsExporting(false);
       Toast.error("Error exporting data.");
     }
   };
@@ -1215,7 +1217,7 @@ const page = () => {
                                 statusSearchValue
                               )
                             : tab === "User"
-                            ? exportUserData(userSearchValue)
+                            ? exportData("user", "user_data", userSearchValue)
                             : null
                         }
                       >
