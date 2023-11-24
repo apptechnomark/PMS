@@ -972,7 +972,7 @@ const page = () => {
     try {
       setIsExporting(true);
       const response = await axios.post(
-        `${process.env.api_url}/${endpoint}/export`,
+        `${process.env.pms_api_url}/${endpoint}/export`,
         {
           GlobalSearch: searchValue,
           SortColumn: null,
