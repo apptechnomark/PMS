@@ -991,7 +991,7 @@ const page = () => {
 
       if (response.status === 200) {
         const blob = new Blob([response.data], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          type: response.headers["content-type"],
         });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -999,7 +999,19 @@ const page = () => {
         a.download = `${filename}.xlsx`;
         document.body.appendChild(a);
         a.click();
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+
+        // const blob = new Blob([response.data], {
+        //   type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        // });
+        // const url = window.URL.createObjectURL(blob);
+        // const a = document.createElement("a");
+        // a.href = url;
+        // a.download = `${filename}.xlsx`;
+        // document.body.appendChild(a);
+        // a.click();
+        // window.URL.revokeObjectURL(url);
         Toast.success("Data exported successfully.");
         setIsExporting(false);
       } else {
