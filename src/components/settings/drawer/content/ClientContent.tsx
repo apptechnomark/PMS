@@ -1785,8 +1785,8 @@ const ClientContent = forwardRef<
                 />
 
                 <Text
-                  label="Zip"
-                  placeholder="Enter Zip"
+                  label="ZIP Code"
+                  placeholder="Enter ZIP Code"
                   type="number"
                   value={zip}
                   getValue={(e) => setZip(e)}
@@ -2058,8 +2058,8 @@ const ClientContent = forwardRef<
                 />
 
                 <Text
-                  label="Client Timezone (AUTO)"
-                  placeholder="Enter Client Timezone (AUTO)"
+                  label="Client Timezone"
+                  placeholder="Enter Client Timezone"
                   value={clientTimeZone}
                   getValue={(e) => setClientTimeZone(e)}
                   getError={() => {}}
