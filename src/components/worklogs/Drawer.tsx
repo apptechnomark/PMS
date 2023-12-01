@@ -2372,7 +2372,7 @@ const EditDrawer = ({
         clientName,
         typeOfWork
       );
-      
+
       reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
       const reviwerId =
@@ -4666,6 +4666,7 @@ const EditDrawer = ({
                             }
                             disabled={!recurringSwitch}
                             onError={() => setRecurringStartDateErr(false)}
+                            minDate={dayjs(receiverDate)}
                             maxDate={dayjs(recurringEndDate)}
                             value={
                               recurringStartDate === ""
@@ -4702,7 +4703,7 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            minDate={dayjs(recurringStartDate)}
+                            minDate={dayjs(receiverDate)}
                             disabled={!recurringSwitch}
                             onError={() => setRecurringEndDateErr(false)}
                             value={
