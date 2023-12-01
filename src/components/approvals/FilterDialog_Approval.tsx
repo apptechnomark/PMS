@@ -11,7 +11,10 @@ import { FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select from "@mui/material/Select";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { getProcessDropdownData, getProjectDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getProcessDropdownData,
+  getProjectDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -65,8 +68,10 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setClientName(0);
     setUser(0);
     setProjectName(0);
+    setProjectDropdownData([]);
     setStatus(0);
     setProcessName(0);
+    setProcessDropdownData([]);
     currentFilterData(initialFilter);
   };
 
