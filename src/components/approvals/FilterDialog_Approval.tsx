@@ -316,14 +316,14 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
 
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="status">Status</InputLabel>
+                <InputLabel id="process_Name">Process Name</InputLabel>
                 <Select
-                  labelId="status"
-                  id="status"
-                  value={status === 0 ? "" : status}
-                  onChange={(e) => setStatus(e.target.value)}
+                  labelId="process_Name"
+                  id="process_Name"
+                  value={processName === 0 ? "" : processName}
+                  onChange={(e) => setProcessName(e.target.value)}
                 >
-                  {statusDropdownData.map((i: any) => (
+                  {processDropdownData.map((i: any) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -332,14 +332,14 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
               </FormControl>
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="processName">Process</InputLabel>
+                <InputLabel id="status">Status</InputLabel>
                 <Select
-                  labelId="processName"
-                  id="processName"
-                  value={processName === 0 ? "" : processName}
-                  onChange={(e) => setProcessName(e.target.value)}
+                  labelId="status"
+                  id="status"
+                  value={status === 0 ? "" : status}
+                  onChange={(e) => setStatus(e.target.value)}
                 >
-                  {processDropdownData.map((i: any) => (
+                  {statusDropdownData.map((i: any) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
