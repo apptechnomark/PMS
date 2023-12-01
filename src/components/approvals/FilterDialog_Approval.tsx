@@ -324,8 +324,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   onChange={(e) => setProcessName(e.target.value)}
                 >
                   {processDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
+                    <MenuItem value={i.Id} key={i.Id}>
+                      {i.Name}
                     </MenuItem>
                   ))}
                 </Select>
