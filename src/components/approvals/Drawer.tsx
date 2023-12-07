@@ -96,7 +96,7 @@ const EditDrawer = ({
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
-  // const [statusDropdownDataUse, setStatusDropdownDataUse] = useState<any>([]);
+  const [statusDropdownDataUse, setStatusDropdownDataUse] = useState<any>([]);
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
@@ -640,7 +640,6 @@ const EditDrawer = ({
   };
 
   const scrollToPanel = (index: number) => {
-    console.log(index);
     const panel = document.getElementById(`tabpanel-${index}`);
     if (panel) {
       panel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2263,29 +2262,29 @@ const EditDrawer = ({
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
           setEditStatus(data.StatusId);
-          // const filterStatusDropdown = (
-          //   statusId: number,
-          //   isManual: boolean
-          // ) => {
-          //   const filteredData = statusDropdownData
-          //     .map((i: any) =>
-          //       (i.Type === "OnHoldFromClient" ||
-          //         i.Type === "WithDraw" ||
-          //         i.value === statusId) &&
-          //       (!isManual || i.Type === "Stop")
-          //         ? i
-          //         : ""
-          //     )
-          //     .filter((i: any) => i !== "");
+          const filterStatusDropdown = (
+            statusId: number,
+            isManual: boolean
+          ) => {
+            const filteredData = statusDropdownData
+              .map((i: any) =>
+                (i.Type === "OnHoldFromClient" ||
+                  i.Type === "WithDraw" ||
+                  i.value === statusId) &&
+                (!isManual || i.Type === "Stop")
+                  ? i
+                  : ""
+              )
+              .filter((i: any) => i !== "");
 
-          //   setStatusDropdownDataUse(filteredData);
-          // };
+            setStatusDropdownDataUse(filteredData);
+          };
 
-          // if (data.StatusId === 2) {
-          //   filterStatusDropdown(data.StatusId, data.IsManual === true);
-          // } else {
-          //   filterStatusDropdown(data.StatusId, false);
-          // }
+          if (data.StatusId === 2) {
+            filterStatusDropdown(data.StatusId, data.IsManual === true);
+          } else {
+            filterStatusDropdown(data.StatusId, false);
+          }
           setPriority(data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -2917,7 +2916,7 @@ const EditDrawer = ({
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setSubProcessDropdownData([]);
-    // setStatusDropdownDataUse([]);
+    setStatusDropdownDataUse([]);
     setAssigneeDropdownData([]);
     setReviewerDropdownData([]);
 
@@ -3161,34 +3160,28 @@ const EditDrawer = ({
                       <Autocomplete
                         id="combo-box-demo"
                         options={
-                          // onEdit === 0
-                          //   ?
-                          statusDropdownData
-                          // : statusDropdownDataUse
+                          onEdit === 0
+                            ? statusDropdownData
+                            : statusDropdownDataUse
                         }
-                        // disabled={
-                        //   onEdit === 0 ||
-                        //   status === 7 ||
-                        //   status === 8 ||
-                        //   status === 9
-                        // }
-                        // value={
-                        //   onEdit === 0 && manualSwitch
-                        //     ? statusDropdownData.find(
-                        //         (i: any) => i.value === status
-                        //       ) || null
-                        //     : onEdit === 0
-                        //     ? statusDropdownData.find(
-                        //         (i: any) => i.value === status
-                        //       ) || null
-                        //     : statusDropdownDataUse.find(
-                        //         (i: any) => i.value === status
-                        //       ) || null
-                        // }
+                        disabled={
+                          onEdit === 0 ||
+                          status === 7 ||
+                          status === 8 ||
+                          status === 9
+                        }
                         value={
-                          statusDropdownData.find(
-                            (i: any) => i.value === status
-                          ) || null
+                          onEdit === 0 && manualSwitch
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : onEdit === 0
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : statusDropdownDataUse.find(
+                                (i: any) => i.value === status
+                              ) || null
                         }
                         onChange={(e, value: any) => {
                           value && setStatus(value.value);
