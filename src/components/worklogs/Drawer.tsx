@@ -236,7 +236,7 @@ const EditDrawer = ({
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
   const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
-  const [statusDropdownDataUse, setStatusDropdownDataUse] = useState([]);
+  // const [statusDropdownDataUse, setStatusDropdownDataUse] = useState([]);
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
@@ -1769,30 +1769,6 @@ const EditDrawer = ({
           setEditStatus(data.StatusId);
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          data.StatusId === 2 && data.IsManual === true
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.Type === "Stop" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              )
-            : setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              );
           setPriority(data.Priority === null ? 0 : data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -2980,7 +2956,6 @@ const EditDrawer = ({
     setProjectDropdownData([]);
     setProcessDropdownData([]);
     setSubProcessDropdownData([]);
-    setStatusDropdownDataUse([]);
     setAssigneeDropdownData([]);
     setReviewerDropdownData([]);
 
@@ -3220,29 +3195,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={
-                          onEdit === 0
-                            ? statusDropdownData
-                            : statusDropdownDataUse
-                        }
-                        disabled={
-                          onEdit === 0 ||
-                          status === 7 ||
-                          status === 8 ||
-                          status === 9
-                        }
+                        options={statusDropdownData}
                         value={
-                          onEdit === 0 && manualSwitch
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
-                              ) || null
-                            : onEdit === 0
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
-                              ) || null
-                            : statusDropdownDataUse.find(
-                                (i: any) => i.value === status
-                              ) || null
+                          statusDropdownData.find(
+                            (i: any) => i.value === status
+                          ) || null
                         }
                         onChange={(e, value: any) => {
                           value && setStatus(value.value);
@@ -4899,21 +4856,6 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        e.target.checked === true
-                          ? setStatus(
-                              statusDropdownData
-                                .map((i: any) =>
-                                  i.Type === "InProgress" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            )
-                          : setStatus(
-                              statusDropdownData
-                                .map((i: any) =>
-                                  i.Type === "NotStarted" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            );
                       }}
                     />
                     <span

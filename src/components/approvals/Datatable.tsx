@@ -475,7 +475,8 @@ const Datatable = ({
   }) => {
     if (data.ResponseStatus === "Success") {
       const filteredStatus = data.ResponseData.filter(
-        (item) => item.Type === "OnHoldFromClient" || item.Type === "WithDraw"
+        // (item) => item.Type === "OnHoldFromClient" || item.Type === "WithDraw"
+        (i: any) => i.Type !== "Reject"
       );
 
       setAllStatus(filteredStatus);
