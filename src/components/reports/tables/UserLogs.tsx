@@ -83,6 +83,8 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
+  console.log(userlogFields);
+
   return userlogFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
