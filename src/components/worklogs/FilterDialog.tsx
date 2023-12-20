@@ -69,11 +69,11 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [error, setError] = useState("");
 
-  let isHaveManageAssignee: any;
+  let isHaveManageAssignee: any = localStorage.getItem("IsHaveManageAssignee");
 
-  useEffect(() => {
-    isHaveManageAssignee = localStorage.getItem("IsHaveManageAssignee");
-  }, []);
+  // useEffect(() => {
+  //   isHaveManageAssignee = localStorage.getItem("IsHaveManageAssignee");
+  // }, []);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -258,7 +258,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -266,7 +266,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
@@ -300,7 +300,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -308,7 +308,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
@@ -339,7 +339,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -347,7 +347,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
@@ -694,7 +694,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
+              {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="assignedTo">Assigned To</InputLabel>
                 <Select
                   labelId="assignedTo"
@@ -709,7 +709,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl> */}
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="assignedBy">Assigned By</InputLabel>
@@ -727,9 +727,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   ))}
                 </Select>
               </FormControl>
-            </div>
 
-            <div className="flex gap-[20px]">
               <div
                 className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
               >
@@ -750,6 +748,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   />
                 </LocalizationProvider>
               </div>
+            </div>
+
+            <div className="flex gap-[20px]">
               <div
                 className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
               >
@@ -792,7 +793,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               </div>
             </div>
 
-            <div className="flex gap-[20px]">
+            {/* <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="review_Status">Review Status</InputLabel>
                 <Select
@@ -808,7 +809,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   ))}
                 </Select>
               </FormControl>
-            </div>
+            </div> */}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

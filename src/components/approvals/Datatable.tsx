@@ -14,7 +14,7 @@ import {
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import TablePagination from "@mui/material/TablePagination";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 // icons imports
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 
@@ -40,6 +40,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import CustomActionBar from "../common/actionBar/CustomActionBar";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -55,11 +56,13 @@ const initialFilter = {
   projectId: null,
   startDate: null,
   endDate: null,
+  dueDate: null,
   StatusId: 6,
   ProcessId: null,
 };
 
 const Datatable = ({
+  activeTab,
   onEdit,
   onDataFetch,
   currentFilterData,
@@ -126,8 +129,17 @@ const Datatable = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/GetReviewList`,
-        filteredObject,
+        `${process.env.worklog_api_url}/workitem/approval/${
+          activeTab === 1 ? "GetReviewList" : "GetAllWorkitemForReviewer"
+        }
+        `,
+        {
+          ...filteredObject,
+          StatusId: activeTab === 1 ? 6 : null,
+          dueDate: activeTab === 1 ? null : filteredObject.dueDate,
+          startDate: activeTab === 1 ? null : filteredObject.startDate,
+          endDate: activeTab === 1 ? null : filteredObject.endDate,
+        },
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -420,7 +432,7 @@ const Datatable = ({
       globalSearch: searchValue,
     });
     getReviewList();
-  }, [currentFilterData, searchValue]);
+  }, [currentFilterData, searchValue, activeTab]);
 
   // calling reviewList on first time
   useEffect(() => {
@@ -435,7 +447,7 @@ const Datatable = ({
     };
     fetchData();
     getReviewList();
-  }, []);
+  }, [activeTab]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
@@ -534,7 +546,7 @@ const Datatable = ({
     },
     {
       name: "EmpolyeeName",
-      label: "Designation",
+      label: "Employee",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -556,6 +568,12 @@ const Datatable = ({
       name: "ManagerName",
       label: "Manager",
       bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerId",
+      options: {
+        display: false,
+      },
     },
     {
       name: "ReviewerIsManual",
@@ -621,11 +639,15 @@ const Datatable = ({
                     {timerValue}
                   </span>
                 </ColorToolTip>
-                {reviewList.length > 0 &&
+                {reviewList[tableMeta.rowIndex].ReviewerId ==
+                  localStorage.getItem("UserId") &&
+                  reviewList.length > 0 &&
                   (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
                     reviewList[tableMeta.rowIndex].ReviewerIsManual ===
                       false) &&
-                  reviewList[tableMeta.rowIndex].StatusId === 6 &&
+                  (reviewList[tableMeta.rowIndex].StatusId === 6 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 59) &&
                   reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
@@ -665,51 +687,55 @@ const Datatable = ({
                       </ColorToolTip>
                     )
                   ))}
-                {(tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
-                  tableMeta.rowData[tableMeta.rowData.length - 1] ===
-                    isRunning) && (
-                  <div className="flex">
-                    <ColorToolTip title="Pause" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          handleReviewTimer(
-                            2,
-                            tableMeta.rowData[tableMeta.rowData.length - 1],
-                            tableMeta.rowData[tableMeta.rowData.length - 3],
-                            workitemTimeId
-                          );
-                        }}
-                      >
-                        <PauseButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Stop" placement="top" arrow>
-                      <span
-                        className="cursor-pointer mt-[2px]"
-                        onClick={() => setStopReviewTimer(true)}
-                      >
-                        <StopButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Sync" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() =>
-                          handleReviewSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 3]
-                          )
-                        }
-                      >
-                        <RestartButton />
-                      </span>
-                    </ColorToolTip>
-                  </div>
-                )}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                {reviewList[tableMeta.rowIndex].ReviewerId ==
+                  localStorage.getItem("UserId") &&
+                  (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
+                    tableMeta.rowData[tableMeta.rowData.length - 1] ===
+                      isRunning) && (
+                    <div className="flex">
+                      <ColorToolTip title="Pause" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setRunning(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            handleReviewTimer(
+                              2,
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              tableMeta.rowData[tableMeta.rowData.length - 3],
+                              workitemTimeId
+                            );
+                          }}
+                        >
+                          <PauseButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Stop" placement="top" arrow>
+                        <span
+                          className="cursor-pointer mt-[2px]"
+                          onClick={() => setStopReviewTimer(true)}
+                        >
+                          <StopButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Sync" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() =>
+                            handleReviewSync(
+                              tableMeta.rowData[tableMeta.rowData.length - 3]
+                            )
+                          }
+                        >
+                          <RestartButton />
+                        </span>
+                      </ColorToolTip>
+                    </div>
+                  )}
+                {reviewList[tableMeta.rowIndex].ReviewerId ==
+                  localStorage.getItem("UserId") &&
+                  // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
@@ -767,6 +793,13 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) =>
             generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+        },
+      };
+    } else if (column.name === "ReviewerId") {
+      return {
+        name: "ReviewerId",
+        options: {
+          display: false,
         },
       };
     } else if (column.name === "ReviewerIsManual") {
