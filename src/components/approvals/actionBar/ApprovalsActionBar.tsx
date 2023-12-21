@@ -119,7 +119,6 @@ const ApprovalsActionBar = ({
     selectedRowWorkTypeId,
     onComment,
     settingSelectedId,
-    className: "w-[60%]",
   };
 
   const ConditionalComponentWithoutConditions = ({
@@ -148,8 +147,8 @@ const ApprovalsActionBar = ({
         <Component {...propsForActionBar} />
       </span>
     ) : null;
-  console.log(isReviewer, isNotReviewer);
-  return (
+
+    return (
     <div>
       <CustomActionBar {...propsForActionBar}>
         <ConditionalComponent

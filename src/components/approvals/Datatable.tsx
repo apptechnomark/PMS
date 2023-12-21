@@ -621,7 +621,7 @@ const Datatable = ({
               value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
             return (
-              <div className="w-40 h-7 flex items-center">
+              <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
                     tableMeta.rowData[11] * tableMeta.rowData[12]
@@ -646,7 +646,9 @@ const Datatable = ({
                     reviewList[tableMeta.rowIndex].ReviewerIsManual ===
                       false) &&
                   (reviewList[tableMeta.rowIndex].StatusId === 58 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 59) &&
+                    reviewList[tableMeta.rowIndex].StatusId === 59 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 6 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 54) &&
                   reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
@@ -668,8 +670,6 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
-                    (reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                      reviewList[tableMeta.rowIndex].StatusId === 54) &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span

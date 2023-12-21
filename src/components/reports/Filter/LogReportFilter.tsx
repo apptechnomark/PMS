@@ -97,7 +97,7 @@ const LogReportFilter = ({
   const handleLogReport_ResetAll = () => {
     setLogReport_ClientName([]);
     setLogReport_Clients([]);
-    setLogReport_UpdatedByDropdown([])
+    setLogReport_UpdatedByDropdown([]);
     setLogReport_ProjectName(0);
     setLogReport_Process(0);
     setLogReport_UpdatedBy(0);
@@ -118,7 +118,7 @@ const LogReportFilter = ({
     setLogReport_DefaultFilter(false);
     setLogReport_ClientName([]);
     setLogReport_Clients([]);
-    setLogReport_UpdatedByDropdown([])
+    setLogReport_UpdatedByDropdown([]);
     setLogReport_ProjectName(0);
     setLogReport_Process(0);
     setLogReport_UpdatedBy(0);
@@ -138,7 +138,7 @@ const LogReportFilter = ({
       processFilter:
         logReport_process === 0 || logReport_process === ""
           ? null
-          : logReport_process,
+          : [logReport_process],
       updatedByFilter:
         logReport_updatedBy === 0 || logReport_updatedBy === ""
           ? null
@@ -202,12 +202,13 @@ const LogReportFilter = ({
                 : null,
             name: logReport_filterName,
             AppliedFilter: {
-              clients:
+              clientFilter:
                 logReport_clientName.length > 0 ? logReport_clientName : [],
-              projects:
+              projectFilter:
                 logReport_projectName === 0 ? [] : [logReport_projectName],
-              TypeOfWork: logReport_process === 0 ? null : logReport_process,
-              BillingType:
+              processFilter:
+                logReport_process === 0 ? null : [logReport_process],
+              updatedByFilter:
                 logReport_updatedBy === 0 ? null : logReport_updatedBy,
               startDate:
                 logReport_startDate.toString().trim().length <= 0
@@ -222,7 +223,7 @@ const LogReportFilter = ({
                     : getFormattedDate(logReport_startDate)
                   : getFormattedDate(logReport_endDate),
             },
-            type: project,
+            type: logReport,
           },
           {
             headers: {
