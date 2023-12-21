@@ -69,11 +69,10 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [error, setError] = useState("");
 
-  let isHaveManageAssignee: any = localStorage.getItem("IsHaveManageAssignee");
-
-  // useEffect(() => {
-  //   isHaveManageAssignee = localStorage.getItem("IsHaveManageAssignee");
-  // }, []);
+  let isHaveManageAssignee: any;
+  if (typeof localStorage !== "undefined") {
+    isHaveManageAssignee = localStorage.getItem("IsHaveManageAssignee");
+  }
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
