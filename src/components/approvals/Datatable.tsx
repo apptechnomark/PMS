@@ -52,12 +52,12 @@ const initialFilter = {
   isDesc: true,
   globalSearch: "",
   userId: null,
-  clientId: null,
+  ClientId: null,
   projectId: null,
   startDate: null,
   endDate: null,
   dueDate: null,
-  StatusId: 6,
+  StatusId: null,
   ProcessId: null,
 };
 
@@ -135,7 +135,7 @@ const Datatable = ({
         `,
         {
           ...filteredObject,
-          StatusId: activeTab === 1 ? 6 : null,
+          // StatusId: activeTab === 1 ? filteredObject.StatusId :,
           dueDate: activeTab === 1 ? null : filteredObject.dueDate,
           startDate: activeTab === 1 ? null : filteredObject.startDate,
           endDate: activeTab === 1 ? null : filteredObject.endDate,
@@ -645,8 +645,7 @@ const Datatable = ({
                   (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
                     reviewList[tableMeta.rowIndex].ReviewerIsManual ===
                       false) &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 6 ||
-                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
+                  (reviewList[tableMeta.rowIndex].StatusId === 58 ||
                     reviewList[tableMeta.rowIndex].StatusId === 59) &&
                   reviewList[tableMeta.rowIndex].IsFinalSubmited &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
@@ -669,6 +668,8 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
+                    (reviewList[tableMeta.rowIndex].StatusId === 6 ||
+                      reviewList[tableMeta.rowIndex].StatusId === 54) &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span

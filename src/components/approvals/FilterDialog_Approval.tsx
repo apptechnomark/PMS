@@ -33,7 +33,10 @@ const initialFilter = {
   userId: null,
   ProjectId: null,
   ProcessId: null,
-  StatusId: 6,
+  StatusId: null,
+  dueDate: null,
+  startDate: null,
+  endDate: null,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
@@ -74,7 +77,10 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setEndDate(null);
     setProcessName(0);
     setProcessDropdownData([]);
-    currentFilterData(initialFilter);
+    currentFilterData({
+      ...initialFilter,
+      StatusId: activeTab === 1 ? 6 : initialFilter.StatusId,
+    });
   };
 
   const handleClose = () => {
@@ -136,6 +142,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          console.log(response.data.ResponseData);
           setUserData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
@@ -252,6 +259,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   ]);
 
   useEffect(() => {
+    console.log("called", dueDate);
+
     const selectedFields = {
       ClientId: clientName || null,
       userId: userName || null,

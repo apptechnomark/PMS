@@ -30,12 +30,12 @@ const exportBody = {
   isDesc: true,
   globalSearch: "",
   userId: null,
-  clientId: null,
+  ClientId: null,
   projectId: null,
   startDate: null,
   endDate: null,
   dueDate: null,
-  StatusId: 6,
+  StatusId: null,
   ProcessId: null,
 };
 
