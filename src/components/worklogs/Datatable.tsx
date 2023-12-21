@@ -1038,6 +1038,7 @@ const Datatable = ({
             title={undefined}
             options={{
               ...worklogs_Options,
+              viewColumns: true,
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
               textLabels: {

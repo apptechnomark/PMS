@@ -91,7 +91,7 @@ export const worklogs_Options: any = {
   filterType: "checkbox",
   responsive: "standard",
   tableBodyHeight: "69vh",
-  viewColumns: true,
+  viewColumns: false,
   filter: false,
   print: false,
   download: false,

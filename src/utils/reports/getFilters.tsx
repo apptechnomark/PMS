@@ -157,8 +157,8 @@ export const logReport_InitialFilter = {
   projectFilter: [],
   processFilter: [],
   updatedByFilter: [],
-  startDate: "2023-12-20",
-  endDate: "2023-12-20",
+  startDate: new Date(),
+  endDate: new Date(),
 };
 
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
