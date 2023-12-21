@@ -90,7 +90,7 @@ export const report_Options: any = {
 export const worklogs_Options: any = {
   filterType: "checkbox",
   responsive: "standard",
-  tableBodyHeight: "69vh",
+  tableBodyHeight: "73vh",
   viewColumns: false,
   filter: false,
   print: false,

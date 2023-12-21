@@ -55,6 +55,7 @@ import {
   getAssigneeDropdownData,
   getCCDropdownData,
   getClientDropdownData,
+  getCommentUserDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -1334,9 +1335,11 @@ const EditDrawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
-  const users =
-    assigneeDropdownData?.length > 0 &&
-    assigneeDropdownData.map(
+  const [commentUserData, setCommentUserData] = useState([]);
+
+  const users: any =
+    commentUserData?.length > 0 &&
+    commentUserData.map(
       (i: any) =>
         new Object({
           id: i.value,
@@ -2740,6 +2743,7 @@ const EditDrawer = ({
       setProcessDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
+      onEdit > 0 && setCommentUserData(await getCommentUserDropdownData());
     };
 
     onOpen && getData();
@@ -2918,6 +2922,7 @@ const EditDrawer = ({
       },
     ]);
     setEditingCommentIndex(-1);
+    setCommentUserData([]);
 
     // Reviewer note
     setReviewerNoteData([]);

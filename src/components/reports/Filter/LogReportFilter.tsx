@@ -33,6 +33,7 @@ import { isWeekend } from "@/utils/commonFunction";
 import {
   getAllProcessDropdownData,
   getClientDropdownData,
+  getCommentUserDropdownData,
 } from "@/utils/commonDropdownApiCall";
 
 const LogReportFilter = ({
@@ -287,47 +288,9 @@ const LogReportFilter = ({
     logReport_endDate,
   ]);
 
-  const getUpdatedByData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setLogReport_UpdatedByDropdown(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     const filterDropdowns = async () => {
-      getUpdatedByData();
+      setLogReport_UpdatedByDropdown(await getCommentUserDropdownData());
       setLogReport_ClientDropdown(await getClientDropdownData());
       setLogReport_ProjectDropdown(
         await getProjectData(

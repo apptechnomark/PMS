@@ -54,6 +54,7 @@ import {
   getAssigneeDropdownData,
   getCCDropdownData,
   getClientDropdownData,
+  getCommentUserDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -1244,10 +1245,11 @@ const EditDrawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
+  const [commentWorklogsUserData, setCommentWorklogsUserData] = useState([]);
 
-  const usersWorklogs =
-    assigneeWorklogsDropdownData?.length > 0 &&
-    assigneeWorklogsDropdownData.map(
+  const usersWorklogs: any =
+    commentWorklogsUserData?.length > 0 &&
+    commentWorklogsUserData.map(
       (i: any) =>
         new Object({
           id: i.value,
@@ -2238,7 +2240,6 @@ const EditDrawer = ({
 
   // OnEdit
   const getEditDataWorklogs = async () => {
-    const pathname = window.location.href.includes("id=");
     const params = {
       WorkitemId: onEdit,
     };
@@ -2249,6 +2250,16 @@ const EditDrawer = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
+        if (window.location.href.includes("id=")) {
+          if (
+            ResponseData.AssignedId == localStorage.getItem("UserId") ||
+            ResponseData.ReviewerId == localStorage.getItem("UserId")
+          ) {
+            setIsIdDisabled(false);
+          } else {
+            setIsIdDisabled(true);
+          }
+        }
         setEditDataWorklogs(ResponseData);
         setIsCreatedByClientWorklogsDrawer(ResponseData.IsCreatedByClient);
         setIsManual(ResponseData.IsManual);
@@ -2357,16 +2368,6 @@ const EditDrawer = ({
             ? 2
             : 0
         );
-        if (pathname) {
-          if (
-            ResponseData.AssignedId == localStorage.getItem("UserId") ||
-            ResponseData.ReviewerId == localStorage.getItem("UserId")
-          ) {
-            setIsIdDisabled(false);
-          } else {
-            setIsIdDisabled(true);
-          }
-        }
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2479,6 +2480,8 @@ const EditDrawer = ({
       setProcessWorklogsDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
+      onEdit > 0 &&
+        setCommentWorklogsUserData(await getCommentUserDropdownData());
     };
 
     onOpen && getData();
@@ -2742,6 +2745,7 @@ const EditDrawer = ({
         AttachmentPath: process.env.attachment,
       },
     ]);
+    setCommentWorklogsUserData([]);
 
     // Reviewer note
     setReviewerNoteDataWorklogs([]);
