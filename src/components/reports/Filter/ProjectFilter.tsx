@@ -598,20 +598,6 @@ const ProjectFilter = ({
                       />
                     )}
                   />
-
-                  {/* <InputLabel id="typeOfWork">Type Of Work</InputLabel>
-                  <Select
-                    labelId="typeOfWork"
-                    id="typeOfWork"
-                    value={project_typeOfWork === 0 ? "" : project_typeOfWork}
-                    onChange={(e) => setProject_TypeOfWork(e.target.value)}
-                  >
-                    {project_workTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -636,22 +622,6 @@ const ProjectFilter = ({
                       />
                     )}
                   />
-
-                  {/* <InputLabel id="billingType">Billing Type</InputLabel>
-                  <Select
-                    labelId="billingType"
-                    id="billingType"
-                    value={project_billingType === 0 ? "" : project_billingType}
-                    onChange={(e) => setProject_BillingType(e.target.value)}
-                  >
-                    {project_billingTypeDropdown.map(
-                      (i: any, index: number) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      )
-                    )}
-                  </Select> */}
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

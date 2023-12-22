@@ -342,13 +342,16 @@ const BillingReportFilter = ({
           )[0]
         : null
     );
+
+    console.log(assigneeDropdown, reviewerDropdown);
+
     setAssignee(
       savedFilters[index].AppliedFilter.assigneeId === null
         ? null
         : assigneeDropdown.filter(
             (item: any) =>
               item.value === savedFilters[index].AppliedFilter.assigneeId
-          )
+          )[0]
     );
     setReviewer(
       savedFilters[index].AppliedFilter.reviewerId === null
@@ -356,7 +359,7 @@ const BillingReportFilter = ({
         : reviewerDropdown.filter(
             (item: any) =>
               item.value === savedFilters[index].AppliedFilter.reviewerId
-          )
+          )[0]
     );
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
