@@ -26,7 +26,7 @@ const handleLogoutUtil = async () => {
       headers: {
         Authorization: `bearer ${token}`,
         org_token: `${Org_Token}`,
-      }, 
+      },
     });
 
     if (response.status === 200) {
