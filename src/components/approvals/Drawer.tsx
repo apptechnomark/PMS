@@ -2201,7 +2201,7 @@ const EditDrawer = ({
                     item.Type === "Submitted" ||
                     item.Type === "Accept" ||
                     item.Type === "AcceptWithNotes" ||
-                    item.Type === "SecondManagerReview" ||
+                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
@@ -2215,7 +2215,7 @@ const EditDrawer = ({
                     item.Type === "ReworkSubmitted" ||
                     item.Type === "ReworkAccept" ||
                     item.Type === "ReworkAcceptWithNotes" ||
-                    item.Type === "SecondManagerReview" ||
+                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
@@ -2743,11 +2743,24 @@ const EditDrawer = ({
       setProcessDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
-      onEdit > 0 && setCommentUserData(await getCommentUserDropdownData());
     };
 
     onOpen && getData();
   }, [clientName, onOpen]);
+
+  useEffect(() => {
+    const getData = async () => {
+      onEdit > 0 &&
+        setCommentUserData(
+          await getCommentUserDropdownData({
+            ClientId: clientName,
+            GetClientUser: commentSelect === 2 ? true : false,
+          })
+        );
+    };
+
+    onOpen && getData();
+  }, [clientName, commentSelect]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2977,7 +2990,7 @@ const EditDrawer = ({
     onDataFetch();
 
     if (typeof window !== "undefined") {
-      const pathname = window.location.href.includes("=");
+      const pathname = window.location.href.includes("id=");
       if (pathname) {
         onClose();
         router.push("/worklogs");
@@ -4834,7 +4847,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ mx: 0.75, maxWidth: 230 }}
                           />
-                          <TextField
+                          {/* <TextField
                             label="Total Time"
                             disabled
                             fullWidth
@@ -4843,6 +4856,17 @@ const EditDrawer = ({
                                 ? "time"
                                 : "text"
                             }
+                            value={field.totalTime}
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                            InputProps={{ readOnly: true }}
+                            inputProps={{ readOnly: true }}
+                          /> */}
+                          <TextField
+                            label="Total Time"
+                            disabled
+                            fullWidth
                             value={field.totalTime}
                             margin="normal"
                             variant="standard"

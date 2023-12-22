@@ -2480,12 +2480,25 @@ const EditDrawer = ({
       setProcessWorklogsDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
-      onEdit > 0 &&
-        setCommentWorklogsUserData(await getCommentUserDropdownData());
     };
 
     onOpen && getData();
   }, [clientNameWorklogs, onOpen]);
+
+  useEffect(() => {
+    const getData = async () => {
+      onEdit > 0 &&
+        clientNameWorklogs > 0 &&
+        setCommentWorklogsUserData(
+          await getCommentUserDropdownData({
+            ClientId: clientNameWorklogs,
+            GetClientUser: commentSelectWorklogs === 2 ? true : false,
+          })
+        );
+    };
+
+    onOpen && getData();
+  }, [clientNameWorklogs, commentSelectWorklogs]);
 
   useEffect(() => {
     const getData = async () => {

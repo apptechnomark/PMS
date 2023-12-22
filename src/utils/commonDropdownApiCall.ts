@@ -464,12 +464,13 @@ export const getCCDropdownData = async () => {
   }
 };
 
-export const getCommentUserDropdownData = async () => {
+export const getCommentUserDropdownData = async (fields: any) => {
   const token = await localStorage.getItem("token");
   const Org_Token = await localStorage.getItem("Org_Token");
   try {
-    const response = await axios.get(
+    const response = await axios.post(
       `${process.env.api_url}/user/getgroupusersdropdown`,
+      fields,
       {
         headers: {
           Authorization: `bearer ${token}`,
