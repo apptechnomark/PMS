@@ -148,7 +148,7 @@ export const getTypeOfWorkDropdownData = async (clientId: any) => {
         },
       }
     );
- 
+
     if (response.status === 200) {
       if (response.data.ResponseStatus === "Success") {
         return response.data.ResponseData;
