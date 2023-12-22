@@ -2,6 +2,7 @@ import MainWrapper from "@/components/common/MainWrapper";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`!font-proxima select-none !p-0 overflow-hidden`}>
         <MainWrapper>{children}</MainWrapper>
+        <SpeedInsights />
       </body>
     </html>
   );
