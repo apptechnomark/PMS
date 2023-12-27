@@ -431,15 +431,15 @@ const Page = () => {
                 </label>
               )}
           </div>
-          <div className="flex gap-[20px] items-center">
+          <div className="flex items-center justify-center gap-[10px]">
             {isTaskClicked && (
-              <span className="text-secondary font-light">
+              <span className="text-secondary font-light text-[14px]">
                 Total time: {timeValue}
               </span>
             )}
             <div className="relative">
               <InputBase
-                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
+                className="pl-1 pr-7 border-b border-b-lightSilver w-48"
                 placeholder="Search"
                 value={globalSearchValue}
                 onChange={(e: any) => setGlobalSearchValue(e.target.value)}
@@ -598,12 +598,11 @@ const Page = () => {
             )}
             {isTaskClicked && (
               <>
-                <span className="text-secondary font-light">{timer}</span>
                 <Button
                   type="submit"
                   variant="contained"
                   color="info"
-                  className={`rounded-[4px] !h-[36px] !w-[125px] pt-2 ${
+                  className={`flex flex-col items-center justify-center rounded-[4px] !h-[36px] !w-[125px] text-[13px] pt-2 ${
                     breakId === 0 ? "!bg-secondary" : "!bg-[#ff9f43]"
                   }`}
                   onClick={
@@ -614,7 +613,10 @@ const Page = () => {
                           toast.error("User not have permission to Break Task")
                   }
                 >
-                  {breakId === 0 ? "Break" : "Stop break"}
+                  <span className="text-white font-light">{timer}</span>
+                  <span className="text-white font-light -mt-2">
+                    {breakId === 0 ? "Break" : "Stop break"}
+                  </span>
                 </Button>
                 <Button
                   type="submit"
