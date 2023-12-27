@@ -4,19 +4,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-// Icons
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
 import { Delete, Edit } from "@mui/icons-material";
-
-// Material Import
 import { Button, Popover, Tooltip, InputBase } from "@mui/material";
 import { toast } from "react-toastify";
-
-// Internal components
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import Datatable from "@/components/worklogs/Datatable";
 import Drawer from "@/components/worklogs/Drawer";
@@ -32,7 +26,6 @@ import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const exportBody = {
   PageNo: 1,
@@ -54,6 +47,7 @@ const exportBody = {
 
 const Page = () => {
   const router = useRouter();
+  const [timeValue, setTimeValue] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
   const [hasRecurring, setHasRecurring] = useState(false);
@@ -105,17 +99,14 @@ const Page = () => {
     }
   }, [router]);
 
-  // for searching the saved filters
   const filteredFilters = filterList.filter((filter: any) =>
     filter.Name.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // For Closing Delete Modal
   const closeDeleteModal = () => {
     setIsDeleteOpen(false);
   };
 
-  // For refreshing data in Datatable from drawer
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
   };
@@ -124,7 +115,6 @@ const Page = () => {
     setLoaded(true);
   };
 
-  // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
@@ -138,28 +128,24 @@ const Page = () => {
     setGlobalSearchValue("");
   };
 
-  // To Toggle Drawer for Edit
   const handleEdit = (rowData: any, Id: any) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
     setHasId(Id);
   };
 
-  // To Toggle Drawer for Recurring
   const handleSetRecurring = (rowData: any, selectedId: number) => {
     setHasRecurring(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  // To Toggle Drawer for Comments
   const handleSetComments = (rowData: any, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  // For Closing Filter Modal
   const closeFilterModal = () => {
     setIsFilterOpen(false);
   };
@@ -446,6 +432,11 @@ const Page = () => {
               )}
           </div>
           <div className="flex gap-[20px] items-center">
+            {isTaskClicked && (
+              <span className="text-secondary font-light">
+                Total time: {timeValue}
+              </span>
+            )}
             <div className="relative">
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
@@ -664,6 +655,7 @@ const Page = () => {
             onHandleExport={handleCanExport}
             isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
+            onChangeLoader={(e: any) => setTimeValue(e)}
           />
         )}
         {isUnassigneeClicked && (
@@ -731,8 +723,6 @@ const Page = () => {
           "If you delete this, you will permanently loose this saved filter and selected fields."
         }
       />
-
-      <CustomToastContainer />
     </Wrapper>
   );
 };
