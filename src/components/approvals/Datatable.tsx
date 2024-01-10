@@ -461,7 +461,7 @@ const Datatable = ({
     {
       name: "PreparorTime",
       label: "Preparation Time",
-      bodyRenderer: generateManualTimeBodyRender,
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "StartDate",
