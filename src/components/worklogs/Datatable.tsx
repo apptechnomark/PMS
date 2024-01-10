@@ -281,6 +281,15 @@ const Datatable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  useEffect(() => {
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
+    getWorkItemList();
+  }, [currentFilterData, searchValue]);
+
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
       setFilteredOject(initialFilter);
@@ -383,33 +392,25 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    getFilterList(onCurrentFilterId);
-  }, [onCurrentFilterId]);
-
-  useEffect(() => {
-    setFilteredOject({
-      ...filteredObject,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
-  }, [currentFilterData, searchValue]);
-
-  useEffect(() => {
     const fetchData = async () => {
       await getWorkItemList();
       onDataFetch(() => fetchData());
     };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [
-    onCurrentFilterId,
-    filteredObject,
-    isOnBreak,
-    currentFilterData,
-    searchValue,
-  ]);
+    fetchData();
+    getWorkItemList();
+  }, []);
+
+  useEffect(() => {
+    getFilterList(onCurrentFilterId);
+  }, [onCurrentFilterId]);
+
+  useEffect(() => {
+    getWorkItemList();
+  }, [onCurrentFilterId, filteredObject]);
+
+  useEffect(() => {
+    getWorkItemList();
+  }, [isOnBreak]);
 
   useEffect(() => {
     onHandleExport(workItemData.length > 0 ? true : false);

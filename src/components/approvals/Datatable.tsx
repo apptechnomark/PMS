@@ -355,22 +355,21 @@ const Datatable = ({
       ...currentFilterData,
       globalSearch: searchValue,
     });
+    getReviewList();
+  }, [currentFilterData, searchValue, activeTab]);
+
+  useEffect(() => {
+    getReviewList();
+  }, [filteredObject]);
+
+  useEffect(() => {
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
     };
-    const timer = setTimeout(() => {
-      fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData, searchValue, activeTab]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      getReviewList();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [filteredObject]);
+    fetchData();
+    getReviewList();
+  }, [activeTab]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
