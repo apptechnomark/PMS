@@ -355,21 +355,22 @@ const Datatable = ({
       ...currentFilterData,
       globalSearch: searchValue,
     });
-    getReviewList();
-  }, [currentFilterData, searchValue, activeTab]);
-
-  useEffect(() => {
-    getReviewList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getReviewList();
-  }, [activeTab]);
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData, searchValue, activeTab]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getReviewList();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
@@ -458,7 +459,7 @@ const Datatable = ({
       },
     },
     {
-      name: "TotalTime",
+      name: "PreparorTime",
       label: "Preparation Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
@@ -720,8 +721,28 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) =>
-            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const statusColorCode = tableMeta.rowData[9];
+
+            return (
+              <div>
+                {value === null ||
+                value === "" ||
+                value === 0 ||
+                value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
         },
       };
     } else if (column.name === "Est*Qty") {

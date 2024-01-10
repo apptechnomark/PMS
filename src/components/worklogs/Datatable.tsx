@@ -281,15 +281,6 @@ const Datatable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  useEffect(() => {
-    setFilteredOject({
-      ...filteredObject,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
-    getWorkItemList();
-  }, [currentFilterData, searchValue]);
-
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
       setFilteredOject(initialFilter);
@@ -392,25 +383,33 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await getWorkItemList();
-      onDataFetch(() => fetchData());
-    };
-    fetchData();
-    getWorkItemList();
-  }, []);
-
-  useEffect(() => {
     getFilterList(onCurrentFilterId);
   }, [onCurrentFilterId]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [onCurrentFilterId, filteredObject]);
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [isOnBreak]);
+    const fetchData = async () => {
+      await getWorkItemList();
+      onDataFetch(() => fetchData());
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    onCurrentFilterId,
+    filteredObject,
+    isOnBreak,
+    currentFilterData,
+    searchValue,
+  ]);
 
   useEffect(() => {
     onHandleExport(workItemData.length > 0 ? true : false);
@@ -531,7 +530,7 @@ const Datatable = ({
       name: "StatusName",
       label: "Status",
       bodyRenderer: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
+        generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
       name: "EstimateTime",
@@ -549,7 +548,7 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "ActualTime",
+      name: "PreparorTime",
       label: "Preparation Time",
       bodyRenderer: generateCommonBodyRender,
     },
@@ -823,8 +822,28 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) =>
-            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const statusColorCode = tableMeta.rowData[10];
+
+            return (
+              <div>
+                {value === null ||
+                value === "" ||
+                value === 0 ||
+                value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
         },
       };
     } else if (column.name === "TaskName") {
