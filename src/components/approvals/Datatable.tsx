@@ -355,21 +355,22 @@ const Datatable = ({
       ...currentFilterData,
       globalSearch: searchValue,
     });
-    getReviewList();
-  }, [currentFilterData, searchValue, activeTab]);
-
-  useEffect(() => {
-    getReviewList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getReviewList();
-  }, [activeTab]);
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData, searchValue, activeTab]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getReviewList();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
@@ -451,8 +452,15 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "Est*Qty",
+      label: "Std. Time",
+      bodyRenderer: (value: any, tableMeta: any) => {
+        return <span>{tableMeta.rowData.toString()}</span>;
+      },
+    },
+    {
       name: "TotalTime",
-      label: "Total Hrs",
+      label: "Preparation Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
     {
@@ -715,6 +723,25 @@ const Datatable = ({
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) =>
             generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+        },
+      };
+    } else if (column.name === "Est*Qty") {
+      return {
+        name: "Est*Qty",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            return (
+              <span>
+                {toHoursAndMinutes(
+                  tableMeta.rowData[11] * tableMeta.rowData[12]
+                )}
+              </span>
+            );
+          },
         },
       };
     } else if (column.name === "ReviewerId") {

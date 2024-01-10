@@ -810,16 +810,10 @@ const EditDrawer = ({
 
   const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditError(
-      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
-    );
+    setValueEditError(valueEdit.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueEdit.trim().length > 5 &&
-        valueEdit.trim().length < 501 &&
-        !valueEditError
-      ) {
+      if (valueEdit.trim().length > 5 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -926,14 +920,10 @@ const EditDrawer = ({
     type: any
   ) => {
     e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
+    setValueError(value.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        value.trim().length >= 5 &&
-        value.trim().length < 501 &&
-        !valueError
-      ) {
+      if (value.trim().length >= 5 && !valueError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -3855,11 +3845,6 @@ const EditDrawer = ({
                                         <span className="text-defaultRed text-[14px]">
                                           Minimum 5 characters required.
                                         </span>
-                                      ) : valueEditError &&
-                                        valueEdit.trim().length > 500 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Maximum 500 characters allowed.
-                                        </span>
                                       ) : (
                                         valueEditError && (
                                           <span className="text-defaultRed text-[14px]">
@@ -4017,10 +4002,6 @@ const EditDrawer = ({
                           value.trim().length < 5 ? (
                             <span className="text-defaultRed text-[14px] ml-20">
                               Minimum 5 characters required.
-                            </span>
-                          ) : valueError && value.trim().length > 500 ? (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Maximum 500 characters allowed.
                             </span>
                           ) : (
                             valueError && (

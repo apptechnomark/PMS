@@ -1227,14 +1227,12 @@ const EditDrawer = ({
   const handleSaveClickWorklogs = async (e: any, i: any, type: any) => {
     e.preventDefault();
     setValueEditWorklogsError(
-      valueEditWorklogs.trim().length < 5 ||
-        valueEditWorklogs.trim().length > 500
+      valueEditWorklogs.trim().length < 5
     );
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
       if (
         valueEditWorklogs.trim().length >= 5 &&
-        valueEditWorklogs.trim().length < 501 &&
         !valueEditWorklogsError
       ) {
         setIsLoadingWorklogs(true);
@@ -1343,16 +1341,10 @@ const EditDrawer = ({
     type: any
   ) => {
     e.preventDefault();
-    setValueWorklogsError(
-      valueWorklogs.trim().length < 5 || valueWorklogs.trim().length > 500
-    );
+    setValueWorklogsError(valueWorklogs.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueWorklogs.trim().length >= 5 &&
-        valueWorklogs.trim().length < 501 &&
-        !valueWorklogsError
-      ) {
+      if (valueWorklogs.trim().length >= 5 && !valueWorklogsError) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -4163,12 +4155,6 @@ const EditDrawer = ({
                                           <span className="text-defaultRed text-[14px]">
                                             Minimum 5 characters required.
                                           </span>
-                                        ) : valueEditWorklogsError &&
-                                          valueEditWorklogs.trim().length >
-                                            500 ? (
-                                          <span className="text-defaultRed text-[14px]">
-                                            Maximum 500 characters allowed.
-                                          </span>
                                         ) : (
                                           valueEditWorklogsError && (
                                             <span className="text-defaultRed text-[14px]">
@@ -4339,11 +4325,6 @@ const EditDrawer = ({
                             valueWorklogs.trim().length < 5 ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
-                              </span>
-                            ) : valueWorklogsError &&
-                              valueWorklogs.trim().length > 500 ? (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                Maximum 500 characters allowed.
                               </span>
                             ) : (
                               valueWorklogsError && (

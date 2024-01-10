@@ -138,10 +138,6 @@ const UnassigneeDatatable = ({
   }, [currentFilterData, searchValue]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
       if (pathname) {
@@ -177,25 +173,11 @@ const UnassigneeDatatable = ({
       await getWorkItemList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getWorkItemList();
-  }, []);
-
-  const generateCustomClientNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsHasErrorlog = TableMeta.rowData[18];
-    return (
-      <div>
-        {IsHasErrorlog && (
-          <div
-            className={
-              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-            }
-          ></div>
-        )}
-        {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
-      </div>
-    );
-  };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
 
   const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
     const IsRecurring = TableMeta.rowData[19];

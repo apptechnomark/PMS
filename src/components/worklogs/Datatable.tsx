@@ -281,15 +281,6 @@ const Datatable = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  useEffect(() => {
-    setFilteredOject({
-      ...filteredObject,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
-    getWorkItemList();
-  }, [currentFilterData, searchValue]);
-
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
       setFilteredOject(initialFilter);
@@ -392,25 +383,33 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await getWorkItemList();
-      onDataFetch(() => fetchData());
-    };
-    fetchData();
-    getWorkItemList();
-  }, []);
-
-  useEffect(() => {
     getFilterList(onCurrentFilterId);
   }, [onCurrentFilterId]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [onCurrentFilterId, filteredObject]);
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [isOnBreak]);
+    const fetchData = async () => {
+      await getWorkItemList();
+      onDataFetch(() => fetchData());
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    onCurrentFilterId,
+    filteredObject,
+    isOnBreak,
+    currentFilterData,
+    searchValue,
+  ]);
 
   useEffect(() => {
     onHandleExport(workItemData.length > 0 ? true : false);
@@ -429,8 +428,8 @@ const Datatable = ({
     }
   };
 
-  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsRecurring = TableMeta.rowData[19];
+  const generateCustomTaskNameBody = (bodyValue: any, tableMeta: any) => {
+    const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 5];
     return (
       <div className="flex items-center gap-2">
         {bodyValue === null || bodyValue === "" ? (
@@ -545,7 +544,12 @@ const Datatable = ({
     },
     {
       name: "STDTime",
-      label: "Total Time",
+      label: "Std. Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ActualTime",
+      label: "Preparation Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -783,7 +787,11 @@ const Datatable = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: any, tableMeta: any) => {
-            return generateCustomeTaskIdwithErrorLogs(value, tableMeta, 18);
+            return generateCustomeTaskIdwithErrorLogs(
+              value,
+              tableMeta,
+              tableMeta.rowData.length - 6
+            );
           },
         },
       };

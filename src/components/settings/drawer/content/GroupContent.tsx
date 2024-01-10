@@ -30,6 +30,7 @@ const GroupContent = forwardRef<
   {
     tab: any;
     onEdit: boolean;
+    onOpen: boolean;
     onClose: () => void;
     onDataFetch: any;
     orgData: any;
@@ -38,7 +39,16 @@ const GroupContent = forwardRef<
   }
 >(
   (
-    { tab, orgData, groupData, onEdit, onClose, onDataFetch, onChangeLoader },
+    {
+      tab,
+      orgData,
+      groupData,
+      onEdit,
+      onOpen,
+      onClose,
+      onDataFetch,
+      onChangeLoader,
+    },
     ref
   ) => {
     const [data, setData] = useState<Options[]>([]);
@@ -105,10 +115,10 @@ const GroupContent = forwardRef<
 
     useEffect(() => {
       fetchEditData();
-      getDropdownData();
+      onOpen && getDropdownData();
       setGroupNameError(false);
       setGroupNameHasError(false);
-    }, [onEdit]);
+    }, [onEdit, onOpen]);
 
     const getDropdownData = async () => {
       try {

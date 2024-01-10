@@ -23,12 +23,13 @@ const ProcessContent = forwardRef<
   {
     tab: any;
     onEdit: boolean;
+    onOpen: boolean;
     onClose: any;
     processData: any;
     onDataFetch(): any;
     onChangeLoader: any;
   }
->(({ onEdit, onClose, onDataFetch, onChangeLoader }, ref) => {
+>(({ onEdit, onOpen, onClose, onDataFetch, onChangeLoader }, ref) => {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
   const [data, setData] = useState([]);
@@ -591,13 +592,13 @@ const ProcessContent = forwardRef<
   };
 
   useEffect(() => {
-    getDropdownData();
+    onOpen && getDropdownData();
     if (!onEdit) {
       setActivity([]);
     } else {
       fetchEditData();
     }
-  }, [onEdit]);
+  }, [onEdit, onOpen]);
 
   const closeDrawer = () => {
     setActivity([]);
