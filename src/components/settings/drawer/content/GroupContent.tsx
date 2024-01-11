@@ -329,7 +329,7 @@ const GroupContent = forwardRef<
                 {option.label}
               </li>
             )}
-            style={{ width: 500 }}
+            style={{ width: 640 }}
             renderInput={(params) => (
               <TextField
                 {...params}

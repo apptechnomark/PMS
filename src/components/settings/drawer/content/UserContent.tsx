@@ -659,6 +659,7 @@ const UserContent = forwardRef<
                   setRole(value);
                   value > 0 && setRoleHasError(false);
                 }}
+                search
                 getError={(e) => setRoleError(e)}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 1 ? i : undefined))
@@ -773,6 +774,7 @@ const UserContent = forwardRef<
                   setClientRole(value);
                   value > 0 && setClientRoleHasError(false);
                 }}
+                search
                 getError={(e) => setClientRoleError(e)}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 2 ? i : undefined))

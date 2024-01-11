@@ -464,6 +464,16 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "ReviewerTime",
+      label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ActualTime",
+      label: "Actual Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "StartDate",
       label: "Start Date",
       bodyRenderer: generateCustomFormatDate,
