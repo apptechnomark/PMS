@@ -3042,9 +3042,7 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateApprovalsErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -3771,12 +3769,12 @@ const EditDrawer = ({
                             </Typography>
                             <div className="flex items-center gap-2">
                               {editingCommentIndexApprovals === index ? (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-start justify-center gap-8">
                                   <div className="flex flex-col">
                                     <div className="flex items-start justify-center">
                                       <MentionsInput
                                         style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit"
+                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
                                         value={valueEdit}
                                         onChange={(e) => {
                                           setValueEdit(e.target.value);
@@ -3810,7 +3808,7 @@ const EditDrawer = ({
                                       </div>
                                       {commentAttachmentApprovals[0]
                                         ?.SystemFileName.length > 0 && (
-                                        <div className="flex items-center justify-center gap-2">
+                                        <div className="flex items-start justify-center">
                                           <span className="cursor-pointer">
                                             {
                                               commentAttachmentApprovals[0]
@@ -3869,9 +3867,9 @@ const EditDrawer = ({
                                   </button>
                                 </div>
                               ) : (
-                                <>
+                                <div className="flex items-start justify-center gap-8">
                                   <span className="hidden"></span>
-                                  <div className="flex items-start">
+                                  <div className="flex items-start max-w-[70%]">
                                     {extractText(i.Message).map((i: any) => {
                                       const assignee =
                                         commentUserDataApprovals.map(
@@ -3891,7 +3889,7 @@ const EditDrawer = ({
                                   </div>
                                   {i.Attachment[0]?.SystemFileName.length >
                                     0 && (
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-start justify-center">
                                       <span className="cursor-pointer">
                                         {i.Attachment[0]?.UserFileName}
                                       </span>
@@ -3941,7 +3939,7 @@ const EditDrawer = ({
                                         <EditIcon className="h-4 w-4" />
                                       </button>
                                     )}
-                                </>
+                                </div>
                               )}
                             </div>
                           </div>

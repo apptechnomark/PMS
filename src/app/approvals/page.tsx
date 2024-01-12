@@ -46,7 +46,7 @@ const Page = () => {
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [hasManual, setHasManual] = useState(false);
@@ -180,7 +180,10 @@ const Page = () => {
                   ? "text-secondary font-semibold"
                   : "text-slatyGrey"
               }`}
-              onClick={() => setActiveTab(1)}
+              onClick={() => {
+                setActiveTab(1);
+                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              }}
             >
               Review
             </span>
@@ -191,7 +194,10 @@ const Page = () => {
                   ? "text-secondary font-semibold"
                   : "text-slatyGrey"
               }`}
-              onClick={() => setActiveTab(2)}
+              onClick={() => {
+                setActiveTab(2);
+                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              }}
             >
               All Task
             </span>

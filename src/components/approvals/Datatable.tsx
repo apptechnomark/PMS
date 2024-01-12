@@ -39,8 +39,8 @@ const pageNo = 1;
 const pageSize = 10;
 
 const initialFilter = {
-  pageNo: pageNo,
-  pageSize: pageSize,
+  PageNo: pageNo,
+  PageSize: pageSize,
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
@@ -225,6 +225,8 @@ const Datatable = ({
 
   useEffect(() => {
     handleClearSelection();
+    setPage(0);
+    setRowsPerPage(10);
   }, [activeTab]);
 
   useEffect(() => {
@@ -367,7 +369,7 @@ const Datatable = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, [filteredObject]);
+  }, [currentFilterData, searchValue, activeTab, filteredObject]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
@@ -878,6 +880,7 @@ const Datatable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -889,6 +892,7 @@ const Datatable = ({
                 setPage,
                 setFilteredOject
               );
+              handleClearSelection();
             }}
           />
         </ThemeProvider>

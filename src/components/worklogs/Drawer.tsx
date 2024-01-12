@@ -4072,12 +4072,12 @@ const EditDrawer = ({
                               </Typography>
                               <div className="flex items-center gap-2">
                                 {editingCommentIndexWorklogs === index ? (
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-start gap-8">
                                     <div className="flex flex-col">
                                       <div className="flex items-start justify-center">
                                         <MentionsInput
                                           style={mentionsInputStyle}
-                                          className="!w-[100%] textareaOutlineNoneEdit"
+                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
                                           value={valueEditWorklogs}
                                           onChange={(e) => {
                                             setValueEditWorklogs(
@@ -4118,7 +4118,7 @@ const EditDrawer = ({
                                         </div>
                                         {commentAttachmentWorklogs[0]
                                           ?.SystemFileName.length > 0 && (
-                                          <div className="flex items-center justify-center gap-2">
+                                          <div className="flex items-start justify-center">
                                             <span className="ml-2 cursor-pointer">
                                               {
                                                 commentAttachmentWorklogs[0]
@@ -4177,9 +4177,9 @@ const EditDrawer = ({
                                     </button>
                                   </div>
                                 ) : (
-                                  <>
+                                  <div className="flex items-start justify-center gap-8">
                                     <span className="hidden"></span>
-                                    <div className="flex items-start">
+                                    <div className="flex items-start max-w-[70%]">
                                       {extractText(i.Message).map((i: any) => {
                                         const assignee =
                                           commentWorklogsUserData.map(
@@ -4199,7 +4199,7 @@ const EditDrawer = ({
                                     </div>
                                     {i.Attachment[0]?.SystemFileName.length >
                                       0 && (
-                                      <div className="flex items-center justify-center gap-2">
+                                      <div className="flex items-start justify-center">
                                         <span className="ml-2 cursor-pointer">
                                           {i.Attachment[0]?.UserFileName}
                                         </span>
@@ -4253,7 +4253,7 @@ const EditDrawer = ({
                                           <EditIcon className="h-4 w-4" />
                                         </button>
                                       )}
-                                  </>
+                                  </div>
                                 )}
                               </div>
                             </div>

@@ -64,7 +64,7 @@ const ProcessContent = forwardRef<
   const [billable, setBillable] = useState<boolean>(true);
   const [activityHasError, setActivityHasError] = useState<boolean>(false);
   const [activityError, setActivityError] = useState<boolean>(false);
-  const [activity, setActivity] = useState<string[]>([""]);
+  const [activity, setActivity] = useState<string[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [processId, setProcessId] = useState();
   const [textValue, setTextValue] = useState("");
@@ -377,7 +377,7 @@ const ProcessContent = forwardRef<
     setReturnTypeHasError(false);
     setEstTimeError(false);
     setEstTimeHasError(false);
-    setActivity([""]);
+    setActivity([]);
     setActivityError(false);
     setActivityHasError(false);
   };
@@ -419,7 +419,9 @@ const ProcessContent = forwardRef<
           ProcessId: onEdit || 0,
           Name: subProcessName.trim(),
           ReturnTypeId: returnType === 3 ? 0 : returnType,
-          ActivityList: activity.map((i: any) => i.trim()),
+          ActivityList: activity
+            .map((i: any) => (i.trim().length > 0 ? i.trim() : false))
+            .filter((j: any) => j !== false),
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
           IsBillable: billable,

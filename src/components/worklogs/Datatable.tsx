@@ -189,12 +189,6 @@ const Datatable = ({
   }, []);
 
   useEffect(() => {
-    handleClearSelection();
-    // setRowsPerPage(10);
-    setPage(0);
-  }, [onDrawerClose]);
-
-  useEffect(() => {
     setRunning(
       workItemData.filter((data: any) => data.TimelogId > 0).length > 0
         ? workItemData.filter((data: any) => data.TimelogId > 0)[0].WorkitemId
@@ -998,6 +992,7 @@ const Datatable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -1009,6 +1004,7 @@ const Datatable = ({
                 setPage,
                 setFilteredOject
               );
+              handleClearSelection();
             }}
           />
         </ThemeProvider>
