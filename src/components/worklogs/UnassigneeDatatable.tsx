@@ -180,8 +180,8 @@ const UnassigneeDatatable = ({
     return () => clearTimeout(timer);
   }, [filteredObject]);
 
-  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsRecurring = TableMeta.rowData[19];
+  const generateCustomTaskNameBody = (bodyValue: any, tableMeta: any) => {
+    const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 4];
     return (
       <div className="flex items-center gap-2">
         {bodyValue === null || bodyValue === "" ? (
@@ -283,11 +283,11 @@ const UnassigneeDatatable = ({
       label: "Qty.",
       bodyRenderer: generateCommonBodyRender,
     },
-    {
-      name: "ActualTime",
-      label: "Actual Time",
-      bodyRenderer: generateCommonBodyRender,
-    },
+    // {
+    //   name: "ActualTime",
+    //   label: "Actual Time",
+    //   bodyRenderer: generateCommonBodyRender,
+    // },
     {
       name: "STDTime",
       label: "Total Time",
