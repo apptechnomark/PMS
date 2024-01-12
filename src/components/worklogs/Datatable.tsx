@@ -676,6 +676,7 @@ const Datatable = ({
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 58 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 59 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 60 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 61 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (

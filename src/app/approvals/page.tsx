@@ -121,7 +121,9 @@ const Page = () => {
 
     const response = await axios.post(
       `${process.env.worklog_api_url}${
-        activeTab === 1 ? "/workitem/approval/GetReviewExportExcelList" : "/workitem/approval/GetAllTasksExportForReviewer"
+        activeTab === 1
+          ? "/workitem/approval/GetReviewExportExcelList"
+          : "/workitem/approval/GetAllTasksExportForReviewer"
       }`,
       {
         ...exportBody,
@@ -147,7 +149,8 @@ const Page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = activeTab === 1 ? "approval_report.xlsx" : "all_task_report.xlsx";
+        a.download =
+          activeTab === 1 ? "approval_report.xlsx" : "all_task_report.xlsx";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

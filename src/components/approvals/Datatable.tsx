@@ -356,19 +356,15 @@ const Datatable = ({
       ...currentFilterData,
       globalSearch: searchValue,
     });
+  }, [currentFilterData, searchValue, activeTab]);
+
+  useEffect(() => {
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
     };
     const timer = setTimeout(() => {
       fetchData();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [currentFilterData, searchValue, activeTab]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      getReviewList();
     }, 500);
     return () => clearTimeout(timer);
   }, [filteredObject]);
@@ -675,8 +671,13 @@ const Datatable = ({
                       </ColorToolTip>
                     </div>
                   )}
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 58 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 59 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 6 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
