@@ -1226,15 +1226,10 @@ const EditDrawer = ({
 
   const handleSaveClickWorklogs = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditWorklogsError(
-      valueEditWorklogs.trim().length < 5
-    );
+    setValueEditWorklogsError(valueEditWorklogs.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueEditWorklogs.trim().length >= 5 &&
-        !valueEditWorklogsError
-      ) {
+      if (valueEditWorklogs.trim().length >= 5 && !valueEditWorklogsError) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -2203,6 +2198,7 @@ const EditDrawer = ({
           ? setStatusWorklogsDropdownDataUse(
               statusWorklogsDropdownData.filter(
                 (item: any) =>
+                  item.Type === "PendingFromAccounting" ||
                   item.Type === "Assigned" ||
                   item.Type === "OnHoldFromClient" ||
                   item.Type === "WithDraw" ||
@@ -2217,6 +2213,7 @@ const EditDrawer = ({
           : setStatusWorklogsDropdownDataUse(
               statusWorklogsDropdownData.filter(
                 (item: any) =>
+                  item.Type === "PendingFromAccounting" ||
                   item.Type === "Assigned" ||
                   item.Type === "OnHoldFromClient" ||
                   item.Type === "WithDraw" ||
@@ -2300,6 +2297,7 @@ const EditDrawer = ({
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
+              item.Type === "PendingFromAccounting" ||
               item.Type === "Assigned" ||
               item.Type === "NotStarted" ||
               item.Type === "InProgress" ||

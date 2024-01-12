@@ -109,7 +109,8 @@ const Datatable = ({
 
   useEffect(() => {
     if (onCloseDrawer === false || !onCloseDrawer) {
-      setRowsPerPage(10);
+      // setRowsPerPage(10);
+      setPage(0);
     }
   }, [onCloseDrawer]);
 
