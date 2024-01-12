@@ -525,7 +525,6 @@ const Page = () => {
                     >
                       On Hold
                     </label>
-                    <span className="text-lightSilver">|</span>
                   </div>
 
                   <IconButton onClick={() => setIsDatatableDialog(true)}>

@@ -810,10 +810,10 @@ const EditDrawer = ({
 
   const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditError(valueEdit.trim().length < 5);
+    setValueEditError(valueEdit.trim().length < 51);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 5 && !valueEditError) {
+      if (valueEdit.trim().length > 51 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -3837,18 +3837,10 @@ const EditDrawer = ({
                                       )}
                                     </div>
                                     <div className="flex flex-col">
-                                      {valueEditError &&
-                                      valueEdit.trim().length > 1 &&
-                                      valueEdit.trim().length < 5 ? (
+                                      {valueEditError && (
                                         <span className="text-defaultRed text-[14px]">
-                                          Minimum 5 characters required.
+                                          This is a required field.
                                         </span>
-                                      ) : (
-                                        valueEditError && (
-                                          <span className="text-defaultRed text-[14px]">
-                                            This is a required field.
-                                          </span>
-                                        )
                                       )}
                                     </div>
                                   </div>

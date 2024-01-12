@@ -261,7 +261,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           return generateIsManualHeaderRender("total time");
         },
         customBodyRender: (value: any) => {
-          return <span>{value}</span>;
+          return generateCommonBodyRender(value);
         },
       },
     },

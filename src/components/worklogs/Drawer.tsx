@@ -1226,10 +1226,10 @@ const EditDrawer = ({
 
   const handleSaveClickWorklogs = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditWorklogsError(valueEditWorklogs.trim().length < 5);
+    setValueEditWorklogsError(valueEditWorklogs.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEditWorklogs.trim().length >= 5 && !valueEditWorklogsError) {
+      if (valueEditWorklogs.trim().length >= 1 && !valueEditWorklogsError) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -4147,18 +4147,10 @@ const EditDrawer = ({
                                         )}
                                       </div>
                                       <div className="flex flex-col">
-                                        {valueEditWorklogsError &&
-                                        valueEditWorklogs.trim().length > 1 &&
-                                        valueEditWorklogs.trim().length < 5 ? (
+                                        {valueEditWorklogsError && (
                                           <span className="text-defaultRed text-[14px]">
-                                            Minimum 5 characters required.
+                                            This is a required field.
                                           </span>
-                                        ) : (
-                                          valueEditWorklogsError && (
-                                            <span className="text-defaultRed text-[14px]">
-                                              This is a required field.
-                                            </span>
-                                          )
                                         )}
                                       </div>
                                     </div>
