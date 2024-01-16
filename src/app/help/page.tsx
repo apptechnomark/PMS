@@ -36,7 +36,7 @@ const Page = () => {
             </li>
             <li className="pb-1">
               Ensure that the user system has the most recent version of the PMS
-              Executable (.exe) File i.e. PMS EXE [Version 1.0] December 11,
+              Executable (.exe) File i.e. PMS EXE [Version 1.0] - December 11,
               2023 and remove any outdated version if any.
             </li>
             <li className="pb-1">
