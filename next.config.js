@@ -5,6 +5,7 @@ const nextConfig = {
     pms_api_url: process.env.pms_api_url,
     worklog_api_url: process.env.worklog_api_url,
     report_api_url: process.env.report_api_url,
+    redirectEditURL: process.env.redirectEditURL,
     redirectURL: process.env.redirectURL,
     storageName: process.env.storageName,
     attachment: process.env.attachment,
