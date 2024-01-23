@@ -63,6 +63,7 @@ const Datatable = ({
   onSetBreak,
   onEdit,
   onRecurring,
+  onIsEdit,
   onDrawerOpen,
   onDrawerClose,
   onDataFetch,
@@ -178,12 +179,21 @@ const Datatable = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const pathnameEdit = window.location.href.includes("isEdit=");
       const pathname = window.location.href.includes("id=");
-      if (pathname) {
+      if (pathnameEdit) {
         const idMatch = window.location.href.match(/id=([^?&]+)/);
         const id = idMatch ? idMatch[1] : null;
         onEdit(id);
         onDrawerOpen();
+        onIsEdit(true);
+        return;
+      } else if (pathname) {
+        const idMatch = window.location.href.match(/id=([^?&]+)/);
+        const id = idMatch ? idMatch[1] : null;
+        onEdit(id);
+        onDrawerOpen();
+        onIsEdit(false);
       }
     }
   }, []);
