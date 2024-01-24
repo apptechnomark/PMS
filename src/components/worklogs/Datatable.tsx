@@ -667,9 +667,6 @@ const Datatable = ({
                 {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
                   localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
-                  (workItemData[tableMeta.rowIndex].IsManual === false ||
-                    !workItemData[tableMeta.rowIndex].IsManual ||
-                    workItemData[tableMeta.rowIndex].IsManual === null) &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
