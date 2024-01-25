@@ -176,33 +176,34 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
                 </span>
               </div>
             </FormControl>
-
-            <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
-              <Select
-                labelId="Billing Type"
-                id="Billing Type"
-                value={billingType ? billingType : 0}
-                onChange={handleChangeValue}
-                sx={{ height: "36px" }}
-              >
-                <MenuItem value={0}>All</MenuItem>
-                {allBillingType.map((i: any) => (
-                  <MenuItem value={i.value} key={i.value}>
-                    {i.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <ColorToolTip title="Export" placement="top" arrow>
-              <span
-                className={`${
-                  isExporting ? "cursor-default" : "cursor-pointer"
-                } ml-5 mt-5`}
-                onClick={exportTaskStatusListReport}
-              >
-                {isExporting ? <Loading /> : <ExportIcon />}
-              </span>
-            </ColorToolTip>
+            <div className="flex items-center justify-center">
+              <FormControl sx={{ mx: 0.75, minWidth: 220, marginTop: 1 }}>
+                <Select
+                  labelId="Billing Type"
+                  id="Billing Type"
+                  value={billingType ? billingType : 0}
+                  onChange={handleChangeValue}
+                  sx={{ height: "36px" }}
+                >
+                  <MenuItem value={0}>All</MenuItem>
+                  {allBillingType.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
+                      {i.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <ColorToolTip title="Export" placement="top" arrow>
+                <span
+                  className={`${
+                    isExporting ? "cursor-default" : "cursor-pointer"
+                  } ml-5 mt-5`}
+                  onClick={exportTaskStatusListReport}
+                >
+                  {isExporting ? <Loading /> : <ExportIcon />}
+                </span>
+              </ColorToolTip>
+            </div>
           </div>
           <Datatable_BillingType
             onSelectedWorkType={onSelectedWorkType}
