@@ -48,6 +48,11 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           data: data.List,
           dataCount: data.TotalCount,
         });
+      } else {
+        setCustomReportFields({
+          ...customReportFields,
+          loaded: true,
+        });
       }
     };
     callAPI(url, arg1, successCallback, "post");
