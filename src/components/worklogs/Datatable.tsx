@@ -258,6 +258,7 @@ const Datatable = ({
         setIsLoadingWorklogsDatatable(false);
       } else {
         setIsLoadingWorklogsDatatable(false);
+        getWorkItemList();
       }
     };
     callAPI(url, params, successCallback, "POST");
