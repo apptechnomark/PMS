@@ -213,10 +213,17 @@ const Page = () => {
       error: any,
       ResponseStatus: any
     ) => {
+      console.log(ResponseData);
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
           setBreakID(0);
           setTimer("00:00:00");
+        } else if (
+          ResponseData.BreakId === null &&
+          ResponseData.TotalTime !== null
+        ) {
+          setBreakID(0);
+          setTimer(ResponseData.TotalTime);
         } else if (!ResponseData.IsStared && ResponseData.TotalTime !== null) {
           setTimer(ResponseData.TotalTime);
         } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
