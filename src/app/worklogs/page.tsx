@@ -213,7 +213,6 @@ const Page = () => {
       error: any,
       ResponseStatus: any
     ) => {
-      console.log(ResponseData);
       if (ResponseStatus === "Success" && error === false) {
         if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
           setBreakID(0);
