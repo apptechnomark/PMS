@@ -240,7 +240,7 @@ const Datatable = ({
   ) => {
     if (state === 1 && isOnBreak !== 0) {
       onGetBreakData();
-      onSetBreak();
+      // onSetBreak();
     }
 
     setIsLoadingWorklogsDatatable(true);
@@ -299,6 +299,7 @@ const Datatable = ({
           );
           setIsLoadingWorklogsDatatable(false);
         } else {
+          setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
         }
