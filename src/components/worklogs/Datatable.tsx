@@ -238,10 +238,10 @@ const Datatable = ({
     selectedRowId: number,
     workitemTimeId?: number
   ) => {
-    if (state === 1 && isOnBreak !== 0) {
-      onGetBreakData();
-      // onSetBreak();
-    }
+    // if (state === 1 && isOnBreak !== 0) {
+    //   onGetBreakData();
+    //   // onSetBreak();
+    // }
 
     setIsLoadingWorklogsDatatable(true);
     const params = {
@@ -264,9 +264,11 @@ const Datatable = ({
         setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
         getWorkItemList();
         setIsLoadingWorklogsDatatable(false);
+        onGetBreakData();
       } else {
         setIsLoadingWorklogsDatatable(false);
         getWorkItemList();
+        onGetBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");
