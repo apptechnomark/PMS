@@ -602,7 +602,8 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                  (reviewList[tableMeta.rowIndex].StatusId === 63 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 56 ||
                     reviewList[tableMeta.rowIndex].StatusId === 58 ||
                     reviewList[tableMeta.rowIndex].StatusId === 59 ||
                     reviewList[tableMeta.rowIndex].StatusId === 6 ||
@@ -692,7 +693,8 @@ const Datatable = ({
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                {(reviewList[tableMeta.rowIndex].StatusId === 63 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 56 ||
                   reviewList[tableMeta.rowIndex].StatusId === 58 ||
                   reviewList[tableMeta.rowIndex].StatusId === 59 ||
                   reviewList[tableMeta.rowIndex].StatusId === 6 ||
