@@ -1012,22 +1012,6 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="All Info Date"
-                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
-                      onChange={(newValue: any) => setAllInfoDate(newValue)}
-                      slotProps={{
-                        textField: {
-                          readOnly: true,
-                        } as Record<string, any>,
-                      }}
-                    />
-                  </LocalizationProvider>
-                </div>
-                <div
-                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
-                >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
                       label="Review From"
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
@@ -1054,6 +1038,22 @@ const CustomReportFilter = ({
                       maxDate={dayjs(Date.now())}
                       minDate={dayjs(startDateReview)}
                       onChange={(newValue: any) => setEndDateReview(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="All Info Date"
+                      value={allInfoDate === "" ? null : dayjs(allInfoDate)}
+                      onChange={(newValue: any) => setAllInfoDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
