@@ -954,7 +954,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Preparation From"
+                      label="Recieved From"
                       value={startDate === "" ? null : dayjs(startDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
@@ -972,7 +972,7 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Preparation To"
+                      label="Recieved To"
                       value={endDate === "" ? null : dayjs(endDate)}
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
