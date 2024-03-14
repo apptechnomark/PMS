@@ -553,7 +553,7 @@ const ProjectFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(project_endDate)}
                       value={
                         project_startDate === ""
@@ -578,7 +578,7 @@ const ProjectFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(project_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={
